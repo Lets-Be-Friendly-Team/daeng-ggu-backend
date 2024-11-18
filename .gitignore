@@ -64,4 +64,5 @@ out/
 
 ### Secret Config ###
 application.yml
+application.properties
 .env
