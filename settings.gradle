@@ -1,1 +1,7 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal() // Gradle 플러그인 포털 설정
+    }
+}
+
 rootProject.name = 'daeng-guu-backend'
