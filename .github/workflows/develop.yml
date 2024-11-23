@@ -28,12 +28,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # properties 설정
-      - run: |
-          touch ./daeng-ggu-backend/src/main/resources/application.properties
-          echo "${{ secrets.PROPERTIES }}" > ./daeng-ggu-backend/src/main/resources/application.properties
-          cat ./daeng-ggu-backend/src/main/resources/application.properties
-
       # Gradle 캐싱
       - name: Cache Gradle packages
         uses: actions/cache@v3
