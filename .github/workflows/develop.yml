@@ -24,9 +24,9 @@ jobs:
       # application.properties 파일 직접 생성, secrets 설정값 넣기
       - name: make application.properties
         run: |
-          mkdir -p /home/ec2-user/daeng-ggu-backend/src/main/resources
+          sudo mkdir -p /home/ec2-user/daeng-ggu-backend/src/main/resources
           cd /home/ec2-user/daeng-ggu-backend/src/main/resources
-          touch application.properties
+          sudo touch application.properties
           echo "${{ secrets.PROPERTIES }}" > ./application.properties
 
       # JDK 설정
