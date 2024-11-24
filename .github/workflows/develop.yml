@@ -21,6 +21,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      # application.properties 파일 직접 생성, secrets 설정값 넣기
+      - name: make application.properties
+        run: |
+          mkdir -p /home/ec2-user/daeng-ggu-backend/src/main/resources
+          cd /home/ec2-user/daeng-ggu-backend/src/main/resources
+          touch application.properties
+          echo "${{ secrets.PROPERTIES }}" > ./application.properties
+
       # JDK 설정
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -51,10 +59,30 @@ jobs:
       - name: Build the Project
         run: ./gradlew clean build -x test
 
-      # ZIP 파일로 압축
-      - name: Create ZIP file
+      # 디렉토리 생성
+      - name: Make Directory
         run: |
-          zip build/libs/daeng-guu-backend-0.0.1-SNAPSHOT.zip build/libs/daeng-guu-backend-0.0.1-SNAPSHOT.jar  # JAR 파일을 ZIP으로 압축
+          mkdir -p /home/ec2-user/deploy
+
+      # Jar 파일 복사
+      - name: Copy Jar
+        run: |
+          cp ../../build/libs/daeng-guu-backend-0.0.1-SNAPSHOT.jar /home/ec2-user/deploy
+
+      # appspec.yml 파일 복사
+      - name: Copy appspec.yml
+        run: |
+          cp ../../appspec.yml /home/ec2-user/deploy
+
+      # script 파일 복사
+      - name: Copy deploy.sh
+        run: |
+          cp ../../scripts/deploy.sh /home/ec2-user/deploy
+
+      # ZIP 파일로 압축
+      - name: Make zip file
+        run: |
+          zip -r /home/ec2-user/daeng-guu-backend-0.0.1-SNAPSHOT.zip /home/ec2-user/deploy
 
       # AWS CLI 설정
       - name: Configure AWS credentials
@@ -66,7 +94,7 @@ jobs:
 
       # 빌드된 JAR 파일을 S3로 업로드
       - name: Upload to S3
-        run: aws s3 cp build/libs/daeng-guu-backend-0.0.1-SNAPSHOT.zip s3://${{ secrets.S3_BUCKET_NAME }}/daeng-guu-backend-0.0.1-SNAPSHOT.zip --region ${{ env.AWS_REGION }}
+        run: aws s3 cp /home/ec2-user/daeng-guu-backend-0.0.1-SNAPSHOT.zip s3://${{ secrets.S3_BUCKET_NAME }}/daeng-guu-backend-0.0.1-SNAPSHOT.zip --region ${{ env.AWS_REGION }}
 
       # CodeDeploy를 통해 EC2에 배포
       - name: Code Deploy
