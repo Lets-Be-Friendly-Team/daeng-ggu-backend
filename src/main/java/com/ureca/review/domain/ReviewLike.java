@@ -15,7 +15,7 @@ public class ReviewLike {
     private Long reviewLikeId;
 
     @Column(nullable = false)
-    private String userId; // 좋아요한사람 Id
+    private Long userId; // 좋아요한사람 Id
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
