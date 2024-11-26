@@ -14,7 +14,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NoArgsConstructor
 @Builder
 @Getter
-@Setter
 @EntityListeners(AuditingEntityListener.class)
 public class Review {
 
@@ -22,28 +21,34 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reviewId;
 
-    @Column private String reviewContents;
+    @Column
+    private String reviewContents;
 
-    @Column private Integer reviewStar;
+    @Column(nullable = false)
+    private Integer reviewStar;
 
-    @Column private Boolean is_feedAdd; // 피드 참여 여부
+    @Column(nullable = false)
+    private Boolean is_feedAdd; // 피드 참여 여부
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private String feedUrl; // 피드 프사?
 
     @Column @Builder.Default private Integer reviewLikeCnt = 0;
 
     @CreatedDate
-    @Column(updatable = false)
+    @Column(updatable = false, nullable = false)
     private LocalDateTime createdat;
 
-    @LastModifiedDate private LocalDateTime updatedat;
+    @LastModifiedDate
+    @Column(nullable = false)
+    private LocalDateTime updatedat;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "customerId")
     private Customer customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "designer_id")
+    @JoinColumn(name = "designerId")
     private Designer designer;
+
 }

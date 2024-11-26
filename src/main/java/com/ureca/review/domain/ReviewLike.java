@@ -20,7 +20,8 @@ public class ReviewLike {
     @Column(nullable = false)
     private AuthorType userType; // 좋아요한사람 Type
 
-    @Setter @Column private Boolean is_reviewLike;
+    @Column(nullable = false)
+    private Boolean is_reviewLike;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Review review; // Review와의 연관 관계
