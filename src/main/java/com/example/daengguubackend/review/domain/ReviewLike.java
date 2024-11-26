@@ -15,9 +15,6 @@ public class ReviewLike {
     private Long reviewLikeId;
 
     @Column(nullable = false)
-    private String imageUrl; // 이미지 URL
-
-    @Column(nullable = false)
     private String userId; // 좋아요한사람 Id
 
     @Column(nullable = false)
