@@ -1,4 +1,4 @@
-package com.example.daengguubackend.review.domain;
+package com.ureca.review.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -24,4 +24,3 @@ public class ReviewImage {
     @JoinColumn(name = "review_id")
     private Review review; // Review와의 연관 관계
 }
-
