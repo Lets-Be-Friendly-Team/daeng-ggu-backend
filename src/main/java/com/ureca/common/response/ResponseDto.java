@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ResponseDto<T> {
-	private ResponseStatus status;
-	private String message;
-	private T data;
+    private ResponseStatus status;
+    private String message;
+    private T data;
 }
