@@ -1,16 +1,13 @@
 package com.ureca.review.domain;
 
-
-
-import com.example.daengguubackend.designer.domain.Designer;
-import com.example.daengguubackend.customer.domain.Customer;
+import com.ureca.customer.domain.Customer;
+import com.ureca.designer.domain.Designer;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.time.LocalDateTime;
 
 @Entity
 @AllArgsConstructor
@@ -25,28 +22,22 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reviewId;
 
-    @Column
-    private String reviewContents;
+    @Column private String reviewContents;
 
-    @Column
-    private Integer reviewStar;
+    @Column private Integer reviewStar;
 
-    @Column
-    private Boolean is_feedAdd; // 피드 참여 여부
+    @Column private Boolean is_feedAdd; // 피드 참여 여부
 
     @Column(nullable = true)
     private String feedUrl; // 피드 프사?
 
-    @Column
-    @Builder.Default
-    private Integer reviewLikeCnt = 0;
-
+    @Column @Builder.Default private Integer reviewLikeCnt = 0;
 
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdat;
-    @LastModifiedDate
-    private LocalDateTime updatedat;
+
+    @LastModifiedDate private LocalDateTime updatedat;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -56,5 +47,3 @@ public class Review {
     @JoinColumn(name = "designer_id")
     private Designer designer;
 }
-
-

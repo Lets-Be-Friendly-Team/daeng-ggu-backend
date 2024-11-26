@@ -24,4 +24,3 @@ public class ReviewImage {
     @JoinColumn(name = "review_id")
     private Review review; // Review와의 연관 관계
 }
-
