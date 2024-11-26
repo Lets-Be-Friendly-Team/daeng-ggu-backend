@@ -61,9 +61,9 @@ public class Request {
 
     @CreatedDate
     @Column(updatable = false, nullable = false)
-    private LocalDateTime createdat;
+    private LocalDateTime createdAt;
 
     @LastModifiedDate
     @Column(nullable = false)
-    private LocalDateTime updatedat;
+    private LocalDateTime updatedAt;
 }
