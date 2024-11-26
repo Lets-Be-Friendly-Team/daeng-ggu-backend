@@ -21,7 +21,8 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reviewId;
 
-    @Column private String reviewContents;
+    @Column(length = 200)
+    private String reviewContents;
 
     @Column(nullable = false)
     private Integer reviewStar;
@@ -29,7 +30,7 @@ public class Review {
     @Column(nullable = false)
     private Boolean isFeedAdd; // 피드 참여 여부
 
-    @Column(nullable = false)
+    @Column(length = 300, nullable = false)
     private String feedUrl; // 피드 썸네일 URL
 
     @Column @Builder.Default private Integer reviewLikeCnt = 0;
