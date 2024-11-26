@@ -1,4 +1,4 @@
-package com.ureca.config.exception;
+package com.ureca.common.exception;
 
 import lombok.Getter;
 

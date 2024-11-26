@@ -1,4 +1,4 @@
-package com.ureca.config.response;
+package com.ureca.common.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
