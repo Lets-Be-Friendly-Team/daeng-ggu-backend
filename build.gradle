@@ -53,6 +53,10 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // AWS SDK S3 의존성 추가
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.503'
+
 }
 
 tasks.named('test') {
