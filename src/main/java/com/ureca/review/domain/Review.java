@@ -1,7 +1,7 @@
 package com.ureca.review.domain;
 
-import com.ureca.customer.domain.Customer;
-import com.ureca.designer.domain.Designer;
+import com.ureca.profile.domain.Customer;
+import com.ureca.profile.domain.Designer;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.*;
