@@ -21,8 +21,7 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reviewId;
 
-    @Column
-    private String reviewContents;
+    @Column private String reviewContents;
 
     @Column(nullable = false)
     private Integer reviewStar;
@@ -31,7 +30,7 @@ public class Review {
     private Boolean is_feedAdd; // 피드 참여 여부
 
     @Column(nullable = false)
-    private String feedUrl; // 피드 썸네일
+    private String feedUrl; // 피드 썸네일 URL
 
     @Column @Builder.Default private Integer reviewLikeCnt = 0;
 
@@ -50,5 +49,4 @@ public class Review {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "designerId")
     private Designer designer;
-
 }
