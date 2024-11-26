@@ -1,6 +1,6 @@
-package com.example.daengguubackend.review.domain;
+package com.ureca.review.domain;
 
-import com.example.daengguubackend.review.domain.Enum.AuthorType;
+import com.ureca.review.domain.Enum.AuthorType;
 import jakarta.persistence.*;
 import lombok.*;
 
