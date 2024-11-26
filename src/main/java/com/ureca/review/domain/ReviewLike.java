@@ -21,8 +21,9 @@ public class ReviewLike {
     private AuthorType userType; // 좋아요한사람 Type
 
     @Column(nullable = false)
-    private Boolean is_reviewLike;
+    private Boolean isReviewLike;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reviewId")
     private Review review; // Review와의 연관 관계
 }

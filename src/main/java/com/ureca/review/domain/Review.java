@@ -27,7 +27,7 @@ public class Review {
     private Integer reviewStar;
 
     @Column(nullable = false)
-    private Boolean is_feedAdd; // 피드 참여 여부
+    private Boolean isFeedAdd; // 피드 참여 여부
 
     @Column(nullable = false)
     private String feedUrl; // 피드 썸네일 URL
@@ -36,11 +36,11 @@ public class Review {
 
     @CreatedDate
     @Column(updatable = false, nullable = false)
-    private LocalDateTime createdat;
+    private LocalDateTime createdAt;
 
     @LastModifiedDate
     @Column(nullable = false)
-    private LocalDateTime updatedat;
+    private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customerId")
