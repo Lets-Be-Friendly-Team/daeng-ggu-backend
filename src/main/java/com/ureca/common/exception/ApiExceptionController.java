@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 // import io.jsonwebtoken.ExpiredJwtException;
 // import io.jsonwebtoken.JwtException;
 
-@RestControllerAdvice(basePackages = "com.ureca.profile.controller")
+@RestControllerAdvice(basePackages = "com.ureca")
 public class ApiExceptionController {
 
     @ExceptionHandler(ApiException.class)
