@@ -12,7 +12,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 @Getter
 @Setter
 @EntityListeners(AuditingEntityListener.class)
@@ -26,7 +26,7 @@ public class Review {
 
     @Column private Integer reviewStar;
 
-    @Column private Boolean is_feedAdd; // 피드 참여 여부
+    @Column private Boolean isFeedAdd; // 피드 참여 여부
 
     @Column(nullable = true)
     private String feedUrl; // 피드 프사?
@@ -46,4 +46,18 @@ public class Review {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "designer_id")
     private Designer designer;
+
+    public Review increaseReviewLikeCnt() {
+        reviewLikeCnt += 1;
+        return this;
+    }
+    public Review decreaseReviewLikeCnt() {
+        reviewLikeCnt -= 1;
+        return this;
+    }
+    public Review updateReviewContents(String newContents) {
+        return this.toBuilder()
+                .reviewContents(newContents) // 내용만 변경
+                .build();
+    }
 }
