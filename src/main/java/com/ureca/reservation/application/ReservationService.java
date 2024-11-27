@@ -30,6 +30,8 @@ public class ReservationService {
                                 ReservationHistoryResponseDto.builder()
                                         .reservationId(reservation.getReservationId())
                                         .petName(reservation.getPet().getPetName())
+                                        .reservationDate(reservation.getReservationDate())
+                                        .startTime(reservation.getStartTime())
                                         .isFinished(reservation.getIsFinished())
                                         .reservationType(reservation.getReservationType())
                                         .isCanceled(reservation.getIsCanceled())
