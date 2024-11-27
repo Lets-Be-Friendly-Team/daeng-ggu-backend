@@ -2,6 +2,7 @@ package com.ureca.reservation.application;
 
 import com.ureca.common.exception.ApiException;
 import com.ureca.common.exception.ErrorCode;
+import com.ureca.profile.infrastructure.CommonCodeRepository;
 import com.ureca.reservation.domain.Reservation;
 import com.ureca.reservation.infrastructure.ReservationRepository;
 import com.ureca.reservation.presentation.dto.RequestDetailDto;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
+    private final CommonCodeRepository commonCodeRepository;
 
     public List<ReservationHistoryResponseDto> getReservationsByCustomerId(Long customerId) {
         List<Reservation> reservations = reservationRepository.findAllByCustomerId(customerId);
@@ -50,8 +52,14 @@ public class ReservationService {
         if ("R2".equals(reservation.getReservationType()) && reservation.getRequest() != null) {
             // Auction 방식: Request 데이터 사용
             return RequestDetailDto.builder()
-                    .desiredService(reservation.getRequest().getDesiredServiceCode())
-                    .lastGroomingDate(reservation.getRequest().getLastGroomingDate())
+                    .desiredService(
+                            commonCodeRepository
+                                    .findByCodeId(reservation.getRequest().getDesiredServiceCode())
+                                    .getCodeDesc())
+                    .lastGroomingDate(
+                            commonCodeRepository
+                                    .findByCodeId(reservation.getRequest().getLastGroomingDate())
+                                    .getCodeDesc())
                     .isDelivery(reservation.getRequest().getIsDelivery())
                     .desiredRegion(reservation.getRequest().getDesiredRegion())
                     .isMonitoring(reservation.getRequest().getIsMonitoringIncluded())
@@ -61,8 +69,14 @@ public class ReservationService {
 
         // Direct 방식: Reservation 데이터 사용
         return RequestDetailDto.builder()
-                .desiredService(reservation.getDesiredService())
-                .lastGroomingDate(reservation.getLastGroomingDate())
+                .desiredService(
+                        commonCodeRepository
+                                .findByCodeId(reservation.getDesiredService())
+                                .getCodeDesc())
+                .lastGroomingDate(
+                        commonCodeRepository
+                                .findByCodeId(reservation.getLastGroomingDate())
+                                .getCodeDesc())
                 .isDelivery(reservation.getIsDelivery())
                 .desiredRegion(null) // Direct 예약은 지역 정보 없음
                 .isMonitoring(reservation.getIsMonitoring())

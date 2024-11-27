@@ -75,11 +75,11 @@ public class Reservation {
     @Column(name = "totalPayment", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalPayment; // 총 결제 금액
 
-    @Column(name = "desiredService", length = 255)
-    private String desiredService; // 원하는 서비스 (NULL 가능)
+    @Column(name = "desiredService", length = 20)
+    private String desiredService; // 원하는 서비스 (NULL 가능) (commonCode -> S)
 
     @Column(name = "lastGroomingDate", length = 20)
-    private String lastGroomingDate; // 직전 미용 날짜 (NULL 가능)
+    private String lastGroomingDate; // 직전 미용 날짜 (NULL 가능) (commonCode -> L)
 
     @Column(name = "isDelivery")
     private Boolean isDelivery; // 픽업 여부 (NULL 가능)
