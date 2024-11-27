@@ -48,7 +48,7 @@ public class Request {
     private String desiredRegion;
 
     @Column(nullable = false)
-    private Boolean idDelivery;
+    private Boolean isDelivery;
 
     @Column(nullable = false)
     private Boolean isMonitoringIncluded;
