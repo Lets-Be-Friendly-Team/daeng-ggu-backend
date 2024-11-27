@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "reviewImage")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -17,10 +18,10 @@ public class ReviewImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reviewImageId;
 
-    @Column(nullable = false)
+    @Column(length = 300, nullable = false)
     private String reviewImageUrl; // 이미지 URL
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "review_id")
+    @JoinColumn(name = "reviewId")
     private Review review; // Review와의 연관 관계
 }

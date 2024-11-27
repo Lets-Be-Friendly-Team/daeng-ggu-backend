@@ -10,11 +10,11 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
+@Table(name = "review")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
 @Getter
-@Setter
 @EntityListeners(AuditingEntityListener.class)
 public class Review {
 
@@ -22,29 +22,34 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reviewId;
 
-    @Column private String reviewContents;
+    @Column(length = 200)
+    private String reviewContents;
 
-    @Column private Integer reviewStar;
+    @Column(nullable = false)
+    private Integer reviewStar;
 
-    @Column private Boolean isFeedAdd; // 피드 참여 여부
+    @Column(nullable = false)
+    private Boolean isFeedAdd; // 피드 참여 여부
 
-    @Column(nullable = true)
-    private String feedUrl; // 피드 프사?
+    @Column(length = 300, nullable = false)
+    private String feedUrl; // 피드 썸네일 URL
 
     @Column @Builder.Default private Integer reviewLikeCnt = 0;
 
     @CreatedDate
-    @Column(updatable = false)
-    private LocalDateTime createdat;
+    @Column(updatable = false, nullable = false)
+    private LocalDateTime createdAt;
 
-    @LastModifiedDate private LocalDateTime updatedat;
+    @LastModifiedDate
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "customerId")
     private Customer customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "designer_id")
+    @JoinColumn(name = "designerId")
     private Designer designer;
 
     public Review increaseReviewLikeCnt() {

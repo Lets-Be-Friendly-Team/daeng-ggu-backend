@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
+@Table(name = "reviewLike")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -15,13 +16,16 @@ public class ReviewLike {
     private Long reviewLikeId;
 
     @Column(nullable = false)
-    private String userId; // 좋아요한사람 Id
+    private Long userId; // 좋아요한사람 Id
 
-    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20, nullable = false)
     private AuthorType userType; // 좋아요한사람 Type
 
-    @Setter @Column private Boolean is_reviewLike;
+    @Column(nullable = false)
+    private Boolean isReviewLike;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reviewId")
     private Review review; // Review와의 연관 관계
 }
