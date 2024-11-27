@@ -44,8 +44,14 @@ public class Customer {
     // 닉네임
     private String nickname;
 
-    // 주소
-    private String address;
+    // 주소1
+    private String address1;
+
+    // 주소2
+    private String address2;
+
+    // 상세 주소
+    private String detailAddress;
 
     // 정보 제공 동의 여부
     private String infoAgree;
@@ -79,7 +85,9 @@ public class Customer {
             String gender,
             String phone,
             String nickname,
-            String address,
+            String address1,
+            String address2,
+            String detailAddress,
             String infoAgree,
             String customerImgUrl,
             String customerImgName,
@@ -94,7 +102,9 @@ public class Customer {
         this.gender = gender;
         this.phone = phone;
         this.nickname = nickname;
-        this.address = address;
+        this.address1 = address1;
+        this.address2 = address2;
+        this.detailAddress = detailAddress;
         this.infoAgree = infoAgree;
         this.customerImgUrl = customerImgUrl;
         this.customerImgName = customerImgName;
