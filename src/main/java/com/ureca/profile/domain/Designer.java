@@ -56,8 +56,14 @@ public class Designer {
     // 디자이너 이미지명
     private String designerImgName;
 
-    // 주소
-    private String address;
+    // 주소1
+    private String address1;
+
+    // 주소2
+    private String address2;
+
+    // 상세 주소
+    private String detailAddress;
 
     // 소개글
     private String introduction;
@@ -109,7 +115,9 @@ public class Designer {
             Date monthlyPayDate,
             String designerImgUrl,
             String designerImgName,
-            String address,
+            String address1,
+            String address2,
+            String detailAddress,
             String introduction,
             String workExperience,
             String isVerified,
@@ -128,7 +136,9 @@ public class Designer {
         this.monthlyPayDate = monthlyPayDate;
         this.designerImgUrl = designerImgUrl;
         this.designerImgName = designerImgName;
-        this.address = address;
+        this.address1 = address1;
+        this.address2 = address2;
+        this.detailAddress = detailAddress;
         this.introduction = introduction;
         this.workExperience = workExperience;
         this.isVerified = isVerified;

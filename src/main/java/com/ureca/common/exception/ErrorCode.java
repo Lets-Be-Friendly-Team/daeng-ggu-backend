@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ErrorCode {
     ACCOUNT_DATA_ERROR(400, "양식에 맞는 값을 입력해주세요.", 1000),
-    HISTORY_NOT_EXIST(500, "조건에 맞는 history 정보가 없습니다.", 1100),
+    HISTORY_NOT_EXIST(500, "조건에 맞는 Reservation history 정보가 없습니다.", 1100),
+    DATA_NOT_EXIST(500, "조건에 맞는 데이터 정보가 없습니다.", 1200),
     // 프로필 관련 에러
     CUSTOMER_NOT_EXIST(500, "보호자 정보를 찾을 수 없습니다.", 2000),
     // 리뷰 관련 에러

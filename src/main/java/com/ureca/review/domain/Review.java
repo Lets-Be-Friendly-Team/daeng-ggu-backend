@@ -4,6 +4,7 @@ import com.ureca.profile.domain.Customer;
 import com.ureca.profile.domain.Designer;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -51,4 +52,8 @@ public class Review {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "designerId")
     private Designer designer;
+
+    // 리뷰사진 연관 관계 (1:N)
+    @OneToMany(mappedBy = "review")
+    private List<ReviewImage> reviewImages;
 }
