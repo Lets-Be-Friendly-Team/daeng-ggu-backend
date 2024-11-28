@@ -108,7 +108,7 @@ public class ReviewService {
                         .reviewContents(review.getReviewContents())
                         .reviewStar(review.getReviewStar())
                         .reviewLikeCnt(review.getReviewLikeCnt())
-                        .is_reviewLike(
+                        .isReviewLike(
                                 reviewLike != null
                                         ? reviewLike.getIsReviewLike()
                                         : false) // ReviewLike가 없으면 false
@@ -143,7 +143,7 @@ public class ReviewService {
                         .reviewContents(review.getReviewContents())
                         .reviewStar(review.getReviewStar())
                         .reviewLikeCnt(review.getReviewLikeCnt())
-                        .is_reviewLike(
+                        .isReviewLike(
                                 reviewLike != null
                                         ? reviewLike.getIsReviewLike()
                                         : false) // ReviewLike가 없으면 false
@@ -154,8 +154,8 @@ public class ReviewService {
 
     public void createReview(Long customerId, ReviewDto.Request reviewRequest) {
         Customer customer =
-                customerRepository
-                        .findById(customerId)
+                (Customer) customerRepository
+                        .findByCustomerId(customerId)
                         .orElseThrow(() -> new ApiException(ErrorCode.CUSTOMER_NOT_EXIST));
 
         Review review =
@@ -169,7 +169,7 @@ public class ReviewService {
         List<ReviewImage> reviewImages = new ArrayList<>();
         if (reviewRequest.getFeedImgList() != null) {
             for (MultipartFile file : reviewRequest.getFeedImgList()) {
-                String imageUrl = S3Service.uploadFileImage(file, "review");
+                String imageUrl = s3Service.uploadFileImage(file, "review");
                 ReviewImage reviewImage =
                         ReviewImage.builder().reviewImageUrl(imageUrl).review(review).build();
                 reviewImages.add(reviewImage);
@@ -242,7 +242,7 @@ public class ReviewService {
                                     reviewImages.size() > 2
                                             ? reviewImages.get(2).getReviewImageUrl()
                                             : null)
-                            .lastcreatedat(review.getCreatedAt())
+                            .lastCreatedAt(review.getCreatedAt())
                             .designerId(review.getDesigner().getDesignerId())
                             .designerImgUrl(review.getDesigner().getDesignerImgUrl())
                             .designerName(review.getDesigner().getDesignerName())
@@ -252,7 +252,7 @@ public class ReviewService {
                             .reviewContents(review.getReviewContents())
                             .reviewStar(review.getReviewStar())
                             .reviewLikeCnt(review.getReviewLikeCnt())
-                            .is_reviewLike(
+                            .isReviewLike(
                                     reviewLike != null
                                             ? reviewLike.getIsReviewLike()
                                             : false) // ReviewLike가 없으면 false
@@ -282,8 +282,8 @@ public class ReviewService {
                         .orElseThrow(() -> new ApiException(ErrorCode.REVIEW_NOT_EXIST));
         // 3. 리뷰 좋아요 엔티티 조회 (같은 사용자, 같은 리뷰에 대한 좋아요 존재 여부 체크)
         ReviewLike existingReviewLike =
-                reviewLikeRepository.findByReviewIdAndUserIdAndUserType(
-                        reviewId, userId, userType);
+                reviewLikeRepository.findByReviewAndUserIdAndUserType(
+                        review, userId, userType);
         ReviewLike reviewLike = new ReviewLike();
         try {
 
@@ -329,7 +329,7 @@ public class ReviewService {
         }
         ReviewDto.Response response = ReviewDto.Response.builder()
                 .reviewLikeCnt(review.getReviewLikeCnt())
-                .is_reviewLike(reviewLike.getIsReviewLike())
+                .isReviewLike(reviewLike.getIsReviewLike())
                 .build();
         return response;
     }

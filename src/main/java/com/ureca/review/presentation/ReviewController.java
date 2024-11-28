@@ -7,23 +7,26 @@ import com.ureca.review.domain.Enum.AuthorType;
 import com.ureca.review.presentation.dto.ReviewDto;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import com.ureca.review.presentation.dto.ReviewLikeDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/daengggu")
+@RequestMapping("/daenggu")
 public class ReviewController {
 
     private final ReviewService reviewService;
 
     @PostMapping("/customer/feed")
     public ResponseDto<List<ReviewDto.Response>> selectCustomerFeed(
-            @RequestBody Long customerId) {
-        List<ReviewDto.Response> reviewList = reviewService.selectCustomerFeed(customerId);
+            @RequestBody ReviewDto.Response response) {
+        List<ReviewDto.Response> reviewList = reviewService.selectCustomerFeed(response.getCustomerId());
         return ResponseUtil.SUCCESS("피드 조회가 완료되었습니다.",reviewList);
     }
 
@@ -36,9 +39,9 @@ public class ReviewController {
 
     @PostMapping("/feed/customer")
     public ResponseDto<ReviewDto.Response> selectCustomerFeedDetail(
-            @RequestBody Long customerId, @RequestBody Long reviewId) {
+            @RequestBody ReviewDto.Request request) {
         ReviewDto.Response reviewList =
-                reviewService.selectCustomerFeedDetail(customerId, reviewId);
+                reviewService.selectCustomerFeedDetail(request.getCustomerId(), request.getReviewId());
         return ResponseUtil.SUCCESS("피드 조회가 완료되었습니다.",reviewList);
     }
 
@@ -51,10 +54,23 @@ public class ReviewController {
 
     @PostMapping("/feed")
     public ResponseDto<Void> createReview(
-            @RequestBody Long customerId, @RequestBody ReviewDto.Request reviewRequest) {
+            @RequestParam Long customerId,  // customerId를 RequestParam으로 받음
+            @RequestParam String reviewContents,
+            @RequestParam Integer reviewStar,
+            @RequestParam Boolean isFeedAdd,
+            @RequestParam List<MultipartFile> FeedImgList) {  // MultipartFile 리스트를 받음
+        ReviewDto.Request reviewRequest = ReviewDto.Request.builder()
+                .customerId(customerId)
+                .reviewContents(reviewContents)
+                .reviewStar(reviewStar)
+                .isFeedAdd(isFeedAdd)
+                .FeedImgList(FeedImgList)
+                .build();
+
         reviewService.createReview(customerId, reviewRequest);
         return ResponseUtil.SUCCESS("리뷰가 성공적으로 생성되었습니다.", null);
     }
+
 
     @PatchMapping("/feed")
     public ResponseDto<String> updateReview(
@@ -80,8 +96,8 @@ public class ReviewController {
     }
 
     @PostMapping("feed/like")
-    public ResponseDto<ReviewDto.Response> getFeedLike(@RequestBody Long userId,@RequestBody String userType,@RequestBody Long reviewId){
-        ReviewDto.Response reviewResponse = reviewService.likeReview(reviewId, userId, AuthorType.valueOf(userType.toUpperCase()));
+    public ResponseDto<ReviewDto.Response> getFeedLike(@RequestBody ReviewLikeDto.Request reviewLikeRequest){
+        ReviewDto.Response reviewResponse = reviewService.likeReview(reviewLikeRequest.getReviewId(), reviewLikeRequest.getUserId(), AuthorType.valueOf(reviewLikeRequest.getUserType().toUpperCase()));
         return ResponseUtil.SUCCESS("좋아요 완료되었습니다.",reviewResponse);
     }
     /*
