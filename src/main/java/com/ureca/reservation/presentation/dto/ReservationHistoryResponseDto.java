@@ -23,6 +23,8 @@ public class ReservationHistoryResponseDto {
     private Integer deliveryFee;
     private Integer monitoringFee;
     private Integer totalPayment;
+    private String estimateDetail;
 
+    private DesignerInfoDto designerInfo;
     private RequestDetailDto requestDetail;
 }
