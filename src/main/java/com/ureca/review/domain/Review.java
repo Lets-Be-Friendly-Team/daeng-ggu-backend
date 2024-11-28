@@ -51,18 +51,4 @@ public class Review {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "designerId")
     private Designer designer;
-
-    public Review increaseReviewLikeCnt() {
-        reviewLikeCnt += 1;
-        return this;
-    }
-    public Review decreaseReviewLikeCnt() {
-        reviewLikeCnt -= 1;
-        return this;
-    }
-    public Review updateReviewContents(String newContents) {
-        return this.toBuilder()
-                .reviewContents(newContents) // 내용만 변경
-                .build();
-    }
 }
