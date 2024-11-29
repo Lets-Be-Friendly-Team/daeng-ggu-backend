@@ -1,29 +1,40 @@
 package com.ureca.review.presentation.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ureca.profile.domain.Designer;
+import com.ureca.review.domain.Enum.AuthorType;
 import com.ureca.review.domain.ReviewImage;
 import java.time.LocalDateTime;
 import java.util.List;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+
+import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
+//피드 등록/관리 Dto
 public class ReviewDto {
-    @Builder
+    @Builder(toBuilder = true)
     @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class Request {
         private Long customerId;
+        private Long designerId;
         private Long reviewId;
+        private Long userId;
+        private AuthorType userType;
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+        private LocalDateTime lastCreatedAt;
         private String reviewContents;
         private Integer reviewStar;
-        private Integer reviewLikeCnt;
         private Boolean isFeedAdd;
-        private String feedUrl;
-        private Designer designer_id;
+        private Integer page;
         private List<MultipartFile> FeedImgList;
+        private List<String> existImgList;
     }
 
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @Builder
     @Getter
     public static class Response {
@@ -43,6 +54,6 @@ public class ReviewDto {
         private Integer reviewLikeCnt;
         private Boolean isReviewLike;
         private String feedUrl;
-        private List<ReviewImage> reviewImage;
+        private List<String> FeedImgList;
     }
 }

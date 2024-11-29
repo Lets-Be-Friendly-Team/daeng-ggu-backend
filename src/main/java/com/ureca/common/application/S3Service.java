@@ -1,4 +1,4 @@
-package com.ureca.global.application;
+package com.ureca.common.application;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
@@ -23,9 +23,9 @@ public class S3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName; // static 제거
 
-    public String uploadFileImage(MultipartFile image, String contentsType) {
+    public String uploadFileImage(MultipartFile image,String file,  String contentsType) {
         try {
-            String fileName = createFileImageName(image.getOriginalFilename(), contentsType);
+            String fileName = file + "/" + createFileImageName(image.getOriginalFilename(), contentsType);
 
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(image.getContentType());

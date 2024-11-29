@@ -12,7 +12,4 @@ public class ReviewLikeDto {
         String userType;
         Long reviewId;
     }
-    @Builder
-    @Getter
-    public static class Response {}
 }

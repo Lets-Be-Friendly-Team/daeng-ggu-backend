@@ -32,7 +32,7 @@ public class Review {
     @Column(nullable = false)
     private Boolean isFeedAdd; // 피드 참여 여부
 
-    @Column(length = 300, nullable = false)
+    @Column(length = 300)
     private String feedUrl; // 피드 썸네일 URL
 
     @Column @Builder.Default private Integer reviewLikeCnt = 0;
@@ -54,6 +54,27 @@ public class Review {
     private Designer designer;
 
     // 리뷰사진 연관 관계 (1:N)
-    @OneToMany(mappedBy = "review")
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewImage> reviewImages;
+
+    public Review increaseReviewLikeCnt() {
+        reviewLikeCnt += 1;
+        return this;
+    }
+    public Review decreaseReviewLikeCnt() {
+        reviewLikeCnt -= 1;
+        return this;
+    }
+    public Review updateReviewContents(String newContents) {
+        return this.toBuilder()
+                .reviewContents(newContents) // 내용만 변경
+                .build();
+    }
+
+    public Review updateReviewStar(Integer newStar) {
+        return this.toBuilder()
+                .reviewStar(newStar) // 별점만 변경
+                .build();
+    }
+
 }

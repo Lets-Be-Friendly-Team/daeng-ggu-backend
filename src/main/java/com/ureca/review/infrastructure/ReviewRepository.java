@@ -5,6 +5,8 @@ import com.ureca.profile.domain.Designer;
 import com.ureca.review.domain.Review;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -26,14 +28,19 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     // 리뷰 별점으로 정렬해서 리뷰 목록을 가져오기 (예시)
     List<Review> findByReviewStarOrderByCreatedAtDesc(Integer reviewStar);
 
+
     List<Review> findByDesignerOrderByCreatedAtDesc(Designer designer);
 
-    List<Review> findByCreatedAtBefore(LocalDateTime createdAt, Pageable pageable);
+
+    List<Review> findByCustomerOrderByCreatedAtDesc(Customer customer);
+
+
+    Page<Review> findByCreatedAtBeforeAndIsFeedAddTrue(LocalDateTime createdAt, Pageable pageable);
+
 
     @Query("SELECT r FROM Review r ORDER BY r.createdAt DESC")
     List<Review> findTopN(@Param("size") int size);
 
-    List<Review> findByCustomerOrderByCreatedAtDesc(Customer customer);
 
 
 }

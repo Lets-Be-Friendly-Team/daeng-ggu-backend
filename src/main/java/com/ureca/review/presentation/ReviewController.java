@@ -1,5 +1,7 @@
 package com.ureca.review.presentation;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ureca.common.response.ResponseDto;
 import com.ureca.common.response.ResponseUtil;
 import com.ureca.review.application.ReviewService;
@@ -23,146 +25,32 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
+    //보호자 프로필 피드 조회 API
     @PostMapping("/customer/feed")
-    public ResponseDto<List<ReviewDto.Response>> selectCustomerFeed(
-            @RequestBody ReviewDto.Response response) {
-        List<ReviewDto.Response> reviewList = reviewService.selectCustomerFeed(response.getCustomerId());
+    public ResponseDto<List<ReviewDto.Response>> selectCustomerFeed(@RequestBody ReviewDto.Request request) {
+        List<ReviewDto.Response> reviewList = reviewService.selectCustomerFeed(request.getCustomerId());
         return ResponseUtil.SUCCESS("피드 조회가 완료되었습니다.",reviewList);
     }
 
+    //디자이너 프로필 피드 조회 API
     @PostMapping("/designer/feed")
-    public ResponseDto<List<ReviewDto.Response>> selectDesignerFeed(
-            @RequestBody Long designerId) {
-        List<ReviewDto.Response> reviewList = reviewService.selectDesignerFeed(designerId);
+    public ResponseDto<List<ReviewDto.Response>> selectDesignerFeed(@RequestBody ReviewDto.Request request) {
+        List<ReviewDto.Response> reviewList = reviewService.selectDesignerFeed(request.getDesignerId());
         return ResponseUtil.SUCCESS("피드 조회가 완료되었습니다.",reviewList);
     }
 
+    //보호자 피드 세부 조회
     @PostMapping("/feed/customer")
-    public ResponseDto<ReviewDto.Response> selectCustomerFeedDetail(
-            @RequestBody ReviewDto.Request request) {
+    public ResponseDto<ReviewDto.Response> selectCustomerFeedDetail(@RequestBody ReviewDto.Request request) {
         ReviewDto.Response reviewList =
                 reviewService.selectCustomerFeedDetail(request.getCustomerId(), request.getReviewId());
         return ResponseUtil.SUCCESS("피드 조회가 완료되었습니다.",reviewList);
     }
 
+    //디자이너 피드 세부 조회
     @PostMapping("/feed/designer")
-    public ResponseDto<ReviewDto.Response> selectDesignerFeedDetail(
-            @RequestBody Long designerId, @RequestBody Long reviewId) {
-        ReviewDto.Response review = reviewService.selectDesignerFeedDetail(designerId, reviewId);
+    public ResponseDto<ReviewDto.Response> selectDesignerFeedDetail(@RequestBody ReviewDto.Request request) {
+        ReviewDto.Response review = reviewService.selectDesignerFeedDetail(request.getDesignerId(), request.getReviewId());
         return ResponseUtil.SUCCESS("피드 조회가 완료되었습니다.",review);
     }
-
-    @PostMapping("/feed")
-    public ResponseDto<Void> createReview(
-            @RequestParam Long customerId,  // customerId를 RequestParam으로 받음
-            @RequestParam String reviewContents,
-            @RequestParam Integer reviewStar,
-            @RequestParam Boolean isFeedAdd,
-            @RequestParam List<MultipartFile> FeedImgList) {  // MultipartFile 리스트를 받음
-        ReviewDto.Request reviewRequest = ReviewDto.Request.builder()
-                .customerId(customerId)
-                .reviewContents(reviewContents)
-                .reviewStar(reviewStar)
-                .isFeedAdd(isFeedAdd)
-                .FeedImgList(FeedImgList)
-                .build();
-
-        reviewService.createReview(customerId, reviewRequest);
-        return ResponseUtil.SUCCESS("리뷰가 성공적으로 생성되었습니다.", null);
-    }
-
-
-    @PatchMapping("/feed")
-    public ResponseDto<String> updateReview(
-            @RequestBody Long customerId, @RequestBody ReviewDto.Request reviewRequest) {
-        reviewService.updateReview(customerId, reviewRequest);
-        return ResponseUtil.SUCCESS("완료되었습니다.",null);
-    }
-
-    @DeleteMapping("/feed")
-    public ResponseDto<String> deleteReview(
-            @RequestBody Long customerId, @RequestParam("reviewId") Long reviewId) {
-        reviewService.deleteReview(reviewId);
-        return ResponseUtil.SUCCESS("완료되었습니다.",null);
-    }
-
-    @GetMapping("/feed")
-    public ResponseDto<List<ReviewDto.Response>> getFeed(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-            LocalDateTime lastCreatedAt) {
-        int size = 20;
-        List<ReviewDto.Response> feeds = reviewService.getFeeds(lastCreatedAt, size);
-        return ResponseUtil.SUCCESS("완료되었습니다.",feeds);
-    }
-
-    @PostMapping("feed/like")
-    public ResponseDto<ReviewDto.Response> getFeedLike(@RequestBody ReviewLikeDto.Request reviewLikeRequest){
-        ReviewDto.Response reviewResponse = reviewService.likeReview(reviewLikeRequest.getReviewId(), reviewLikeRequest.getUserId(), AuthorType.valueOf(reviewLikeRequest.getUserType().toUpperCase()));
-        return ResponseUtil.SUCCESS("좋아요 완료되었습니다.",reviewResponse);
-    }
-    /*
-    //리뷰 생성 API
-    @PostMapping("/review")
-    public ResponseEntity<String> createReview(@RequestPart ReviewDto.Request requestDto, @RequestBody Long userId,  @RequestPart List<MultipartFile> image) {
-        reviewService.createReview(requestDto,userId,image);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Review created successfully");
-    }
-
-    //리뷰 삭제 API
-    @DeleteMapping("/review")
-    public ResponseEntity<String> deleteReview(@RequestBody Long userId, @RequestBody Long reviewId) {
-        reviewService.deleteReview(userId, reviewId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Review deleted successfully");
-    }
-
-    //특정 미용사 피드 조회 API
-    @GetMapping("/review/feed/designer")
-    public ResponseEntity<List<ReviewDto.Response>> getDesignerReview(@RequestBody Long userId, @RequestBody Long desingerId) {
-        List<ReviewDto.Response> responsedto = reviewService.selectDesignerReview(userId,desingerId);
-        return ResponseEntity.ok(responsedto);
-    }
-
-    //피드 전체 조회 API(그냥 전체 최신순)
-    @GetMapping("/review/feed")
-    public ResponseEntity<List<ReviewDto.Response>> getAllFeedReview(@RequestBody Long userId, @RequestBody Long reviewId) {
-        List<ReviewDto.Response> responsedto = reviewService.selectReviewFeed(userId,reviewId);
-        return ResponseEntity.ok(responsedto);
-    }
-
-    //특정 사용자 프로필 피드 조회 API(프로필 사진만 보여주는거)
-    @GetMapping("/review/feed/profile")
-    public ResponseEntity<List<ReviewDto.Response>> getFeedReviewProfile(@RequestBody Long userid) {
-        List<ReviewDto.Response> reviewImages = reviewService.selectUserFeed(userid);
-        return ResponseEntity.ok(reviewImages);
-    }
-
-    //특정피드 세부조회 API(피드 하나 세부정보)
-    @GetMapping("/review/feed/{reviewId}")
-    public ResponseEntity<ReviewDto.Response> getFeedReview(@PathVariable Long reviewId, @RequestBody Long userId) {
-        ReviewDto.Response reviewImages = reviewService.selectFeedDetail(reviewId);
-        return ResponseEntity.ok(reviewImages);
-    }
-
-    //특정 사용자 피드 리스트 세부조회 API(사용자 피드 세부정보 리스트 전체 반환)
-    @GetMapping("/review/feed/profile/{userId}")
-    public ResponseEntity<List<ReviewDto.Response>> getUserFeedDetail(@PathVariable Long userId) {
-        List<ReviewDto.Response> reviewImages = reviewService.selectUserFeedDetail(userId);
-        return ResponseEntity.ok(reviewImages);
-    }
-
-    //특정 미용사 피드 리스트 세부조회 API
-    @GetMapping("/review/feed/designer")
-    public ResponseEntity<List<ReviewDto.Response>> getDesignerFeedDetail(@RequestBody Long userId, @RequestBody Long desingerId) {
-        List<ReviewDto.Response> responsedto = reviewService.selectDesignerReview(userId,desingerId);
-        return ResponseEntity.ok(responsedto);
-    }
-
-    @GetMapping("/feed")
-    public ResponseEntity<List<Review>> getFeed(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime lastCreatedAt,
-            @RequestParam(defaultValue = "20") int size) {
-        List<Review> feeds = reviewService.getFeeds(lastCreatedAt, size);
-        return ResponseEntity.ok(feeds);
-    }
-    */
 }
