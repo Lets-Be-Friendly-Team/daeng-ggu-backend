@@ -32,7 +32,7 @@ public class Review {
     @Column(nullable = false)
     private Boolean isFeedAdd; // 피드 참여 여부
 
-    @Column(length = 300, nullable = false)
+    @Column(length = 300)
     private String feedUrl; // 피드 썸네일 URL
 
     @Column @Builder.Default private Integer reviewLikeCnt = 0;
