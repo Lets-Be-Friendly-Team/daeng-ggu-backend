@@ -1,6 +1,7 @@
 package com.ureca.reservation.infrastructure;
 
 import com.ureca.reservation.domain.Reservation;
+import com.ureca.reservation.presentation.dto.ReservationInfo;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,4 +18,11 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
                     + "WHERE p.customer.customerId = :customerId "
                     + "ORDER BY r.reservationDate DESC, r.startTime DESC")
     List<Reservation> findAllByCustomerId(@Param("customerId") Long customerId);
+
+    // 디자이너 ID와 연도, 월에 해당하는 예약 정보를 ReservationInfo DTO로 조회
+    @Query(
+            "SELECT new com.ureca.reservation.presentation.dto.ReservationInfo(r.reservationDate, r.startTime, r.endTime) "
+                    + "FROM Reservation r WHERE r.designer.designerId = :designerId "
+                    + "AND YEAR(r.reservationDate) = :year AND MONTH(r.reservationDate) = :month")
+    List<ReservationInfo> findReservationsByDesignerAndMonth(Long designerId, int year, int month);
 }

@@ -35,6 +35,9 @@ public class Designer {
     // 닉네임(업체명)
     private String officialName;
 
+    // 전화번호
+    private String phone;
+
     // 가입일자
     private Date joinDate;
 
@@ -46,9 +49,6 @@ public class Designer {
 
     // 월정액 결제 일자
     private Date monthlyPayDate;
-
-    // 월정액 결제 유지 달
-    private String monthlyPayMM;
 
     // 디자이너 이미지 URL
     private String designerImgUrl;
@@ -109,6 +109,7 @@ public class Designer {
             String role,
             String designerName,
             String officialName,
+            String phone,
             Date joinDate,
             String billingCode,
             String isMonthlyPay,
@@ -129,6 +130,7 @@ public class Designer {
         this.password = password;
         this.role = role;
         this.designerName = designerName;
+        this.phone = phone;
         this.officialName = officialName;
         this.joinDate = joinDate;
         this.billingCode = billingCode;

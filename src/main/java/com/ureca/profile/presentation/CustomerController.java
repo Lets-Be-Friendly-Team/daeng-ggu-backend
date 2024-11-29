@@ -43,5 +43,5 @@ public class CustomerController {
             @RequestParam(defaultValue = "") Long customerId) {
         // service - 보호자 프로필 상세 조회
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", customerService.getCustomerDetail(customerId));
-    } // customerProfile
+    } // customerDetail
 }
