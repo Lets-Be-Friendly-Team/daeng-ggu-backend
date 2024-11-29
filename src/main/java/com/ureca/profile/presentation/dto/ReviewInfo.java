@@ -15,7 +15,7 @@ public class ReviewInfo {
     // 리뷰 이미지 URL 3
     private String reviewImgUrl3;
     // 디자이너 아이디
-    private String designerId;
+    private Long designerId;
     // 디자이너 이미지 URL
     private String designerImgUrl;
     // 디자이너 주소
