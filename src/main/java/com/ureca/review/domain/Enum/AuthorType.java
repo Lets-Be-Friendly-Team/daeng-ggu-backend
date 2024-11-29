@@ -19,6 +19,6 @@ public enum AuthorType {
 
     @JsonValue
     public String toValue() {
-        return name().toLowerCase();  // 값은 소문자로 변환하여 보냄
+        return name().toLowerCase(); // 값은 소문자로 변환하여 보냄
     }
 }

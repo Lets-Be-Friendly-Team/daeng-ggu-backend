@@ -18,14 +18,15 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class S3Service {
 
-    private final AmazonS3 s3Client;  // 의존성 주입을 통한 S3 클라이언트 사용
+    private final AmazonS3 s3Client; // 의존성 주입을 통한 S3 클라이언트 사용
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName; // static 제거
 
-    public String uploadFileImage(MultipartFile image,String file,  String contentsType) {
+    public String uploadFileImage(MultipartFile image, String file, String contentsType) {
         try {
-            String fileName = file + "/" + createFileImageName(image.getOriginalFilename(), contentsType);
+            String fileName =
+                    file + "/" + createFileImageName(image.getOriginalFilename(), contentsType);
 
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(image.getContentType());

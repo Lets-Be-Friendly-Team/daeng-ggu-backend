@@ -61,10 +61,12 @@ public class Review {
         reviewLikeCnt += 1;
         return this;
     }
+
     public Review decreaseReviewLikeCnt() {
         reviewLikeCnt -= 1;
         return this;
     }
+
     public Review updateReviewContents(String newContents) {
         return this.toBuilder()
                 .reviewContents(newContents) // 내용만 변경
@@ -76,5 +78,4 @@ public class Review {
                 .reviewStar(newStar) // 별점만 변경
                 .build();
     }
-
 }

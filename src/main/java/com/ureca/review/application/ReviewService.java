@@ -1,9 +1,7 @@
 package com.ureca.review.application;
 
-import com.ureca.common.exception.ApiException;
-import com.ureca.common.exception.ErrorCode;
-import com.ureca.config.Redis.RedisLockUtil;
 import com.ureca.common.application.S3Service;
+import com.ureca.config.Redis.RedisLockUtil;
 import com.ureca.profile.domain.Customer;
 import com.ureca.profile.domain.Designer;
 import com.ureca.profile.infrastructure.CustomerRepository;
@@ -16,17 +14,10 @@ import com.ureca.review.infrastructure.ReviewImageRepository;
 import com.ureca.review.infrastructure.ReviewLikeRepository;
 import com.ureca.review.infrastructure.ReviewRepository;
 import com.ureca.review.presentation.dto.ReviewDto;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -87,7 +78,9 @@ public class ReviewService {
         Review review = reviewRepository.findById(reviewId).get();
 
         List<ReviewImage> reviewImages = reviewImageRepository.findByReview(review);
-        ReviewLike reviewLike = reviewLikeRepository.findByReviewAndUserIdAndUserType(review, customerId,AuthorType.CUSTOMER);
+        ReviewLike reviewLike =
+                reviewLikeRepository.findByReviewAndUserIdAndUserType(
+                        review, customerId, AuthorType.CUSTOMER);
         ReviewDto.Response response =
                 ReviewDto.Response.builder()
                         .reviewId(review.getReviewId())
@@ -122,7 +115,9 @@ public class ReviewService {
         Review review = reviewRepository.findById(reviewId).get();
 
         List<ReviewImage> reviewImages = reviewImageRepository.findByReview(review);
-        ReviewLike reviewLike = reviewLikeRepository.findByReviewAndUserIdAndUserType(review,designerId,AuthorType.DESIGNER);
+        ReviewLike reviewLike =
+                reviewLikeRepository.findByReviewAndUserIdAndUserType(
+                        review, designerId, AuthorType.DESIGNER);
         ReviewDto.Response response =
                 ReviewDto.Response.builder()
                         .reviewId(review.getReviewId())

@@ -22,7 +22,7 @@ public enum ErrorCode {
     ACCESS_DENIED(403, "데이터 접근 권한이 없습니다.", 3000),
 
     // 4000번대: 예약 및 비즈니스 로직 관련 오류
-    HISTORY_NOT_EXIST(500, "조건에 맞는 Reservation history 정보가 없습니다.", 4000);
+    HISTORY_NOT_EXIST(500, "조건에 맞는 Reservation history 정보가 없습니다.", 4000),
     USER_CONFLICT_ERROR(409, "다른 사용자와 동시에 처리 중입니다.", 4010);
 
     private final int status; // HTTP 상태 코드
