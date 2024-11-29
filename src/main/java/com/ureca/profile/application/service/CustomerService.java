@@ -15,6 +15,7 @@ import com.ureca.profile.presentation.dto.CustomerProfile;
 import com.ureca.profile.presentation.dto.PetInfo;
 import com.ureca.profile.presentation.dto.ReviewInfo;
 import com.ureca.review.domain.Review;
+import com.ureca.review.domain.ReviewImage;
 import com.ureca.review.infrastructure.ReviewRepository;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -51,7 +52,7 @@ public class CustomerService {
                         .orElseThrow(
                                 () ->
                                         new RuntimeException(
-                                                "Customer not found")); // customerId로 Customer 엔티티를
+                                                "Customer not found")); // customerId로 Customer 엔티티
         // 조회
         customerProfile.setCustomerId(customer.getCustomerId());
         customerProfile.setCustomerName(customer.getCustomerName());
@@ -59,7 +60,7 @@ public class CustomerService {
         customerProfile.setCustomerImgName(customer.getCustomerImgName());
         customerProfile.setNickname(customer.getNickname());
 
-        // 반려견 정보
+        // 반려견 목록
         List<Pet> pets =
                 petRepository.findByCustomerCustomerId(
                         customerId); // customerId로 해당 고객의 반려견 목록을 가져옴
@@ -76,7 +77,7 @@ public class CustomerService {
                         .collect(Collectors.toList());
         customerProfile.setPetList(petInfoList);
 
-        // 리뷰 정보
+        // 리뷰 목록
         List<Review> reviews =
                 reviewRepository.findByCustomerCustomerId(customerId); // 고객 아이디로 리뷰 조회
         List<ReviewInfo> reviewList =
@@ -85,13 +86,29 @@ public class CustomerService {
                                 review -> {
                                     ReviewInfo reviewInfo = new ReviewInfo();
                                     reviewInfo.setReviewId(review.getReviewId());
-                                    // TODO null 처리
-                                    reviewInfo.setReviewImgUrl1(
-                                            review.getReviewImages().get(0).getReviewImageUrl());
-                                    reviewInfo.setReviewImgUrl2(
-                                            review.getReviewImages().get(1).getReviewImageUrl());
-                                    reviewInfo.setReviewImgUrl3(
-                                            review.getReviewImages().get(2).getReviewImageUrl());
+                                    /// 리뷰 이미지 처리: 이미지가 없는 경우 null로 처리
+                                    List<ReviewImage> reviewImages = review.getReviewImages();
+                                    if (reviewImages != null
+                                            && !reviewImages.isEmpty()) { // 이미지가 있다면 최대 3개까지 가져오기
+                                        if (reviewImages.size() > 0)
+                                            reviewInfo.setReviewImgUrl1(
+                                                    reviewImages.get(0).getReviewImageUrl());
+                                        if (reviewImages.size() > 1)
+                                            reviewInfo.setReviewImgUrl2(
+                                                    reviewImages.get(1).getReviewImageUrl());
+                                        if (reviewImages.size() > 2)
+                                            reviewInfo.setReviewImgUrl3(
+                                                    reviewImages.get(2).getReviewImageUrl());
+                                    } else { // 이미지가 없는 경우 기본값 설정 (null 처리)
+                                        reviewInfo.setReviewImgUrl1(null);
+                                        reviewInfo.setReviewImgUrl2(null);
+                                        reviewInfo.setReviewImgUrl3(null);
+                                    }
+                                    reviewInfo.setDesignerId(review.getDesigner().getDesignerId());
+                                    reviewInfo.setDesignerImgUrl(
+                                            review.getDesigner().getDesignerImgUrl());
+                                    reviewInfo.setDesignerAddress(
+                                            review.getDesigner().getAddress1()); // TODO 잘라서 보낼지 정하기
                                     reviewInfo.setReviewContents(review.getReviewContents());
                                     reviewInfo.setReviewStar(review.getReviewStar());
                                     reviewInfo.setReviewLikeCnt(review.getReviewLikeCnt());
@@ -193,5 +210,5 @@ public class CustomerService {
         }
 
         return customerDetail;
-    }
+    } // getCustomerDetail
 }
