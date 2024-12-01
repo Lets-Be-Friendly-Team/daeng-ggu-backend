@@ -5,11 +5,11 @@ import lombok.*;
 
 // 이미지
 @Entity
-@Table(name = "img")
+@Table(name = "portfolio_img")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(exclude = "portfolio")
-public class Img {
+public class PortfolioImg {
 
     // 이미지 아이디
     @Id
@@ -25,7 +25,7 @@ public class Img {
     private String imgUrl;
 
     @Builder
-    public Img(Long imgId, Portfolio portfolio, String imgUrl) {
+    public PortfolioImg(Long imgId, Portfolio portfolio, String imgUrl) {
         this.imgId = imgId;
         this.portfolio = portfolio;
         this.imgUrl = imgUrl;
