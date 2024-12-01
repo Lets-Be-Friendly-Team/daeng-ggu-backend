@@ -1,6 +1,7 @@
 package com.ureca.profile.domain;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import java.util.*;
 import lombok.*;
 
@@ -8,7 +9,9 @@ import lombok.*;
 @Entity
 @Table(name = "customer")
 @Getter
+@Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @ToString(exclude = {"pets", "bookmarks"})
 public class Customer {
 
@@ -62,8 +65,12 @@ public class Customer {
     // 보호자 이미지명
     private String customerImgName;
 
-    // 가입일자
-    private Date joinDate;
+    // 생성시간
+    private LocalDateTime createdAt;
+
+    // 수정시간
+    @Column(nullable = true)
+    private LocalDateTime updatedAt;
 
     // 보호자와 반려견 연관 관계 (1:N)
     @OneToMany(mappedBy = "customer")
@@ -72,42 +79,4 @@ public class Customer {
     // 즐겨찾기 연관 관계 (1:N)
     @OneToMany(mappedBy = "customer")
     private List<Bookmark> bookmarks;
-
-    @Builder
-    public Customer(
-            Long customerId,
-            String customerLoginId,
-            String email,
-            String password,
-            String role,
-            String customerName,
-            Date birthDate,
-            String gender,
-            String phone,
-            String nickname,
-            String address1,
-            String address2,
-            String detailAddress,
-            String infoAgree,
-            String customerImgUrl,
-            String customerImgName,
-            Date joinDate) {
-        this.customerId = customerId;
-        this.customerLoginId = customerLoginId;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-        this.customerName = customerName;
-        this.birthDate = birthDate;
-        this.gender = gender;
-        this.phone = phone;
-        this.nickname = nickname;
-        this.address1 = address1;
-        this.address2 = address2;
-        this.detailAddress = detailAddress;
-        this.infoAgree = infoAgree;
-        this.customerImgUrl = customerImgUrl;
-        this.customerImgName = customerImgName;
-        this.joinDate = joinDate;
-    }
 }
