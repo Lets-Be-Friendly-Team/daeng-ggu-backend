@@ -23,7 +23,10 @@ public enum ErrorCode {
 
     // 4000번대: 예약 및 비즈니스 로직 관련 오류
     HISTORY_NOT_EXIST(500, "조건에 맞는 Reservation history 정보가 없습니다.", 4000),
-    USER_CONFLICT_ERROR(409, "다른 사용자와 동시에 처리 중입니다.", 4010);
+    USER_CONFLICT_ERROR(409, "다른 사용자와 동시에 처리 중입니다.", 4010),
+
+    // 5000번대 : 파일처리 관련 오류
+    FILE_NOT_EXIST(500, "파일 업로드에 실패했습니다.", 5100);
 
     private final int status; // HTTP 상태 코드
     private final String message; // 에러 메시지
