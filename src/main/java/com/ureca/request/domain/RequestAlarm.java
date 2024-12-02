@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "estimateImage")
+@Table(name = "request_alarm")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder

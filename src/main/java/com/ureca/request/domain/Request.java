@@ -59,12 +59,4 @@ public class Request extends BaseEntity {
 
     @Column(length = 20, nullable = false)
     private String request_status;
-
-    @CreatedDate
-    @Column(updatable = false, nullable = false)
-    private LocalDateTime created_at;
-
-    @LastModifiedDate
-    @Column(nullable = false)
-    private LocalDateTime updated_at;
 }
