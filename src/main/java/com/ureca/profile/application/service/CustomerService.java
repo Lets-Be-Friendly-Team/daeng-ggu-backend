@@ -55,7 +55,7 @@ public class CustomerService {
         Customer customer =
                 customerRepository
                         .findById(customerId)
-                        .orElseThrow(() -> new RuntimeException("Customer not found"));
+                        .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_EXIST));
         // 조회
         customerProfile.setCustomerId(customer.getCustomerId());
         customerProfile.setCustomerName(customer.getCustomerName());
@@ -177,7 +177,7 @@ public class CustomerService {
         Customer customer =
                 customerRepository
                         .findById(customerId)
-                        .orElseThrow(() -> new RuntimeException("Customer not found"));
+                        .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_EXIST));
         // 조회
         customerDetail.setCustomerId(customer.getCustomerId());
         customerDetail.setCustomerLoginId(customer.getCustomerLoginId());
