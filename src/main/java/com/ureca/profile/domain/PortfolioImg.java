@@ -1,13 +1,16 @@
 package com.ureca.profile.domain;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import lombok.*;
 
 // 이미지
 @Entity
 @Table(name = "portfolio_img")
 @Getter
+@Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @ToString(exclude = "portfolio")
 public class PortfolioImg {
 
@@ -24,10 +27,10 @@ public class PortfolioImg {
     // 이미지 URL
     private String imgUrl;
 
-    @Builder
-    public PortfolioImg(Long imgId, Portfolio portfolio, String imgUrl) {
-        this.imgId = imgId;
-        this.portfolio = portfolio;
-        this.imgUrl = imgUrl;
-    }
+    // 생성시간
+    private LocalDateTime createdAt;
+
+    // 수정시간
+    @Column(nullable = true)
+    private LocalDateTime updatedAt;
 }
