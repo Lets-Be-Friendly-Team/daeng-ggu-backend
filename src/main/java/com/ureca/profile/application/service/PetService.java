@@ -4,6 +4,7 @@ import com.ureca.common.application.S3Service;
 import com.ureca.common.exception.ApiException;
 import com.ureca.common.exception.ErrorCode;
 import com.ureca.common.util.ValidationUtil;
+import com.ureca.profile.domain.Customer;
 import com.ureca.profile.domain.Pet;
 import com.ureca.profile.infrastructure.CommonCodeRepository;
 import com.ureca.profile.infrastructure.CustomerRepository;
@@ -75,6 +76,11 @@ public class PetService {
     @Transactional
     public void updatePetProfile(PetUpdate data) {
 
+        Customer customer =
+                customerRepository
+                        .findById(data.getCustomerId())
+                        .orElseThrow(() -> new ApiException(ErrorCode.CUSTOMER_NOT_EXIST));
+
         // 신규 등록
         if (data.getPetId() == null || data.getPetId() == 0) {
 
@@ -93,6 +99,7 @@ public class PetService {
             // 입력 내용
             Pet newPet =
                     Pet.builder()
+                            .customer(customer)
                             .petName(data.getPetName())
                             .petImgUrl(imageUrl)
                             .petImgName(fileName)
@@ -130,6 +137,7 @@ public class PetService {
             // 입력 내용
             Pet updatedPet =
                     pet.toBuilder()
+                            .customer(customer)
                             .petName(data.getPetName())
                             .petImgUrl(imageUrl)
                             .petImgName(fileName)
