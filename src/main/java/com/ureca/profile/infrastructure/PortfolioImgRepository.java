@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ImgRepository extends JpaRepository<PortfolioImg, Long> {
+public interface PortfolioImgRepository extends JpaRepository<PortfolioImg, Long> {
     // 포트폴리오 ID로 이미지 찾기
     List<PortfolioImg> findByPortfolioPortfolioId(Long portfolioId);
 

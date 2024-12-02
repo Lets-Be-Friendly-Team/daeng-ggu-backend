@@ -1,13 +1,17 @@
 package com.ureca.profile.domain;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.*;
 
 // 포트폴리오
 @Entity
 @Table(name = "portfolio")
 @Getter
+@Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @ToString(exclude = "designer")
 public class Portfolio {
 
@@ -33,19 +37,14 @@ public class Portfolio {
     // 내용
     private String contents;
 
-    @Builder
-    public Portfolio(
-            Long portfolioId,
-            Designer designer,
-            String videoUrl,
-            String videoName,
-            String title,
-            String contents) {
-        this.portfolioId = portfolioId;
-        this.designer = designer;
-        this.videoUrl = videoUrl;
-        this.videoName = videoName;
-        this.title = title;
-        this.contents = contents;
-    }
+    // 포트폴리오와 포트폴리오 이미지 연관 관계 (1:N)
+    @OneToMany(mappedBy = "portfolio")
+    private List<PortfolioImg> PortfolioImgs;
+
+    // 생성시간
+    private LocalDateTime createdAt;
+
+    // 수정시간
+    @Column(nullable = true)
+    private LocalDateTime updatedAt;
 }

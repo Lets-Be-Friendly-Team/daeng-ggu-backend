@@ -1,26 +1,34 @@
 package com.ureca.profile.application.service;
 
+import com.ureca.common.application.S3Service;
 import com.ureca.common.exception.ApiException;
 import com.ureca.common.exception.ErrorCode;
+import com.ureca.profile.domain.Designer;
 import com.ureca.profile.domain.Portfolio;
+import com.ureca.profile.domain.PortfolioImg;
 import com.ureca.profile.infrastructure.CertificateRepository;
 import com.ureca.profile.infrastructure.DesignerRepository;
-import com.ureca.profile.infrastructure.ImgRepository;
+import com.ureca.profile.infrastructure.PortfolioImgRepository;
 import com.ureca.profile.infrastructure.PortfolioRepository;
 import com.ureca.profile.presentation.dto.DesignerDetail;
 import com.ureca.profile.presentation.dto.DesignerProfile;
+import com.ureca.profile.presentation.dto.DesignerUpdate;
 import com.ureca.profile.presentation.dto.PortfolioDetail;
 import com.ureca.profile.presentation.dto.PortfolioInfo;
+import com.ureca.profile.presentation.dto.PortfolioUpdate;
 import com.ureca.profile.presentation.dto.ReviewInfo;
 import com.ureca.review.domain.Review;
 import com.ureca.review.domain.ReviewImage;
 import com.ureca.review.infrastructure.ReviewRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class DesignerService {
@@ -31,7 +39,8 @@ public class DesignerService {
     @Autowired private CertificateRepository certificateRepository;
     @Autowired private PortfolioRepository portfolioRepository;
     @Autowired private ReviewRepository reviewRepository;
-    @Autowired private ImgRepository imgRepository;
+    @Autowired private PortfolioImgRepository imgRepository;
+    @Autowired private S3Service s3Service;
 
     /**
      * @title 디자이너 - 프로필
@@ -202,6 +211,17 @@ public class DesignerService {
     } // getDesignerDetail
 
     /**
+     * @title 디자이너 - 프로필 등록/수정
+     * @description 디자이너 프로필 등록/수정
+     * @param data 입력 정보
+     * @return status 업데이트 성공 여부
+     */
+    @Transactional
+    public void updateDesignerProfile(DesignerUpdate data) {
+        // TODO 포트폴리오 저장 방식 정하고 구현하기
+    } // updateDesignerProfile
+
+    /**
      * @title 디자이너 - 포트폴리오 상세
      * @description 디자이너정보, 제공서비스, 가능견종, 포트폴리오목록 조회
      * @param designerId 디자이너 아이디
@@ -242,4 +262,147 @@ public class DesignerService {
 
         return portfolioDetail;
     } // getDesignerPortfolioDetail
+
+    /**
+     * @title 디자이너 - 포트폴리오 등록/수정
+     * @description 포트폴리오 등록/수정
+     * @param data 입력 정보
+     * @return status 업데이트 성공 여부
+     */
+    @Transactional
+    public void updateDesignerPortfolio(PortfolioUpdate data) {
+
+        Designer designer =
+                designerRepository
+                        .findById(data.getDesignerId())
+                        .orElseThrow(() -> new ApiException(ErrorCode.DESIGNER_NOT_EXIST));
+
+        // 신규 등록
+        if (data.getPortfolioId() == null || data.getPortfolioId() == 0) {
+
+            // 신규 영상 등록
+            String videoUrl = "", videoFileName = "";
+            if (data.getNewVideoFile() != null
+                    && !data.getNewVideoFile().getOriginalFilename().isEmpty()) {
+                videoUrl =
+                        s3Service.uploadFileImage(
+                                data.getNewVideoFile(),
+                                "portfolio",
+                                "portfolio"); // TODO 파일명 짓는 양식 정하기
+                videoFileName = videoUrl.substring(videoUrl.lastIndexOf('/') + 1);
+            }
+
+            // 입력 내용
+            Portfolio newPortfolio =
+                    Portfolio.builder()
+                            .designer(designer)
+                            .videoUrl(videoUrl)
+                            .videoName(videoFileName)
+                            .title(data.getTitle())
+                            .contents(data.getContents())
+                            .createdAt(LocalDateTime.now())
+                            .build();
+            // 등록
+            Portfolio savedPortfolio = portfolioRepository.save(newPortfolio);
+
+            // 신규 이미지 등록
+            if (data.getNewImgFileList() != null && !data.getNewImgFileList().isEmpty()) {
+                for (MultipartFile file : data.getNewImgFileList()) {
+                    try {
+                        String imgUrl =
+                                s3Service.uploadFileImage(
+                                        file, "portfolio", "portfolio"); // TODO 파일명 짓는 양식 정하기
+                        String imgFileName = imgUrl.substring(imgUrl.lastIndexOf('/') + 1);
+
+                        // 이미지 추가 내용
+                        PortfolioImg newPortfolioImg =
+                                PortfolioImg.builder()
+                                        .portfolio(savedPortfolio)
+                                        .imgUrl(imgUrl)
+                                        .createdAt(LocalDateTime.now())
+                                        .build();
+                        // 등록
+                        imgRepository.save(newPortfolioImg);
+
+                    } catch (Exception e) {
+                        new ApiException(ErrorCode.FILE_NOT_EXIST);
+                    }
+                }
+            }
+
+        } else {
+            // 기존 정보 조회
+            Portfolio portfolio =
+                    portfolioRepository.findByDesignerDesignerIdAndPortfolioId(
+                            data.getDesignerId(), data.getPortfolioId());
+            if (portfolio == null) {
+                throw new ApiException(ErrorCode.DATA_NOT_EXIST);
+            }
+            // 영상 등록
+            String videoUrl = portfolio.getVideoUrl(), videoFileName = portfolio.getVideoName();
+            if (data.getNewVideoFile() != null
+                    && !data.getNewVideoFile().getOriginalFilename().isEmpty()) {
+                videoUrl =
+                        s3Service.updateFileImage(
+                                data.getPreVideoUrl(),
+                                data.getNewVideoFile()); // TODO 파일명 짓는 양식 정하기
+                videoFileName = videoUrl.substring(videoUrl.lastIndexOf('/') + 1);
+            }
+            // 사진 등록
+            if (data.getNewImgFileList() != null && !data.getNewImgFileList().isEmpty()) {
+                for (MultipartFile file : data.getNewImgFileList()) {
+                    try {
+                        String imgUrl =
+                                s3Service.uploadFileImage(
+                                        file, "portfolio", "portfolio"); // TODO 파일명 짓는 양식 정하기
+                        String imgFileName = imgUrl.substring(imgUrl.lastIndexOf('/') + 1);
+
+                        // 이미지 추가 내용
+                        PortfolioImg newPortfolioImg =
+                                PortfolioImg.builder()
+                                        .portfolio(portfolio)
+                                        .imgUrl(imgUrl)
+                                        .createdAt(LocalDateTime.now())
+                                        .build();
+                        // 등록
+                        imgRepository.save(newPortfolioImg);
+
+                    } catch (Exception e) {
+                        new ApiException(ErrorCode.FILE_NOT_EXIST);
+                    }
+                }
+            }
+
+            // 입력 내용
+            Portfolio newPortfolio =
+                    portfolio.toBuilder()
+                            .designer(designer)
+                            .videoUrl(videoUrl)
+                            .videoName(videoFileName)
+                            .title(data.getTitle())
+                            .contents(data.getContents())
+                            .createdAt(LocalDateTime.now())
+                            .build();
+            // 등록
+            portfolioRepository.save(newPortfolio);
+        }
+    } // updateDesignerPortfolio
+
+    /**
+     * @title 디자이너 - 포트폴리오 삭제
+     * @description 선택한 포트폴리오 삭제
+     * @param designerId 디자이너 아이디
+     * @param portfolioId 포트폴리오 아이디
+     */
+    public void deleteDesignerPortfolio(Long designerId, Long portfolioId) {
+        // TODO 당연히 존재하는 값일텐데 굳이 한번 더 조회하고 삭제하는 것이 맞을지?
+        //  delete는 데이터 없으면 알아서 아무일도 일어나지 않음.
+        Portfolio portfolio =
+                portfolioRepository.findByDesignerDesignerIdAndPortfolioId(designerId, portfolioId);
+        if (portfolio == null) {
+            throw new ApiException(ErrorCode.DATA_NOT_EXIST);
+        } else {
+            portfolioRepository.delete(portfolio);
+        }
+    } // deleteDesignerPortfolio
 }

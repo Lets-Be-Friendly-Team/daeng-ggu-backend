@@ -8,7 +8,9 @@ import lombok.*;
 @Entity
 @Table(name = "designer")
 @Getter
+@Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @ToString(exclude = {"bookmarks", "services", "breeds", "certificates", "portfolios"})
 public class Designer {
 
@@ -99,52 +101,4 @@ public class Designer {
     // 포트폴리오 연관 관계 (1:N)
     @OneToMany(mappedBy = "designer")
     private List<Portfolio> portfolios;
-
-    @Builder
-    public Designer(
-            Long designerId,
-            String designerLoginId,
-            String email,
-            String password,
-            String role,
-            String designerName,
-            String officialName,
-            String phone,
-            Date joinDate,
-            String billingCode,
-            String isMonthlyPay,
-            Date monthlyPayDate,
-            String designerImgUrl,
-            String designerImgName,
-            String address1,
-            String address2,
-            String detailAddress,
-            String introduction,
-            String workExperience,
-            String isVerified,
-            String businessNumber,
-            String businessIsVerified) {
-        this.designerId = designerId;
-        this.designerLoginId = designerLoginId;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-        this.designerName = designerName;
-        this.phone = phone;
-        this.officialName = officialName;
-        this.joinDate = joinDate;
-        this.billingCode = billingCode;
-        this.isMonthlyPay = isMonthlyPay;
-        this.monthlyPayDate = monthlyPayDate;
-        this.designerImgUrl = designerImgUrl;
-        this.designerImgName = designerImgName;
-        this.address1 = address1;
-        this.address2 = address2;
-        this.detailAddress = detailAddress;
-        this.introduction = introduction;
-        this.workExperience = workExperience;
-        this.isVerified = isVerified;
-        this.businessNumber = businessNumber;
-        this.businessIsVerified = businessIsVerified;
-    }
 }
