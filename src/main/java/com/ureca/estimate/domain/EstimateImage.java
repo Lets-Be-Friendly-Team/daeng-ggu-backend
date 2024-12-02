@@ -1,8 +1,6 @@
 package com.ureca.estimate.domain;
 
-
 import com.ureca.common.entity.BaseEntity;
-import com.ureca.estimate.domain.Estimate;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,4 +26,3 @@ public class EstimateImage extends BaseEntity {
     @JoinColumn(name = "estimate_id")
     private Estimate estimate; // Review와의 연관 관계
 }
-

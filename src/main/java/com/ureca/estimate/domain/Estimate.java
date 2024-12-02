@@ -3,12 +3,10 @@ package com.ureca.estimate.domain;
 import com.ureca.common.entity.BaseEntity;
 import com.ureca.profile.domain.Designer;
 import com.ureca.request.domain.Request;
-import com.ureca.review.domain.ReviewImage;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

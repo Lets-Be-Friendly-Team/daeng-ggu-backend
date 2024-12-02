@@ -1,6 +1,5 @@
 package com.ureca.request.domain;
 
-
 import com.ureca.common.entity.BaseEntity;
 import com.ureca.profile.domain.Designer;
 import jakarta.persistence.*;
@@ -29,4 +28,3 @@ public class RequestAlarm extends BaseEntity {
     @JoinColumn(name = "designer_id")
     private Designer designer;
 }
-

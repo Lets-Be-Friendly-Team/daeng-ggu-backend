@@ -1,15 +1,14 @@
 package com.ureca.request.presentation.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.time.LocalDateTime;
 
 public class RequestDto {
     @Builder(toBuilder = true)
     @Getter
-    public static class Request{
+    public static class Request {
         private Long designerId;
         private Long customerId;
         private Long requestId;
@@ -31,7 +30,7 @@ public class RequestDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Builder(toBuilder = true)
     @Getter
-    public static class Response{
+    public static class Response {
         private Long requestId;
         private Long petId;
         private String petName;
@@ -64,5 +63,4 @@ public class RequestDto {
         private LocalDateTime createdAt;
         private String codeName;
     }
-
 }
