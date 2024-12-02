@@ -1,6 +1,7 @@
 package com.ureca.profile.domain;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import java.util.*;
 import lombok.*;
 
@@ -8,7 +9,9 @@ import lombok.*;
 @Entity
 @Table(name = "pet")
 @Getter
+@Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @ToString(exclude = "customer")
 public class Pet {
 
@@ -52,31 +55,10 @@ public class Pet {
     // 중성화 여부
     private String isNeutered;
 
-    @Builder
-    public Pet(
-            Long petId,
-            Customer customer,
-            String petName,
-            Date birthDate,
-            String gender,
-            String majorBreedCode,
-            String subBreedCode,
-            Double weight,
-            String specialNotes,
-            String petImgUrl,
-            String petImgName,
-            String isNeutered) {
-        this.petId = petId;
-        this.customer = customer;
-        this.petName = petName;
-        this.birthDate = birthDate;
-        this.gender = gender;
-        this.majorBreedCode = majorBreedCode;
-        this.subBreedCode = subBreedCode;
-        this.weight = weight;
-        this.specialNotes = specialNotes;
-        this.petImgUrl = petImgUrl;
-        this.petImgName = petImgName;
-        this.isNeutered = isNeutered;
-    }
+    // 생성시간
+    private LocalDateTime createdAt;
+
+    // 수정시간
+    @Column(nullable = true)
+    private LocalDateTime updatedAt;
 }
