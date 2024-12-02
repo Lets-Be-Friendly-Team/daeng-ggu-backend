@@ -5,10 +5,12 @@ import com.ureca.common.response.ResponseUtil;
 import com.ureca.profile.application.service.CustomerService;
 import com.ureca.profile.presentation.dto.CustomerDetail;
 import com.ureca.profile.presentation.dto.CustomerProfile;
+import com.ureca.profile.presentation.dto.CustomerUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,4 +46,16 @@ public class CustomerController {
         // service - 보호자 프로필 상세 조회
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", customerService.getCustomerDetail(customerId));
     } // customerDetail
+
+    /**
+     * @title 보호자 - 프로필 수정
+     * @param data 입력 내용
+     * @description /daengggu/customer/profile/update
+     */
+    @GetMapping("/customer/profile/update")
+    public ResponseDto<Void> customerUpdate(@ModelAttribute CustomerUpdate data) {
+        // service - 보호자 프로필 수정
+        customerService.updateCustomerProfile(data);
+        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
+    } // customerUpdate
 }

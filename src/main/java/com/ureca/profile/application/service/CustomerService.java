@@ -1,7 +1,9 @@
 package com.ureca.profile.application.service;
 
+import com.ureca.common.application.S3Service;
 import com.ureca.common.exception.ApiException;
 import com.ureca.common.exception.ErrorCode;
+import com.ureca.common.util.ValidationUtil;
 import com.ureca.profile.domain.Bookmark;
 import com.ureca.profile.domain.Breeds;
 import com.ureca.profile.domain.Customer;
@@ -12,18 +14,21 @@ import com.ureca.profile.infrastructure.PetRepository;
 import com.ureca.profile.presentation.dto.BookmarkInfo;
 import com.ureca.profile.presentation.dto.CustomerDetail;
 import com.ureca.profile.presentation.dto.CustomerProfile;
+import com.ureca.profile.presentation.dto.CustomerUpdate;
 import com.ureca.profile.presentation.dto.PetInfo;
 import com.ureca.profile.presentation.dto.ReviewInfo;
 import com.ureca.review.domain.Review;
 import com.ureca.review.domain.ReviewImage;
 import com.ureca.review.infrastructure.ReviewRepository;
 import java.text.SimpleDateFormat;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CustomerService {
@@ -34,6 +39,7 @@ public class CustomerService {
     @Autowired private PetRepository petRepository;
     @Autowired private ReviewRepository reviewRepository;
     @Autowired private BookmarkRepository bookmarkRepository;
+    @Autowired private S3Service s3Service;
 
     /**
      * @title 보호자 - 프로필
@@ -49,10 +55,7 @@ public class CustomerService {
         Customer customer =
                 customerRepository
                         .findById(customerId)
-                        .orElseThrow(
-                                () ->
-                                        new RuntimeException(
-                                                "Customer not found")); // customerId로 Customer 엔티티
+                        .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_EXIST));
         // 조회
         customerProfile.setCustomerId(customer.getCustomerId());
         customerProfile.setCustomerName(customer.getCustomerName());
@@ -61,9 +64,7 @@ public class CustomerService {
         customerProfile.setNickname(customer.getNickname());
 
         // 반려견 목록
-        List<Pet> pets =
-                petRepository.findByCustomerCustomerId(
-                        customerId); // customerId로 해당 고객의 반려견 목록을 가져옴
+        List<Pet> pets = petRepository.findByCustomerCustomerId(customerId);
         List<PetInfo> petInfoList =
                 pets.stream()
                         .map(
@@ -78,8 +79,7 @@ public class CustomerService {
         customerProfile.setPetList(petInfoList);
 
         // 리뷰 목록
-        List<Review> reviews =
-                reviewRepository.findByCustomerCustomerId(customerId); // 고객 아이디로 리뷰 조회
+        List<Review> reviews = reviewRepository.findByCustomerCustomerId(customerId);
         List<ReviewInfo> reviewList =
                 reviews.stream()
                         .map(
@@ -132,9 +132,7 @@ public class CustomerService {
                                             bookmark.getDesigner().getAddress1()
                                                     + bookmark.getDesigner().getAddress2());
 
-                                    List<Breeds> breedsList =
-                                            bookmark.getDesigner()
-                                                    .getBreeds(); // getBreeds()가 List<Breeds>를 반환
+                                    List<Breeds> breedsList = bookmark.getDesigner().getBreeds();
                                     if (breedsList != null) {
                                         String[] breedArray =
                                                 breedsList.stream()
@@ -179,28 +177,25 @@ public class CustomerService {
         Customer customer =
                 customerRepository
                         .findById(customerId)
-                        .orElseThrow(
-                                () ->
-                                        new RuntimeException(
-                                                "Customer not found")); // customerId로 Customer 엔티티를
+                        .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_EXIST));
         // 조회
-        customerDetail.setCustomerId(customer.getCustomerId()); // 보호자 아이디
-        customerDetail.setCustomerLoginId(customer.getCustomerLoginId()); // 보호자 로그인 아이디
-        customerDetail.setCustomerName(customer.getCustomerName()); // 보호자명
-        customerDetail.setCustomerImgUrl(customer.getCustomerImgUrl()); // 보호자 이미지 URL
-        customerDetail.setCustomerImgName(customer.getCustomerImgName()); // 보호자 이미지명
-        customerDetail.setNickname(customer.getNickname()); // 닉네임
+        customerDetail.setCustomerId(customer.getCustomerId());
+        customerDetail.setCustomerLoginId(customer.getCustomerLoginId());
+        customerDetail.setCustomerName(customer.getCustomerName());
+        customerDetail.setCustomerImgUrl(customer.getCustomerImgUrl());
+        customerDetail.setCustomerImgName(customer.getCustomerImgName());
+        customerDetail.setNickname(customer.getNickname());
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String formattedDate = dateFormat.format(customer.getBirthDate());
-        customerDetail.setBirthDate(formattedDate); // 생년월일
-        customerDetail.setGender(customer.getGender()); // 성별
-        customerDetail.setPhone(customer.getPhone()); // 전화번호
+        customerDetail.setBirthDate(formattedDate);
+        customerDetail.setGender(customer.getGender());
+        customerDetail.setPhone(customer.getPhone());
 
         // 주소 처리
-        customerDetail.setAddress1(customer.getAddress1()); // 기본 주소 1
-        customerDetail.setAddress2(customer.getAddress2()); // 기본 주소 2
-        customerDetail.setDetailAddress(customer.getDetailAddress()); // 상세 주소
+        customerDetail.setAddress1(customer.getAddress1());
+        customerDetail.setAddress2(customer.getAddress2());
+        customerDetail.setDetailAddress(customer.getDetailAddress());
 
         // 응답 검증
         if (customerDetail == null) {
@@ -211,4 +206,86 @@ public class CustomerService {
 
         return customerDetail;
     } // getCustomerDetail
+
+    /**
+     * @title 보호자 - 프로필 등록/수정
+     * @description 보호자 프로필 등록/수정
+     * @param data 입력 정보
+     * @return status 업데이트 성공 여부
+     */
+    @Transactional
+    public void updateCustomerProfile(CustomerUpdate data) {
+
+        // 신규 등록
+        if (data.getCustomerId() == null || data.getCustomerId() == 0) {
+
+            String imageUrl = "", fileName = "";
+            // 새로운 이미지 등록
+            if (data.getNewCustomerImgFile() != null
+                    && !data.getNewCustomerImgFile().getOriginalFilename().isEmpty()) {
+                imageUrl =
+                        s3Service.uploadFileImage(
+                                data.getNewCustomerImgFile(),
+                                "profile",
+                                "profile"); // TODO 파일명 짓는 양식 정하기
+                fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+            }
+
+            // 입력 내용
+            Customer newCustomer =
+                    Customer.builder()
+                            .customerName(data.getCustomerName())
+                            .customerImgUrl(imageUrl)
+                            .customerImgName(fileName)
+                            .birthDate(ValidationUtil.stringToDate(data.getBirthDate()))
+                            .gender(data.getGender())
+                            .phone(data.getPhone())
+                            .nickname(data.getNickname())
+                            .address1(data.getAddress1())
+                            .address2(data.getAddress2())
+                            .detailAddress(data.getDetailAddress())
+                            .createdAt(LocalDateTime.now())
+                            .build();
+
+            // 등록
+            customerRepository.save(newCustomer);
+
+        } else {
+            // 기존 정보 조회
+            Customer customer =
+                    customerRepository
+                            .findById(data.getCustomerId())
+                            .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_EXIST));
+
+            String imageUrl = customer.getCustomerImgUrl();
+            String fileName = customer.getCustomerImgName();
+            // 이미지 수정 - 같은 파일명으로 덮어쓰기
+            if (data.getNewCustomerImgFile() != null
+                    && !data.getNewCustomerImgFile().getOriginalFilename().isEmpty()) {
+                imageUrl =
+                        s3Service.updateFileImage(
+                                data.getPreCustomerImgUrl(), data.getNewCustomerImgFile());
+                fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+            }
+
+            // 입력 내용
+            Customer updatedCustomer =
+                    customer.toBuilder()
+                            .customerName(data.getCustomerName())
+                            .customerImgUrl(imageUrl)
+                            .customerImgName(fileName)
+                            .birthDate(ValidationUtil.stringToDate(data.getBirthDate()))
+                            .gender(data.getGender())
+                            .phone(data.getPhone())
+                            .nickname(data.getNickname())
+                            .address1(data.getAddress1())
+                            .address2(data.getAddress2())
+                            .detailAddress(data.getDetailAddress())
+                            .updatedAt(LocalDateTime.now())
+                            .build();
+
+            // 업데이트
+            customerRepository.save(updatedCustomer);
+        }
+    } // updateCustomerProfile
 }
