@@ -93,25 +93,9 @@ public class CustomerService {
                                         if (reviewImages.size() > 0)
                                             reviewInfo.setReviewImgUrl1(
                                                     reviewImages.get(0).getReviewImageUrl());
-                                        if (reviewImages.size() > 1)
-                                            reviewInfo.setReviewImgUrl2(
-                                                    reviewImages.get(1).getReviewImageUrl());
-                                        if (reviewImages.size() > 2)
-                                            reviewInfo.setReviewImgUrl3(
-                                                    reviewImages.get(2).getReviewImageUrl());
                                     } else { // 이미지가 없는 경우 기본값 설정 (null 처리)
                                         reviewInfo.setReviewImgUrl1(null);
-                                        reviewInfo.setReviewImgUrl2(null);
-                                        reviewInfo.setReviewImgUrl3(null);
                                     }
-                                    reviewInfo.setDesignerId(review.getDesigner().getDesignerId());
-                                    reviewInfo.setDesignerImgUrl(
-                                            review.getDesigner().getDesignerImgUrl());
-                                    reviewInfo.setDesignerAddress(
-                                            review.getDesigner().getAddress1()); // TODO 잘라서 보낼지 정하기
-                                    reviewInfo.setReviewContents(review.getReviewContents());
-                                    reviewInfo.setReviewStar(review.getReviewStar());
-                                    reviewInfo.setReviewLikeCnt(review.getReviewLikeCnt());
                                     return reviewInfo;
                                 })
                         .collect(Collectors.toList());
@@ -153,13 +137,6 @@ public class CustomerService {
                                 })
                         .collect(Collectors.toList());
         customerProfile.setBookmarkList(bookmarkList);
-
-        // 응답 검증
-        if (customerProfile == null) {
-            throw new ApiException(ErrorCode.DATA_NOT_EXIST);
-        } else {
-            logger.info(String.valueOf(customerProfile));
-        }
 
         return customerProfile;
     } // getCustomerProfile
