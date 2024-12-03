@@ -91,10 +91,10 @@ public class CustomerService {
                                     if (reviewImages != null
                                             && !reviewImages.isEmpty()) { // 이미지가 있다면 최대 3개까지 가져오기
                                         if (reviewImages.size() > 0)
-                                            reviewInfo.setReviewImgUrl1(
+                                            reviewInfo.setReviewImgUrl(
                                                     reviewImages.get(0).getReviewImageUrl());
                                     } else { // 이미지가 없는 경우 기본값 설정 (null 처리)
-                                        reviewInfo.setReviewImgUrl1(null);
+                                        reviewInfo.setReviewImgUrl(null);
                                     }
                                     return reviewInfo;
                                 })
