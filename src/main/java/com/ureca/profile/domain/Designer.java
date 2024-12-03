@@ -40,9 +40,6 @@ public class Designer {
     // 전화번호
     private String phone;
 
-    // 가입일자
-    private Date joinDate;
-
     // 빌링코드
     private String billingCode;
 
@@ -66,6 +63,12 @@ public class Designer {
 
     // 상세 주소
     private String detailAddress;
+
+    // x좌표 (경도)
+    private double xPosition;
+
+    // y좌표 (위도)
+    private double yPosition;
 
     // 소개글
     private String introduction;
