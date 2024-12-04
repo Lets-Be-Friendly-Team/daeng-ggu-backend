@@ -1,5 +1,6 @@
 package com.ureca.reservation.domain;
 
+import com.ureca.common.entity.BaseEntity;
 import com.ureca.estimate.domain.Estimate;
 import com.ureca.profile.domain.Designer;
 import com.ureca.profile.domain.Pet;
@@ -19,7 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Reservation {
+public class Reservation extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
