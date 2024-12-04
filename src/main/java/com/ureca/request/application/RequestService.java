@@ -117,9 +117,29 @@ public class RequestService {
                         .findById(request_id)
                         .orElseThrow(() -> new ApiException(ErrorCode.REQUEST_NOT_EXIST));
 
+        Pet pet = request.getPet();
+        Customer customer = pet.getCustomer();
+
         // 조회된 데이터를 Response DTO로 변환
         return RequestDto.Response.builder()
-                .petId(request.getPet().getPetId()) // Pet 엔티티의 ID
+                .petId(pet.getPetId())
+                .petName(pet.getPetName())
+                .petImageUrl(pet.getPetImgUrl())
+                .petImageName(pet.getPetImgName())
+                .birthDate(String.valueOf(pet.getBirthDate()))
+                .gender(pet.getGender())
+                .isNeutered(pet.getIsNeutered())
+                .weight(pet.getWeight())
+                .majorBreedCode(String.valueOf(pet.getMajorBreedCode()))
+                .majorBreed(commonCodeRepository.findCodeNmByCodeId(pet.getMajorBreedCode()))
+                .subBreedCode(String.valueOf(pet.getSubBreedCode()))
+                .subBreed(commonCodeRepository.findCodeNmByCodeId(pet.getSubBreedCode()))
+                .specialNotes(pet.getSpecialNotes())
+                .isRequested(requestRepository.existsByPetAndRequestStatus(pet, "ST1"))
+                .customerId(customer.getCustomerId())
+                .customerName(customer.getCustomerName())
+                .phone(customer.getPhone())
+                .address(customer.getAddress1())
                 .desiredServiceCode(request.getDesired_service_code())
                 .lastGroomingDate(request.getLast_grooming_date())
                 .desiredDate1(request.getDesired_date1())
