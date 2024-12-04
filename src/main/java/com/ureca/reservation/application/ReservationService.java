@@ -171,49 +171,49 @@ public class ReservationService {
                 List<Integer> availableTimes = generateFullDayAvailableTimes();
                 if (date.isEqual(today)) {
                     availableTimes =
-                        availableTimes.stream()
-                            .filter(hour -> hour >= now.getHour())
-                            .collect(Collectors.toList());
+                            availableTimes.stream()
+                                    .filter(hour -> hour >= now.getHour())
+                                    .collect(Collectors.toList());
                 }
 
                 if (!availableTimes.isEmpty()) {
                     availableDates.add(
-                        DesignerAvailableDatesResponseDto.builder()
-                            .date(date)
-                            .availableTimes(availableTimes)
-                            .build());
+                            DesignerAvailableDatesResponseDto.builder()
+                                    .date(date)
+                                    .availableTimes(availableTimes)
+                                    .build());
                 }
             } else {
                 // 예약이 있는 날짜의 가능한 시간 계산
                 List<Integer> unavailableTimes =
-                    reservationsByDate.get(date).stream()
-                        .flatMap(
-                            reservation ->
-                                generateTimesFromRange(
-                                    reservation.getStartTime(),
-                                    reservation.getEndTime())
-                                    .stream())
-                        .toList();
+                        reservationsByDate.get(date).stream()
+                                .flatMap(
+                                        reservation ->
+                                                generateTimesFromRange(
+                                                        reservation.getStartTime(),
+                                                        reservation.getEndTime())
+                                                        .stream())
+                                .toList();
 
                 List<Integer> availableTimes =
-                    generateFullDayAvailableTimes().stream()
-                        .filter(hour -> !unavailableTimes.contains(hour))
-                        .collect(Collectors.toList());
+                        generateFullDayAvailableTimes().stream()
+                                .filter(hour -> !unavailableTimes.contains(hour))
+                                .collect(Collectors.toList());
 
                 // 현재 날짜일 경우 현재 시간 이후의 시간대만 포함
                 if (date.isEqual(today)) {
                     availableTimes =
-                        availableTimes.stream()
-                            .filter(hour -> hour >= now.getHour())
-                            .collect(Collectors.toList());
+                            availableTimes.stream()
+                                    .filter(hour -> hour >= now.getHour())
+                                    .collect(Collectors.toList());
                 }
 
                 if (!availableTimes.isEmpty()) {
                     availableDates.add(
-                        DesignerAvailableDatesResponseDto.builder()
-                            .date(date)
-                            .availableTimes(availableTimes)
-                            .build());
+                            DesignerAvailableDatesResponseDto.builder()
+                                    .date(date)
+                                    .availableTimes(availableTimes)
+                                    .build());
                 }
             }
         }
