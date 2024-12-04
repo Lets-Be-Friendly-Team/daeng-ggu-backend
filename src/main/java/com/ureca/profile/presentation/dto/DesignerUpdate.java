@@ -30,24 +30,20 @@ public class DesignerUpdate {
     private String introduction;
     // 연락처
     private String phone;
-    // 제공 서비스 코드
+    // 제공 서비스 코드 목록
     private String[] providedServices;
     // 미용 가능 견종 코드
     private List<BreedCode> possibleBreed;
-    // 디자이너 로그인 아이디
-    private String designerLoginId;
     // 본인인증 여부 (Y/N)
     private String isVerified;
     // 사업자번호
     private String businessNumber;
     // 사업자인증 여부 (Y/N)
     private String businessIsVerified;
-    // 자격증 이미지 URL
+    // 자격증 이미지 URL 목록
     private String[] certifications;
     // 경력사항
     private String workExperience;
-    // 신규 자격증 이미지 목록
+    // 신규 자격증 이미지 파일 목록
     private List<MultipartFile> certificationsFileList;
-    // 포트폴리오 목록
-    private List<PortfolioInfo> portfolioList;
 }
