@@ -51,6 +51,7 @@ public class ReviewDto {
         private Integer reviewStar;
         private Integer reviewLikeCnt;
         private Boolean isReviewLike;
+        private Boolean feedExposure;
         private String feedUrl;
         private List<String> FeedImgList;
     }

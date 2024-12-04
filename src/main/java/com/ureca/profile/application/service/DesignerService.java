@@ -3,13 +3,18 @@ package com.ureca.profile.application.service;
 import com.ureca.common.application.S3Service;
 import com.ureca.common.exception.ApiException;
 import com.ureca.common.exception.ErrorCode;
+import com.ureca.profile.domain.Breeds;
+import com.ureca.profile.domain.Certificate;
 import com.ureca.profile.domain.Designer;
 import com.ureca.profile.domain.Portfolio;
 import com.ureca.profile.domain.PortfolioImg;
+import com.ureca.profile.domain.Services;
 import com.ureca.profile.infrastructure.CertificateRepository;
 import com.ureca.profile.infrastructure.DesignerRepository;
 import com.ureca.profile.infrastructure.PortfolioImgRepository;
 import com.ureca.profile.infrastructure.PortfolioRepository;
+import com.ureca.profile.infrastructure.ServicesRepository;
+import com.ureca.profile.presentation.dto.BreedCode;
 import com.ureca.profile.presentation.dto.DesignerDetail;
 import com.ureca.profile.presentation.dto.DesignerProfile;
 import com.ureca.profile.presentation.dto.DesignerUpdate;
@@ -21,7 +26,9 @@ import com.ureca.review.domain.Review;
 import com.ureca.review.domain.ReviewImage;
 import com.ureca.review.infrastructure.ReviewRepository;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +47,7 @@ public class DesignerService {
     @Autowired private PortfolioRepository portfolioRepository;
     @Autowired private ReviewRepository reviewRepository;
     @Autowired private PortfolioImgRepository imgRepository;
+    @Autowired private ServicesRepository servicesRepository;
     @Autowired private S3Service s3Service;
 
     /**
@@ -53,6 +61,7 @@ public class DesignerService {
         // 디자이너 정보
         DesignerProfile designerProfile =
                 designerRepository.findDesignerProfileByDesignerId(designerId);
+        if (designerProfile == null) throw new ApiException(ErrorCode.DESIGNER_NOT_EXIST);
         // 별점 평균
         designerProfile.setReviewStarAvg(
                 designerRepository.findAverageReviewStarByDesignerId(designerId));
@@ -110,41 +119,17 @@ public class DesignerService {
                                     reviewInfo.setReviewId(review.getReviewId());
                                     /// 리뷰 이미지 처리: 이미지가 없는 경우 null로 처리
                                     List<ReviewImage> reviewImages = review.getReviewImages();
-                                    if (reviewImages != null
-                                            && !reviewImages.isEmpty()) { // 이미지가 있다면 최대 3개까지 가져오기
+                                    if (reviewImages != null && !reviewImages.isEmpty()) {
                                         if (reviewImages.size() > 0)
-                                            reviewInfo.setReviewImgUrl1(
+                                            reviewInfo.setReviewImgUrl(
                                                     reviewImages.get(0).getReviewImageUrl());
-                                        if (reviewImages.size() > 1)
-                                            reviewInfo.setReviewImgUrl2(
-                                                    reviewImages.get(1).getReviewImageUrl());
-                                        if (reviewImages.size() > 2)
-                                            reviewInfo.setReviewImgUrl3(
-                                                    reviewImages.get(2).getReviewImageUrl());
                                     } else { // 이미지가 없는 경우 기본값 설정 (null 처리)
-                                        reviewInfo.setReviewImgUrl1(null);
-                                        reviewInfo.setReviewImgUrl2(null);
-                                        reviewInfo.setReviewImgUrl3(null);
+                                        reviewInfo.setReviewImgUrl(null);
                                     }
-                                    reviewInfo.setDesignerId(review.getDesigner().getDesignerId());
-                                    reviewInfo.setDesignerImgUrl(
-                                            review.getDesigner().getDesignerImgUrl());
-                                    reviewInfo.setDesignerAddress(
-                                            review.getDesigner().getAddress1()); // TODO 잘라서 보낼지 정하기
-                                    reviewInfo.setReviewContents(review.getReviewContents());
-                                    reviewInfo.setReviewStar(review.getReviewStar());
-                                    reviewInfo.setReviewLikeCnt(review.getReviewLikeCnt());
                                     return reviewInfo;
                                 })
                         .collect(Collectors.toList());
         designerProfile.setReviewList(reviewList);
-
-        // 응답 검증
-        if (designerProfile == null) {
-            throw new ApiException(ErrorCode.DATA_NOT_EXIST);
-        } else {
-            logger.info(String.valueOf(designerProfile));
-        }
 
         return designerProfile;
     } // getDesignerProfile
@@ -214,11 +199,207 @@ public class DesignerService {
      * @title 디자이너 - 프로필 등록/수정
      * @description 디자이너 프로필 등록/수정
      * @param data 입력 정보
-     * @return status 업데이트 성공 여부
      */
     @Transactional
     public void updateDesignerProfile(DesignerUpdate data) {
-        // TODO 포트폴리오 저장 방식 정하고 구현하기
+        // 신규 등록
+        if (data.getDesignerId() == null || data.getDesignerId() == 0) {
+            // TODO 로그인 이후 추가할 데이터
+            String designerLoginId = "test@navaer.com";
+            String email = "test@navaer.com";
+            String password = "1234";
+            String role = "designer";
+            String billingCode = "";
+            String isMonthlyPay = "N";
+            // TODO 좌표 변환 API 이후 좌표값
+            double xPosition = 0.0;
+            double yPosition = 0.0;
+
+            // 이미지 등록
+            String imageUrl = "", fileName = "";
+            if (data.getNewImgFile() != null
+                    && !data.getNewImgFile().getOriginalFilename().isEmpty()) {
+                imageUrl =
+                        s3Service.uploadFileImage(
+                                data.getNewImgFile(),
+                                "profile",
+                                "designerProfile"); // TODO 파일명 짓는 양식 정하기
+                fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+            }
+
+            // 디자이너 등록
+            List<Services> services = new ArrayList<>();
+            if (data.getProvidedServices() != null) {
+                for (String providedService : data.getProvidedServices()) { // 제공 서비스 코드 목록
+                    Services newServices =
+                            Services.builder().providedServicesCode(providedService).build();
+                    services.add(newServices);
+                }
+            }
+            List<Breeds> breeds = new ArrayList<>();
+            if (data.getPossibleBreed() != null) {
+                for (BreedCode breedCode : data.getPossibleBreed()) { // 미용 가능 견종 코드
+                    Breeds newBreeds =
+                            Breeds.builder()
+                                    .possibleMajorBreedCode(breedCode.getMajorBreedCode())
+                                    .possibleSubBreedCode(breedCode.getSubBreedCode())
+                                    .build();
+                    breeds.add(newBreeds);
+                }
+            }
+            Designer newDesigner =
+                    Designer.builder()
+                            .designerLoginId(designerLoginId)
+                            .email(email)
+                            .password(password)
+                            .role(role)
+                            .designerName(data.getDesignerName())
+                            .officialName(data.getNickname())
+                            .phone(data.getPhone())
+                            .billingCode(billingCode)
+                            .isMonthlyPay(isMonthlyPay)
+                            .monthlyPayDate(LocalDateTime.now())
+                            .designerImgUrl(imageUrl)
+                            .designerImgName(fileName)
+                            .address1(data.getAddress1())
+                            .address2(data.getAddress2())
+                            .detailAddress(data.getDetailAddress())
+                            .xPosition(xPosition)
+                            .yPosition(yPosition)
+                            .introduction(data.getIntroduction())
+                            .workExperience(data.getWorkExperience())
+                            .isVerified(data.getIsVerified())
+                            .businessNumber(data.getBusinessNumber())
+                            .businessIsVerified(data.getBusinessIsVerified())
+                            .services(services)
+                            .breeds(breeds)
+                            .createdAt(LocalDateTime.now())
+                            .build();
+            Designer savedDesigner = designerRepository.save(newDesigner);
+
+            // 인증서 등록
+            if (data.getCertificationsFileList() != null
+                    && !data.getCertificationsFileList().isEmpty()) {
+                for (MultipartFile file : data.getCertificationsFileList()) {
+                    String certificationsUrl =
+                            s3Service.uploadFileImage(
+                                    file, "profile", "certifications"); // TODO 파일명 짓는 양식 정하기
+                    Certificate newCertificate =
+                            Certificate.builder()
+                                    .designer(savedDesigner)
+                                    .imgUrl(certificationsUrl)
+                                    .build();
+                    certificateRepository.save(newCertificate);
+                }
+            }
+        } else {
+            // 기존 정보 조회
+            Designer designer =
+                    designerRepository
+                            .findById(data.getDesignerId())
+                            .orElseThrow(() -> new ApiException(ErrorCode.DESIGNER_NOT_EXIST));
+            // 이미지 등록
+            String imageUrl = data.getPreImgUrl();
+            String fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+            if (data.getNewImgFile() != null
+                    && !data.getNewImgFile().getOriginalFilename().isEmpty()) {
+                imageUrl =
+                        s3Service.uploadFileImage(
+                                data.getNewImgFile(),
+                                "profile",
+                                "designerProfile"); // TODO 파일명 짓는 양식 정하기
+                fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+            }
+            // 디자이너 등록
+            List<Services> services = new ArrayList<>();
+            for (String providedService : data.getProvidedServices()) { // 제공 서비스 코드 목록
+                Optional<Services> existingServiceOpt =
+                        servicesRepository.findByDesignerAndProvidedServicesCode(
+                                designer, providedService);
+                if (existingServiceOpt.isEmpty()) {
+                    Services newServices =
+                            Services.builder()
+                                    .designer(designer)
+                                    .providedServicesCode(providedService)
+                                    .build();
+                    services.add(newServices);
+                } else {
+                    Services existingService = existingServiceOpt.get();
+                    services.add(existingService);
+                }
+            }
+            List<Breeds> breeds = new ArrayList<>();
+            if (data.getPossibleBreed() != null) {
+                for (BreedCode breedCode : data.getPossibleBreed()) { // 미용 가능 견종 코드
+                    Breeds newBreeds =
+                            Breeds.builder()
+                                    .designer(designer)
+                                    .possibleMajorBreedCode(breedCode.getMajorBreedCode())
+                                    .possibleSubBreedCode(breedCode.getSubBreedCode())
+                                    .build();
+                    breeds.add(newBreeds);
+                }
+            } else {
+                breeds = designer.getBreeds();
+            }
+            Designer updateDesigner =
+                    designer.toBuilder()
+                            .designerId(data.getDesignerId())
+                            .designerName(data.getDesignerName())
+                            .officialName(data.getNickname())
+                            .designerImgUrl(imageUrl)
+                            .designerImgName(fileName)
+                            .address1(data.getAddress1())
+                            .address2(data.getAddress2())
+                            .detailAddress(data.getDetailAddress())
+                            .introduction(data.getIntroduction())
+                            .phone(data.getPhone())
+                            .isVerified(data.getIsVerified())
+                            .businessNumber(data.getBusinessNumber())
+                            .businessIsVerified(data.getBusinessIsVerified())
+                            .services(services)
+                            .breeds(breeds)
+                            .updatedAt(LocalDateTime.now())
+                            .build();
+            // TODO 입력한 주소에 맞는 좌표값 세팅해줘야 된다.
+            designerRepository.save(updateDesigner);
+
+            // 인증서 등록
+            List<String> preCertifications =
+                    certificateRepository.findImgUrlsByDesignerId(
+                            data.getDesignerId()); // 기존 인증서 url
+            // 남은 인증서 url
+            String[] certifications = data.getCertifications(); // 남은 인증서 url
+            for (String certification : preCertifications) {
+                boolean isPresent = false;
+                for (String cert : certifications) {
+                    if (certification.equals(cert)) {
+                        isPresent = true;
+                        break;
+                    }
+                }
+                // 기존엔 있는데, 남은곳엔 없으면 preCertifications 에서 삭제.
+                if (!isPresent) {
+                    certificateRepository.deleteByDesignerDesignerIdAndImgUrl(
+                            data.getDesignerId(), certification);
+                }
+            }
+            // 신규 인증서 file
+            if (data.getCertificationsFileList() != null
+                    && !data.getCertificationsFileList().isEmpty()) {
+                for (MultipartFile file : data.getCertificationsFileList()) {
+                    String certificationsUrl =
+                            s3Service.uploadFileImage(
+                                    file, "profile", "certifications"); // TODO 파일명 짓는 양식 정하기
+                    Certificate newCertificate =
+                            Certificate.builder()
+                                    .designer(designer)
+                                    .imgUrl(certificationsUrl)
+                                    .build();
+                    certificateRepository.save(newCertificate);
+                }
+            }
+        }
     } // updateDesignerProfile
 
     /**

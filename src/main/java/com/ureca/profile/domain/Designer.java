@@ -1,6 +1,7 @@
 package com.ureca.profile.domain;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import java.util.*;
 import lombok.*;
 
@@ -40,9 +41,6 @@ public class Designer {
     // 전화번호
     private String phone;
 
-    // 가입일자
-    private Date joinDate;
-
     // 빌링코드
     private String billingCode;
 
@@ -50,7 +48,7 @@ public class Designer {
     private String isMonthlyPay;
 
     // 월정액 결제 일자
-    private Date monthlyPayDate;
+    private LocalDateTime monthlyPayDate;
 
     // 디자이너 이미지 URL
     private String designerImgUrl;
@@ -66,6 +64,12 @@ public class Designer {
 
     // 상세 주소
     private String detailAddress;
+
+    // x좌표 (경도)
+    private double xPosition;
+
+    // y좌표 (위도)
+    private double yPosition;
 
     // 소개글
     private String introduction;
@@ -87,11 +91,11 @@ public class Designer {
     private List<Bookmark> bookmarks;
 
     // 제공 서비스 연관 관계 (1:N)
-    @OneToMany(mappedBy = "designer")
+    @OneToMany(mappedBy = "designer", cascade = CascadeType.ALL)
     private List<Services> services;
 
     // 가능 견종 연관 관계 (1:N)
-    @OneToMany(mappedBy = "designer")
+    @OneToMany(mappedBy = "designer", cascade = CascadeType.ALL)
     private List<Breeds> breeds;
 
     // 인증서 연관 관계 (1:N)
@@ -101,4 +105,11 @@ public class Designer {
     // 포트폴리오 연관 관계 (1:N)
     @OneToMany(mappedBy = "designer")
     private List<Portfolio> portfolios;
+
+    // 생성시간
+    private LocalDateTime createdAt;
+
+    // 수정시간
+    @Column(nullable = true)
+    private LocalDateTime updatedAt;
 }
