@@ -14,4 +14,7 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
     // 디자이너 인증서 URL 조회
     @Query("SELECT c.imgUrl FROM Certificate c WHERE c.designer.designerId = :designerId")
     List<String> findImgUrlsByDesignerId(Long designerId);
+
+    // 디자이너 인증서 삭제
+    void deleteByDesignerDesignerIdAndImgUrl(Long designerId, String imgUrl);
 }

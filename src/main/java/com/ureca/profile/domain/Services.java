@@ -7,7 +7,9 @@ import lombok.*;
 @Entity
 @Table(name = "services")
 @Getter
+@Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @ToString(exclude = "designer")
 public class Services {
 
@@ -23,11 +25,4 @@ public class Services {
 
     // 제공 서비스 코드
     private String providedServicesCode;
-
-    @Builder
-    public Services(Long serviceId, Designer designer, String providedServicesCode) {
-        this.serviceId = serviceId;
-        this.designer = designer;
-        this.providedServicesCode = providedServicesCode;
-    }
 }
