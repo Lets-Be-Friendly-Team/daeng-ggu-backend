@@ -45,7 +45,7 @@ public class RequestController {
 
     @PostMapping("/bid/request/customer")
     ResponseDto<String> selectBeforeRequest(@RequestBody RequestDto.Request request) {
-        requestService.selectBeforeRequest(request.getCustomerId());
+        requestService.selectRequestBefore(request.getCustomerId());
         return ResponseUtil.SUCCESS("견적 요청서 생성이 완료되었습니다.", null);
     }
 

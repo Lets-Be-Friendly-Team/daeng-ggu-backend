@@ -132,7 +132,7 @@ public class RequestService {
                 .build();
     }
 
-    public List<RequestDto.Response> selectBeforeRequest(Long customerId) {
+    public List<RequestDto.Response> selectRequestBefore(Long customerId) {
         Customer customer = customerRepository.findByCustomerId(customerId).get();
         List<Request> requests = requestRepository.findAllByCustomer(customer);
         List<RequestDto.Response> responses = new ArrayList<>();
