@@ -37,7 +37,7 @@ public class EstimateController {
             @RequestBody EstimateDto.Request request) {
         List<EstimateDto.Response> responseList =
                 estimateService.selectCustomerEstimate(request.getCustomerId());
-        return ResponseUtil.SUCCESS("견적서 생성이 완료되었습니다.", responseList);
+        return ResponseUtil.SUCCESS("견적서 조회가 완료되었습니다.", responseList);
     }
 
     @GetMapping("/bid/estimate/designer")
@@ -45,13 +45,13 @@ public class EstimateController {
             @RequestParam("designerId") Long designerId) {
         List<EstimateDto.Response> responseList =
                 estimateService.getPreviousEstimatesByDesigner(designerId);
-        return ResponseUtil.SUCCESS("디자이너 이전 견적서 조회 성공", responseList);
+        return ResponseUtil.SUCCESS("디자이너 이전 견적서 조회에 성공하였습니다.", responseList);
     }
 
     @PostMapping("/bid/estimate")
     public ResponseDto<EstimateDtoDetail> getEstimateDetail(
             @RequestBody EstimateDto.Request request) {
         EstimateDtoDetail response = estimateService.getEstimateDetail(request.getEstimateId());
-        return ResponseUtil.SUCCESS("견적서 세부 조회 성공", response);
+        return ResponseUtil.SUCCESS("견적서 세부 조회에 성공하였습니다.    ", response);
     }
 }
