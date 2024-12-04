@@ -44,7 +44,7 @@ public class RequestController {
     }
 
     @PostMapping("/bid/request/customer")
-    ResponseDto<String> selectBeforeRequest(@RequestBody RequestDto.Request request) {
+    ResponseDto<String> selectRequestBefore(@RequestBody RequestDto.Request request) {
         requestService.selectRequestBefore(request.getCustomerId());
         return ResponseUtil.SUCCESS("견적 요청서 리스트 조회가 완료되었습니다.", null);
     }
