@@ -17,6 +17,9 @@ public enum ErrorCode {
     REVIEW_NOT_EXIST(500, "리뷰를 찾을 수 없습니다.", 2020),
     CUSTOMER_NOT_EXIST(500, "보호자 정보를 찾을 수 없습니다.", 2030),
     DESIGNER_NOT_EXIST(500, "미용사 정보를 찾을 수 없습니다.", 2040),
+    PET_NOT_EXIST(500, "반려견 정보를 찾을 수 없습니다.", 2050),
+    REQUEST_NOT_EXIST(500, "요청서 정보를 찾을 수 없습니다.", 2060),
+    ESTIMATE_NOT_EXIST(500, "견적서 정보를 찾을 수 없습니다.", 2070),
 
     // 3000번대: 인증 및 권한 관련 오류
     ACCESS_DENIED(403, "데이터 접근 권한이 없습니다.", 3000),

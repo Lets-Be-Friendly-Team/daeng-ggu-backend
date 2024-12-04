@@ -1,5 +1,6 @@
 package com.ureca.request.domain;
 
+import com.ureca.common.entity.BaseEntity;
 import com.ureca.profile.domain.Customer;
 import com.ureca.profile.domain.Pet;
 import jakarta.persistence.*;
@@ -8,8 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
 @Entity
 @Table(name = "request")
@@ -17,53 +16,45 @@ import org.springframework.data.annotation.LastModifiedDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Request {
+public class Request extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long requestId;
+    private Long request_id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "petId", nullable = false)
+    @JoinColumn(name = "pet_id", nullable = false)
     private Pet pet;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customerId", nullable = false)
+    @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
     @Column(length = 20, nullable = false)
-    private String desiredServiceCode;
+    private String desired_service_code;
 
     @Column(length = 20, nullable = false)
-    private String lastGroomingDate;
+    private String last_grooming_date;
 
     @Column(nullable = false)
-    private LocalDateTime desiredDate1;
+    private LocalDateTime desired_date1;
 
-    @Column private LocalDateTime desiredDate2;
+    @Column private LocalDateTime desired_date2;
 
-    @Column private LocalDateTime desiredDate3;
+    @Column private LocalDateTime desired_date3;
 
     @Column(length = 50, nullable = false)
-    private String desiredRegion;
+    private String desired_region;
 
     @Column(nullable = false)
-    private Boolean isDelivery;
+    private Boolean is_delivery;
 
     @Column(nullable = false)
-    private Boolean isMonitoringIncluded;
+    private Boolean is_monitoringIncluded;
 
     @Column(length = 100)
-    private String additionalRequest;
+    private String additional_request;
 
     @Column(length = 20, nullable = false)
-    private String requestStatus;
-
-    @CreatedDate
-    @Column(updatable = false, nullable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
+    private String request_status;
 }
