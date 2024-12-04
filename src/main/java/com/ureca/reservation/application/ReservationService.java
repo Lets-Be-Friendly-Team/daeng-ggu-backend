@@ -153,41 +153,67 @@ public class ReservationService {
                         .collect(Collectors.groupingBy(ReservationInfo::getReservationDate));
 
         List<DesignerAvailableDatesResponseDto> availableDates = new ArrayList<>();
-        // TODO: 현재 시간을 기준으로 이전 날짜와 이전 시간은 리스트에 포함하지 않도록 처리 필요
+        LocalDate today = LocalDate.now();
+        LocalTime now = LocalTime.now();
+
         // 요청된 월의 모든 날짜를 순회하며 가능한 시간 계산
         for (int day = 1; day <= LocalDate.of(year, month, 1).lengthOfMonth(); day++) {
             LocalDate date = LocalDate.of(year, month, day);
 
+            // 과거 날짜는 무시
+            if (date.isBefore(today)) {
+                continue;
+            }
+
             // 예약이 없는 경우 기본 전체 시간대 추가
             if (!reservationsByDate.containsKey(date)) {
-                availableDates.add(
-                        DesignerAvailableDatesResponseDto.builder()
-                                .date(date)
-                                .availableTimes(generateFullDayAvailableTimes())
-                                .build());
-            } else {
-                // 예약이 있는 날짜의 가능한 시간 계산
-                List<Integer> unavailableTimes =
-                        reservationsByDate.get(date).stream()
-                                .flatMap(
-                                        reservation ->
-                                                generateTimesFromRange(
-                                                        reservation.getStartTime(),
-                                                        reservation.getEndTime())
-                                                        .stream())
-                                .toList();
-
-                List<Integer> availableTimes =
-                        generateFullDayAvailableTimes().stream()
-                                .filter(hour -> !unavailableTimes.contains(hour))
-                                .collect(Collectors.toList());
+                // 현재 날짜일 경우 현재 시간 이후의 시간대만 포함
+                List<Integer> availableTimes = generateFullDayAvailableTimes();
+                if (date.isEqual(today)) {
+                    availableTimes =
+                        availableTimes.stream()
+                            .filter(hour -> hour >= now.getHour())
+                            .collect(Collectors.toList());
+                }
 
                 if (!availableTimes.isEmpty()) {
                     availableDates.add(
-                            DesignerAvailableDatesResponseDto.builder()
-                                    .date(date)
-                                    .availableTimes(availableTimes)
-                                    .build());
+                        DesignerAvailableDatesResponseDto.builder()
+                            .date(date)
+                            .availableTimes(availableTimes)
+                            .build());
+                }
+            } else {
+                // 예약이 있는 날짜의 가능한 시간 계산
+                List<Integer> unavailableTimes =
+                    reservationsByDate.get(date).stream()
+                        .flatMap(
+                            reservation ->
+                                generateTimesFromRange(
+                                    reservation.getStartTime(),
+                                    reservation.getEndTime())
+                                    .stream())
+                        .toList();
+
+                List<Integer> availableTimes =
+                    generateFullDayAvailableTimes().stream()
+                        .filter(hour -> !unavailableTimes.contains(hour))
+                        .collect(Collectors.toList());
+
+                // 현재 날짜일 경우 현재 시간 이후의 시간대만 포함
+                if (date.isEqual(today)) {
+                    availableTimes =
+                        availableTimes.stream()
+                            .filter(hour -> hour >= now.getHour())
+                            .collect(Collectors.toList());
+                }
+
+                if (!availableTimes.isEmpty()) {
+                    availableDates.add(
+                        DesignerAvailableDatesResponseDto.builder()
+                            .date(date)
+                            .availableTimes(availableTimes)
+                            .build());
                 }
             }
         }
