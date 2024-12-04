@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -107,5 +108,64 @@ public class RequestService {
                         .build();
 
         requestRepository.save(request);
+    }
+
+    public RequestDto.Response selectRequest(Long request_id) {
+        // 요청서를 ID로 조회
+        Request request =
+                requestRepository
+                        .findById(request_id)
+                        .orElseThrow(() -> new ApiException(ErrorCode.REQUEST_NOT_EXIST));
+
+        // 조회된 데이터를 Response DTO로 변환
+        return RequestDto.Response.builder()
+                .petId(request.getPet().getPetId()) // Pet 엔티티의 ID
+                .desiredServiceCode(request.getDesired_service_code())
+                .lastGroomingDate(request.getLast_grooming_date())
+                .desiredDate1(request.getDesired_date1())
+                .desiredDate2(request.getDesired_date2())
+                .desiredDate3(request.getDesired_date3())
+                .desiredRegion(request.getDesired_region())
+                .isVisitRequired(request.getIs_delivery())
+                .isMonitoringIncluded(request.getIs_monitoringIncluded())
+                .additionalRequest(request.getAdditional_request())
+                .build();
+    }
+
+    public List<RequestDto.Response> selectRequestBefore(Long customerId) {
+        Customer customer = customerRepository.findByCustomerId(customerId).get();
+        List<Request> requests = requestRepository.findAllByCustomer(customer);
+        List<RequestDto.Response> responses = new ArrayList<>();
+        for (Request request : requests) {
+            RequestDto.Response response =
+                    RequestDto.Response.builder()
+                            .requestId(request.getRequest_id())
+                            .petId(request.getPet().getPetId())
+                            .petName(request.getPet().getPetName())
+                            .petImageUrl(request.getPet().getPetImgUrl())
+                            .majorBreed(
+                                    commonCodeRepository.findCodeNmByCodeId(
+                                            request.getPet().getMajorBreedCode()))
+                            .desiredServiceCode(request.getDesired_service_code())
+                            .isVisitRequired(request.getIs_delivery())
+                            .createdAt(request.getCreatedAt())
+                            .codeName(
+                                    commonCodeRepository.findCodeNmByCodeId(
+                                            request.getRequest_status()))
+                            .build();
+            if (response.getCodeName() != "ST1") {
+                responses.add(response);
+            }
+        }
+        return responses;
+    }
+
+    @Transactional
+    public void deleteRequest(Long requestId) {
+        Request request =
+                requestRepository
+                        .findById(requestId)
+                        .orElseThrow(() -> new ApiException(ErrorCode.REQUEST_NOT_EXIST));
+        requestRepository.delete(request);
     }
 }
