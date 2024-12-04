@@ -38,9 +38,9 @@ public class RequestController {
     }
 
     @PostMapping("/bid/request")
-    ResponseDto<String> selectRequest(@RequestBody RequestDto.Request request) {
-        requestService.selectRequest(request.getRequestId());
-        return ResponseUtil.SUCCESS("견적 요청서 조회가 완료되었습니다.", null);
+    ResponseDto<RequestDto.Response> selectRequest(@RequestBody RequestDto.Request request) {
+        RequestDto.Response response = requestService.selectRequest(request.getRequestId());
+        return ResponseUtil.SUCCESS("견적 요청서 조회가 완료되었습니다.", response);
     }
 
     @PostMapping("/bid/request/customer")
@@ -50,8 +50,8 @@ public class RequestController {
     }
 
     @DeleteMapping("/bid/request")
-    public ResponseDto<Void> deleteRequest(@RequestBody RequestDto.Request request) {
-        requestService.deleteRequest(request.getRequestId());
+    public ResponseDto<Void> deleteRequest(@RequestParam Long request_id) {
+        requestService.deleteRequest(request_id);
         return ResponseUtil.SUCCESS("요청서 삭제 성공", null);
     }
 }

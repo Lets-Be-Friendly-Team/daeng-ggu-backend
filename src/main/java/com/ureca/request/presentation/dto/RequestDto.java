@@ -1,5 +1,6 @@
 package com.ureca.request.presentation.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.LocalDateTime;
 import lombok.Builder;
@@ -22,7 +23,7 @@ public class RequestDto {
         private LocalDateTime desiredDate2;
         private LocalDateTime desiredDate3;
         private String desiredRegion;
-        private Boolean isDelivery;
+        private Boolean isVisitRequired;
         private Boolean isMonitoringIncluded;
         private String additionalRequest;
     }
@@ -53,14 +54,24 @@ public class RequestDto {
         private String address; // 주소
         private String desiredServiceCode;
         private String lastGroomingDate;
+
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime desiredDate1;
+
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime desiredDate2;
+
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime desiredDate3;
+
         private String desiredRegion;
-        private Boolean isDelivery;
+        private Boolean isVisitRequired;
         private Boolean isMonitoringIncluded;
         private String additionalRequest;
+
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime createdAt;
+
         private String codeName;
     }
 }

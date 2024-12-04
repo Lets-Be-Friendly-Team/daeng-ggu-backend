@@ -115,6 +115,7 @@ public class ReviewService {
                                 reviewLike != null
                                         ? reviewLike.getIsReviewLike()
                                         : false) // ReviewLike가 없으면 false
+                        .feedExposure(review.getIsFeedAdd())
                         .build();
 
         return response;
@@ -152,6 +153,7 @@ public class ReviewService {
                                 reviewLike != null
                                         ? reviewLike.getIsReviewLike()
                                         : false) // ReviewLike가 없으면 false
+                        .feedExposure(review.getIsFeedAdd())
                         .build();
 
         return response;

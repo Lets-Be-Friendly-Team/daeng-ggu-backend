@@ -88,7 +88,7 @@ public class RequestService {
                         .orElseThrow(() -> new ApiException(ErrorCode.PET_NOT_EXIST));
 
         Customer customer = pet.getCustomer(); // Pet에 Customer 연관 관계가 있어야 합니다.
-
+        String region = customer.getAddress1() + customer.getDetailAddress();
         Request request =
                 Request.builder()
                         .pet(pet)
@@ -98,8 +98,10 @@ public class RequestService {
                         .desired_date1(requestDto.getDesiredDate1())
                         .desired_date2(requestDto.getDesiredDate2())
                         .desired_date3(requestDto.getDesiredDate3())
-                        .desired_region(requestDto.getDesiredRegion())
-                        .is_delivery(requestDto.getIsDelivery())
+                        //                        .desired_region(requestDto.getDesiredRegion())//
+                        // 주소 입력 받기
+                        .desired_region(region) // 내 주소로 생성
+                        .is_delivery(requestDto.getIsVisitRequired())
                         .is_monitoringIncluded(requestDto.getIsMonitoringIncluded())
                         .additional_request(requestDto.getAdditionalRequest())
                         .request_status("ST1") // 기본 상태
@@ -124,7 +126,7 @@ public class RequestService {
                 .desiredDate2(request.getDesired_date2())
                 .desiredDate3(request.getDesired_date3())
                 .desiredRegion(request.getDesired_region())
-                .isDelivery(request.getIs_delivery())
+                .isVisitRequired(request.getIs_delivery())
                 .isMonitoringIncluded(request.getIs_monitoringIncluded())
                 .additionalRequest(request.getAdditional_request())
                 .build();
@@ -145,13 +147,15 @@ public class RequestService {
                                     commonCodeRepository.findCodeNmByCodeId(
                                             request.getPet().getMajorBreedCode()))
                             .desiredServiceCode(request.getDesired_service_code())
-                            .isDelivery(request.getIs_delivery())
+                            .isVisitRequired(request.getIs_delivery())
                             .createdAt(request.getCreatedAt())
                             .codeName(
                                     commonCodeRepository.findCodeNmByCodeId(
                                             request.getRequest_status()))
                             .build();
-            responses.add(response);
+            if (response.getCodeName() != "ST1") {
+                responses.add(response);
+            }
         }
         return responses;
     }
