@@ -52,6 +52,6 @@ public class RequestController {
     @DeleteMapping("/bid/request")
     public ResponseDto<Void> deleteRequest(@RequestParam Long request_id) {
         requestService.deleteRequest(request_id);
-        return ResponseUtil.SUCCESS("요청서 삭제 성공", null);
+        return ResponseUtil.SUCCESS("요청서 삭제가 완료되었습니다.", null);
     }
 }
