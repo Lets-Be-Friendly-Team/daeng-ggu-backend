@@ -36,4 +36,22 @@ public class RequestController {
         requestService.makeRequest(request);
         return ResponseUtil.SUCCESS("견적 요청서 생성이 완료되었습니다.", null);
     }
+
+    @PostMapping("/bid/request")
+    ResponseDto<RequestDto.Response> selectRequest(@RequestBody RequestDto.Request request) {
+        RequestDto.Response response = requestService.selectRequest(request.getRequestId());
+        return ResponseUtil.SUCCESS("견적 요청서 조회가 완료되었습니다.", response);
+    }
+
+    @PostMapping("/bid/request/customer")
+    ResponseDto<String> selectRequestBefore(@RequestBody RequestDto.Request request) {
+        requestService.selectRequestBefore(request.getCustomerId());
+        return ResponseUtil.SUCCESS("견적 요청서 리스트 조회가 완료되었습니다.", null);
+    }
+
+    @DeleteMapping("/bid/request")
+    public ResponseDto<Void> deleteRequest(@RequestParam Long request_id) {
+        requestService.deleteRequest(request_id);
+        return ResponseUtil.SUCCESS("요청서 삭제 성공", null);
+    }
 }
