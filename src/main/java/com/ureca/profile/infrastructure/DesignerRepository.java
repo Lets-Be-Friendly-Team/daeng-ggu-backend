@@ -55,20 +55,20 @@ public interface DesignerRepository extends JpaRepository<Designer, Long> {
     // 디자이너 평균 별점 조회 (소수점 2자리까지 반올림)
     @Query(
             value =
-                    "SELECT ROUND(AVG(r.reviewStar), 2) AS reviewStarAvg "
+                    "SELECT ROUND(AVG(r.review_star), 2) AS reviewStarAvg "
                             + "FROM review r "
-                            + "JOIN designer d ON d.designerId = r.designerId "
-                            + "WHERE d.designerId = :designerId",
+                            + "JOIN designer d ON d.designer_id = r.designer_id "
+                            + "WHERE d.designer_id = :designerId",
             nativeQuery = true)
     Double findAverageReviewStarByDesignerId(Long designerId);
 
     // 디자이너의 전체 리뷰 좋아요 수 조회
     @Query(
             value =
-                    "SELECT SUM(r.reviewLikeCnt) AS reviewLikeCntAll "
+                    "SELECT SUM(r.review_like_cnt) AS reviewLikeCntAll "
                             + "FROM review r "
-                            + "JOIN designer d ON d.designerId = r.designerId "
-                            + "WHERE d.designerId = :designerId",
+                            + "JOIN designer d ON d.designer_id = r.designer_id "
+                            + "WHERE d.designer_id = :designerId",
             nativeQuery = true)
     Integer findTotalReviewLikeCountByDesignerId(Long designerId);
 
