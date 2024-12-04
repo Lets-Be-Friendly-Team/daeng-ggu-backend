@@ -32,4 +32,14 @@ public class ValidationUtil {
             throw new ApiException(ErrorCode.ACCOUNT_DATA_ERROR);
         }
     }
+
+    public static void validateAfterCurrentDateTime(
+            LocalDate reservationDate, LocalTime startTime) {
+        LocalDateTime now = LocalDateTime.now(); // Current date and time
+        LocalDateTime reservationDateTime = LocalDateTime.of(reservationDate, startTime);
+
+        if (!reservationDateTime.isAfter(now)) {
+            throw new ApiException(ErrorCode.DATA_NOT_AFTER_CURRENT);
+        }
+    }
 }
