@@ -8,15 +8,18 @@ import com.ureca.profile.infrastructure.CustomerRepository;
 import com.ureca.profile.infrastructure.DesignerRepository;
 import com.ureca.request.infrastructure.RequestRepository;
 import com.ureca.reservation.infrastructure.ReservationRepository;
+import com.ureca.review.domain.Enum.AuthorType;
 import com.ureca.review.infrastructure.ReviewRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Service
 @RequiredArgsConstructor
@@ -31,8 +34,9 @@ public class AlarmService {
     private final CustomerRepository customerRepository;
 
     // 사용자별 SseEmitter 객체를 저장하는 맵
-    private final Map<Long, SseEmitter> emitterMap = new ConcurrentHashMap<>();
+    private final Map<String, SseEmitter> emitterMap = new ConcurrentHashMap<>();
 
+    // 야 누가 너보고 사람 때린대-- 이건 대,  아니 내가 때리긴 했는데, 맞을 짓을 했음 ㅇㅇ -- 이건 데 임
     // 여러 사용자에게 알림을 보내는 메서드
     public void sendNotificationsToUsers(List<AlarmDto.Request> requests) {
         for (AlarmDto.Request request : requests) {
@@ -45,19 +49,40 @@ public class AlarmService {
         SseEmitter emitter = emitterMap.get(request.getReceiverId());
 
         String alarmMessage = "";
-        switch(request.getAlarm_type()) {
-            case "A1" :
-                alarmMessage = customerRepository.findById(request.getSenderId()).get().getCustomerName()
-                        + "님에게서 견적 요청서가 도착했습니다.";
-            case "A2" :
-                alarmMessage = designerRepository.findById(request.getSenderId()).get().getOfficialName()
-                        + "에서 견적서가 도착했습니다.";
-            case "A3" :
-                alarmMessage = customerRepository.findById(request.getSenderId()).get().getCustomerName()
-                        + "님에게서 예약 요청이 도착했습니다.";
-            case "A4" :
-                alarmMessage = customerRepository.findById(request.getSenderId()).get().getCustomerName()
-                        + "님이 리뷰를 등록했습니다.";
+        switch (request.getAlarm_type()) {
+            case "A1":
+                alarmMessage =
+                        customerRepository
+                                .findById(request.getSenderId())
+                                .map(
+                                        customer ->
+                                                customer.getCustomerName() + "님에게서 견적 요청서가 도착했습니다.")
+                                .orElse("알림 메시지 오류");
+                break;
+            case "A2":
+                alarmMessage =
+                        designerRepository
+                                .findById(request.getSenderId())
+                                .map(designer -> designer.getOfficialName() + "에서 견적서가 도착했습니다.")
+                                .orElse("알림 메시지 오류");
+                break;
+            case "A3":
+                alarmMessage =
+                        customerRepository
+                                .findById(request.getSenderId())
+                                .map(customer -> customer.getCustomerName() + "님에게서 예약 요청이 도착했습니다.")
+                                .orElse("알림 메시지 오류");
+                break;
+            case "A4":
+                alarmMessage =
+                        customerRepository
+                                .findById(request.getSenderId())
+                                .map(customer -> customer.getCustomerName() + "님이 리뷰를 등록했습니다.")
+                                .orElse("알림 메시지 오류");
+                break;
+            default:
+                alarmMessage = "알림 유형이 잘못되었습니다.";
+                break;
         }
 
         // 알림을 DB에 저장 (연결이 되어 있든 아니든)
@@ -67,7 +92,9 @@ public class AlarmService {
             try {
                 emitter.send(alarmMessage);
             } catch (Exception e) {
-                emitterMap.remove(request.getReceiverId()); // 실패 시 해당 사용자 제거
+                emitterMap.remove(
+                        request.getReceiverType().name()
+                                + String.valueOf(request.getReceiverId())); // 실패 시 해당 사용자 제거
             }
         }
     }
@@ -75,37 +102,43 @@ public class AlarmService {
     @Transactional
     public void saveNotification(AlarmDto.Request request, String alarmMessage) {
 
-        Alarm alarm = Alarm.builder()
-                .senderId(request.getSenderId())
-                .senderType(request.getSenderType())
-                .receiverId(request.getReceiverId())
-                .receiverType(request.getReceiverType())
-                .alarm_message(alarmMessage)
-                .alarm_type(request.getAlarm_type()) // 알림 유형 예시
-                .alarm_status(false) // 기본 상태는 '읽지 않음'
-                .build();
+        Alarm alarm =
+                Alarm.builder()
+                        .senderId(request.getSenderId())
+                        .senderType(request.getSenderType())
+                        .receiverId(request.getReceiverId())
+                        .receiverType(request.getReceiverType())
+                        .alarmMessage(alarmMessage)
+                        .alarmType(request.getAlarm_type()) // 알림 유형 예시
+                        .alarmStatus(false) // 기본 상태는 '읽지 않음'
+                        .build();
 
         alarmRepository.save(alarm);
     }
 
-    // 사용자에게 읽지 않은 알림을 가져오는 메서드
-    public List<Alarm> getUnreadNotifications(Long receiverId) {
+    // 읽음 처리 메소드
+    public Alarm getUnreadToRead(Long alarmId) {
         // UNREAD 상태의 알림을 조회
-        return alarmRepository.findByReceiverIdAndAlarmStatus(receiverId, false);
+        Alarm alarm = alarmRepository.findById(alarmId).get();
+        alarm.toBuilder().alarmStatus(true).build();
+        return alarm;
     }
 
-    // 알림을 읽음 상태로 업데이트
-    @Transactional
-    public void markNotificationsAsRead(Long receiverId) {
-        List<Alarm> unreadAlarms = alarmRepository.findByReceiverIdAndAlarmStatus(receiverId, false);
-        for (Alarm alarm : unreadAlarms) {
-            alarm.toBuilder().alarm_status(true).build();
-            alarmRepository.save(alarm);
-        }
+    public List<AlarmDto.Response> getAlarmsByReceiver(
+            Long receiverId, AuthorType receiverType, int page) {
+        // 페이지 요청 생성 (10개 고정)
+        Pageable pageable = PageRequest.of(page, 10);
+
+        // Repository에서 데이터 조회 후 Dto로 변환
+        return alarmRepository
+                .findByReceiverIdAndReceiverType(receiverId, receiverType, pageable)
+                .stream()
+                .map(AlarmDto.Response::fromEntity) // Entity -> Response DTO 변환
+                .collect(Collectors.toList());
     }
 
     // SseEmitter에 접근하는 메서드
-    public Map<Long, SseEmitter> getEmitterMap() {
+    public Map<String, SseEmitter> getEmitterMap() {
         return emitterMap;
     }
 }

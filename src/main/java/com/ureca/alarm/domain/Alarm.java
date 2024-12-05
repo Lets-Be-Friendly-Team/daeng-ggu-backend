@@ -3,10 +3,10 @@ package com.ureca.alarm.domain;
 import com.ureca.common.entity.BaseEntity;
 import com.ureca.review.domain.Enum.AuthorType;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "alarm")
@@ -38,12 +38,12 @@ public class Alarm extends BaseEntity {
     @Column(name = "object_id")
     private Long objectId; // 알람 대상 ID(request_id,review_id, reservation_id)
 
-    @Column(nullable = true)
-    private String alarm_message; // 알림 내용
+    @Column(length = 100, nullable = true)
+    private String alarmMessage; // 알림 내용
+
+    @Column(length = 20, nullable = false)
+    private String alarmType; // 알림 유형 (예: "REQUEST", "ESTIMATE" , "RESERVATION" , "REVIEW")
 
     @Column(nullable = false)
-    private String alarm_type; // 알림 유형 (예: "REQUEST", "ESTIMATE" , "RESERVATION" , "REVIEW")
-
-    @Column(nullable = false)
-    private Boolean alarm_status = false;
+    private Boolean alarmStatus = false;
 }

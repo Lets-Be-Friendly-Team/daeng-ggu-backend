@@ -189,7 +189,5 @@ public class RequestService {
         requestRepository.delete(request);
     }
 
-    public void selectDesignerRequest(Long customerId) {
-
-    }
+    public void selectDesignerRequest(Long customerId) {}
 }
