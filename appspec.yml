@@ -3,20 +3,21 @@ os: linux
 
 # 배포할 파일 경로와 목적지 설정
 files:
-  - source: /home/ec2-user/daeng-ggu-backend/build/libs/daeng-guu-backend-0.0.1-SNAPSHOT.jar  # 실제 배포할 파일 경로
-    destination: /home/ec2-user/build/  # EC2 인스턴스의 배포 디렉토리
+  - source: /
+    destination: /home/ubuntu/app/  # EC2 인스턴스의 배포 디렉토리
     overwrite: yes # 기존 파일 덮어쓰기
 
 # 파일 권한 설정
 permissions:
-  - object: /home/ec2-user/build/  # 해당 디렉토리 내의 파일들에 대해 권한 설정
+  - object: /home/ubuntu/app
     pattern: "**"
-    owner: ec2-user  # EC2 사용자 권한
-    group: ec2-user  # EC2 그룹 권한
+    owner: ubuntu
+    group: ubuntu
+    mode: 755
 
 # 배포 후 실행할 스크립트 설정
 hooks:
   ApplicationStart:
-    - location: /home/ec2-user/scripts/deploy.sh  # 스크립트 경로 (필요한 경우 위치 조정)
-      timeout: 60 # 실행 시간 제한
-      runas: ec2-user  # 스크립트를 EC2 사용자 권한으로 실행
+    - location: deploy.sh
+      timeout: 60
+      runas: ubuntu

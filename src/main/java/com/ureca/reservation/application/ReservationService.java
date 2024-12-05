@@ -2,14 +2,21 @@ package com.ureca.reservation.application;
 
 import com.ureca.common.exception.ApiException;
 import com.ureca.common.exception.ErrorCode;
+import com.ureca.common.util.ValidationUtil;
+import com.ureca.estimate.domain.Estimate;
+import com.ureca.estimate.infrastructure.EstimateRepository;
 import com.ureca.profile.domain.Designer;
 import com.ureca.profile.infrastructure.CommonCodeRepository;
 import com.ureca.profile.infrastructure.CustomerRepository;
 import com.ureca.profile.infrastructure.DesignerRepository;
+import com.ureca.reservation.config.PaymentServerConfig;
 import com.ureca.reservation.domain.Reservation;
 import com.ureca.reservation.infrastructure.ReservationRepository;
 import com.ureca.reservation.presentation.dto.DesignerAvailableDatesResponseDto;
 import com.ureca.reservation.presentation.dto.DesignerInfoDto;
+import com.ureca.reservation.presentation.dto.EstimateReservationRequestDto;
+import com.ureca.reservation.presentation.dto.PaymentRequestDto;
+import com.ureca.reservation.presentation.dto.PaymentResponseDto;
 import com.ureca.reservation.presentation.dto.RequestDetailDto;
 import com.ureca.reservation.presentation.dto.ReservationHistoryResponseDto;
 import com.ureca.reservation.presentation.dto.ReservationInfo;
@@ -21,6 +28,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +38,9 @@ public class ReservationService {
     private final CustomerRepository customerRepository;
     private final DesignerRepository designerRepository;
     private final CommonCodeRepository commonCodeRepository;
+    private final EstimateRepository estimateRepository;
+    private final PaymentServerConfig paymentServerConfig;
+    private final RestTemplate restTemplate;
 
     public List<ReservationHistoryResponseDto> getReservationsByCustomerId(Long customerId) {
 
@@ -37,7 +48,7 @@ public class ReservationService {
             throw new ApiException(ErrorCode.USER_NOT_EXIST);
         }
 
-        // TODO: 현재 이용중인 사용자와 찾으려는 예약정보의 customerId가 일치하는지 검증 필요 (시큐리티 적용 후 로그인된 유저 활용)
+        // TODO: 현재 로그인 중인 사용자와 찾으려는 예약정보의 customerId가 일치하는지 검증 필요 (시큐리티 적용 후 로그인된 유저 활용)
 
         List<Reservation> reservations = reservationRepository.findAllByCustomerId(customerId);
         if (reservations.isEmpty()) {
@@ -70,7 +81,7 @@ public class ReservationService {
                                                 reservation.getEstimate() != null
                                                         ? reservation
                                                                 .getEstimate()
-                                                                .getEstimate_detail()
+                                                                .getEstimateDetail()
                                                         : null)
                                         .requestDetail(buildRequestDetailDto(reservation))
                                         .build())
@@ -98,12 +109,12 @@ public class ReservationService {
         if ("R2".equals(reservation.getReservationType()) && reservation.getRequest() != null) {
             // Auction 방식: Request 데이터 사용
             return RequestDetailDto.builder()
-                    .desiredService(getCodeDesc(reservation.getRequest().getDesired_service_code()))
-                    .lastGroomingDate(getCodeDesc(reservation.getRequest().getLast_grooming_date()))
-                    .isDelivery(reservation.getRequest().getIs_delivery())
-                    .desiredRegion(reservation.getRequest().getDesired_region())
-                    .isMonitoring(reservation.getRequest().getIs_monitoringIncluded())
-                    .additionalRequest(reservation.getRequest().getAdditional_request())
+                    .desiredService(getCodeDesc(reservation.getRequest().getDesiredServiceCode()))
+                    .lastGroomingDate(getCodeDesc(reservation.getRequest().getLastGroomingDate()))
+                    .isDelivery(reservation.getRequest().getIsDelivery())
+                    .desiredRegion(reservation.getRequest().getDesiredRegion())
+                    .isMonitoring(reservation.getRequest().getIsMonitoringIncluded())
+                    .additionalRequest(reservation.getRequest().getAdditionalRequest())
                     .build();
         }
 
@@ -130,6 +141,8 @@ public class ReservationService {
             throw new ApiException(ErrorCode.USER_NOT_EXIST);
         }
 
+        ValidationUtil.validateYearAndMonth(year, month);
+
         // 디자이너 예약 데이터 가져오기
         List<ReservationInfo> reservations =
                 reservationRepository.findReservationsByDesignerAndMonth(designerId, year, month);
@@ -140,18 +153,36 @@ public class ReservationService {
                         .collect(Collectors.groupingBy(ReservationInfo::getReservationDate));
 
         List<DesignerAvailableDatesResponseDto> availableDates = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+        LocalTime now = LocalTime.now();
 
         // 요청된 월의 모든 날짜를 순회하며 가능한 시간 계산
         for (int day = 1; day <= LocalDate.of(year, month, 1).lengthOfMonth(); day++) {
             LocalDate date = LocalDate.of(year, month, day);
 
+            // 과거 날짜는 무시
+            if (date.isBefore(today)) {
+                continue;
+            }
+
             // 예약이 없는 경우 기본 전체 시간대 추가
             if (!reservationsByDate.containsKey(date)) {
-                availableDates.add(
-                        DesignerAvailableDatesResponseDto.builder()
-                                .date(date)
-                                .availableTimes(generateFullDayAvailableTimes())
-                                .build());
+                // 현재 날짜일 경우 현재 시간 이후의 시간대만 포함
+                List<Integer> availableTimes = generateFullDayAvailableTimes();
+                if (date.isEqual(today)) {
+                    availableTimes =
+                            availableTimes.stream()
+                                    .filter(hour -> hour >= now.getHour())
+                                    .collect(Collectors.toList());
+                }
+
+                if (!availableTimes.isEmpty()) {
+                    availableDates.add(
+                            DesignerAvailableDatesResponseDto.builder()
+                                    .date(date)
+                                    .availableTimes(availableTimes)
+                                    .build());
+                }
             } else {
                 // 예약이 있는 날짜의 가능한 시간 계산
                 List<Integer> unavailableTimes =
@@ -168,6 +199,14 @@ public class ReservationService {
                         generateFullDayAvailableTimes().stream()
                                 .filter(hour -> !unavailableTimes.contains(hour))
                                 .collect(Collectors.toList());
+
+                // 현재 날짜일 경우 현재 시간 이후의 시간대만 포함
+                if (date.isEqual(today)) {
+                    availableTimes =
+                            availableTimes.stream()
+                                    .filter(hour -> hour >= now.getHour())
+                                    .collect(Collectors.toList());
+                }
 
                 if (!availableTimes.isEmpty()) {
                     availableDates.add(
@@ -198,5 +237,97 @@ public class ReservationService {
             times.add(hour);
         }
         return times;
+    }
+
+    public Long estimateReservation(
+            Long customerId, EstimateReservationRequestDto reservationRequestDto) {
+        // 1. 예약 가능 여부에 대한 검증
+        ValidationUtil.validateReservationTime(
+                reservationRequestDto.getStartTime(), reservationRequestDto.getEndTime());
+        ValidationUtil.validateAfterCurrentDateTime(
+                reservationRequestDto.getReservationDate(), reservationRequestDto.getStartTime());
+
+        // 2. 고객 및 요청 데이터 유효성 확인
+        if (!customerRepository.existsById(customerId)) {
+            throw new ApiException(ErrorCode.USER_NOT_EXIST);
+        }
+
+        Estimate estimate =
+                estimateRepository
+                        .findById(reservationRequestDto.getEstimateId())
+                        .orElseThrow(() -> new ApiException(ErrorCode.DATA_NOT_EXIST));
+        String customerEmail = customerRepository.findById(customerId).get().getEmail();
+
+        if (estimate.getDesigner().getEmail().equals(customerEmail)) {
+            throw new ApiException(ErrorCode.SAME_USER_RESERVE_DENIED);
+        }
+
+        // TODO: 예약 과정에서의 동시성 처리 문제 해결 필요
+
+        // 3. 결제 서버에 요청
+        PaymentRequestDto paymentRequestDto = buildPaymentRequest(reservationRequestDto);
+        PaymentResponseDto paymentResponse = processPayment(paymentRequestDto);
+
+        if (paymentResponse.getStatus().equals("FAILED")) {
+            throw new ApiException(ErrorCode.PAYMENT_PROCESS_FAILED);
+        }
+
+        // 4. 예약 데이터 저장
+        Reservation reservation = saveEstimateReservation(estimate, reservationRequestDto);
+
+        // 5. 예약 성공 ID 반환
+        return reservation.getReservationId();
+    }
+
+    private PaymentRequestDto buildPaymentRequest(
+            EstimateReservationRequestDto reservationRequestDto) {
+        return PaymentRequestDto.builder()
+                .paymentKey(reservationRequestDto.getPaymentKey())
+                .orderId(reservationRequestDto.getOrderId())
+                .amount(reservationRequestDto.getTotalPayment())
+                .build();
+    }
+
+    private Reservation saveEstimateReservation(
+            Estimate estimate, EstimateReservationRequestDto reservationRequestDto) {
+        Reservation reservation =
+                Reservation.builder()
+                        .request(estimate.getRequest())
+                        .estimate(estimate)
+                        .pet(estimate.getRequest().getPet())
+                        .designer(estimate.getDesigner())
+                        .reservationType("R2")
+                        .isFinished(false)
+                        .isCanceled(false)
+                        .reservationDate(reservationRequestDto.getReservationDate())
+                        .startTime(reservationRequestDto.getStartTime())
+                        .endTime(reservationRequestDto.getEndTime())
+                        .groomingFee(reservationRequestDto.getGroomingFee())
+                        .deliveryFee(reservationRequestDto.getDeliveryFee())
+                        .monitoringFee(reservationRequestDto.getMonitoringFee())
+                        .totalPayment(reservationRequestDto.getTotalPayment())
+                        .build();
+        return reservationRepository.save(reservation);
+    }
+
+    public PaymentResponseDto processPayment(PaymentRequestDto paymentRequestDto) {
+        String paymentUrl = paymentServerConfig.getLocalPaymentServerUrl() + "/v1/toss/confirm";
+
+        try {
+            // 결제 서버에 요청
+            PaymentResponseDto response =
+                    restTemplate.postForObject(
+                            paymentUrl, paymentRequestDto, PaymentResponseDto.class);
+
+            // 응답 검증
+            if (response == null) {
+                throw new ApiException(ErrorCode.PAYMENT_SERVER_ERROR);
+            }
+            return response;
+
+        } catch (Exception e) {
+            // 결제 서버 예외 처리
+            throw new ApiException(ErrorCode.PAYMENT_PROCESS_FAILED);
+        }
     }
 }

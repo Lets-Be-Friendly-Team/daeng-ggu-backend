@@ -22,7 +22,7 @@ public class Estimate extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long estimate_id;
+    private Long estimateId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "designer_id", nullable = false)
@@ -33,24 +33,24 @@ public class Estimate extends BaseEntity {
     private Request request;
 
     @Column(length = 200, nullable = false)
-    private String estimate_detail;
+    private String estimateDetail;
 
-    @Column private LocalDateTime desired_date;
+    @Column private LocalDateTime desiredDate;
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal grooming_fee; // 미용비
+    private BigDecimal groomingFee; // 미용비
 
     @Column(precision = 10, scale = 2)
-    private BigDecimal delivery_fee; // 배송비 (NULL 가능)
+    private BigDecimal deliveryFee; // 배송비 (NULL 가능)
 
     @Column(precision = 10, scale = 2)
-    private BigDecimal monitoring_fee; // 모니터링비 (NULL 가능)
+    private BigDecimal monitoringFee; // 모니터링비 (NULL 가능)
 
     @Column(precision = 10, scale = 2)
-    private BigDecimal estimate_payment;
+    private BigDecimal estimatePayment;
 
     @Column(length = 20)
-    private String estimate_status;
+    private String estimateStatus;
 
     @OneToMany(mappedBy = "estimate", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EstimateImage> estimateImages;
