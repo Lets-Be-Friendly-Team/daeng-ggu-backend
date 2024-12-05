@@ -1,7 +1,7 @@
 package com.ureca.alarm.presentation;
 
 import com.ureca.alarm.application.AlarmService;
-import com.ureca.alarm.domain.AlarmHistory;
+import com.ureca.alarm.domain.Alarm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,8 +11,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,7 +31,7 @@ public class AlarmController {
         emitter.onTimeout(() -> alarmService.getEmitterMap().remove(receiverId));
 
         // 연결 시, 읽지 않은 알림을 보내고 상태를 읽음으로 변경
-        List<AlarmHistory> unreadNotifications = alarmService.getUnreadNotifications(receiverId);
+        List<Alarm> unreadNotifications = alarmService.getUnreadNotifications(receiverId);
         unreadNotifications.forEach(notification -> {
             try {
                 emitter.send(notification.getAlarm_message());  // 알림 전송

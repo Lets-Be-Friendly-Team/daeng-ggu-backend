@@ -4,26 +4,22 @@ import com.ureca.common.entity.BaseEntity;
 import com.ureca.review.domain.Enum.AuthorType;
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
-
 @Entity
-@Table(name = "alarm_history")
+@Table(name = "alarm")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class AlarmHistory extends BaseEntity {
+public class Alarm extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "alarm_id")
     private Long alarmId;
-
 
     @Column(name = "sender_id")
     private Long senderId; // 보낸 사람 ID (NULL 가능)
