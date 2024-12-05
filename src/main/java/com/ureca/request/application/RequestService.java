@@ -93,18 +93,18 @@ public class RequestService {
                 Request.builder()
                         .pet(pet)
                         .customer(customer)
-                        .desired_service_code(requestDto.getDesiredServiceCode())
-                        .last_grooming_date(requestDto.getLastGroomingDate())
-                        .desired_date1(requestDto.getDesiredDate1())
-                        .desired_date2(requestDto.getDesiredDate2())
-                        .desired_date3(requestDto.getDesiredDate3())
+                        .desiredServiceCode(requestDto.getDesiredServiceCode())
+                        .lastGroomingDate(requestDto.getLastGroomingDate())
+                        .desiredDate1(requestDto.getDesiredDate1())
+                        .desiredDate2(requestDto.getDesiredDate2())
+                        .desiredDate3(requestDto.getDesiredDate3())
                         //                        .desired_region(requestDto.getDesiredRegion())//
                         // 주소 입력 받기
-                        .desired_region(region) // 내 주소로 생성
-                        .is_delivery(requestDto.getIsVisitRequired())
-                        .is_monitoringIncluded(requestDto.getIsMonitoringIncluded())
-                        .additional_request(requestDto.getAdditionalRequest())
-                        .request_status("ST1") // 기본 상태
+                        .desiredRegion(region) // 내 주소로 생성
+                        .isDelivery(requestDto.getIsVisitRequired())
+                        .isMonitoringIncluded(requestDto.getIsMonitoringIncluded())
+                        .additionalRequest(requestDto.getAdditionalRequest())
+                        .requestStatus("ST1") // 기본 상태
                         .build();
 
         requestRepository.save(request);
@@ -140,15 +140,15 @@ public class RequestService {
                 .customerName(customer.getCustomerName())
                 .phone(customer.getPhone())
                 .address(customer.getAddress1())
-                .desiredServiceCode(request.getDesired_service_code())
-                .lastGroomingDate(request.getLast_grooming_date())
-                .desiredDate1(request.getDesired_date1())
-                .desiredDate2(request.getDesired_date2())
-                .desiredDate3(request.getDesired_date3())
-                .desiredRegion(request.getDesired_region())
-                .isVisitRequired(request.getIs_delivery())
-                .isMonitoringIncluded(request.getIs_monitoringIncluded())
-                .additionalRequest(request.getAdditional_request())
+                .desiredServiceCode(request.getDesiredServiceCode())
+                .lastGroomingDate(request.getLastGroomingDate())
+                .desiredDate1(request.getDesiredDate1())
+                .desiredDate2(request.getDesiredDate2())
+                .desiredDate3(request.getDesiredDate3())
+                .desiredRegion(request.getDesiredRegion())
+                .isVisitRequired(request.getIsDelivery())
+                .isMonitoringIncluded(request.getIsMonitoringIncluded())
+                .additionalRequest(request.getAdditionalRequest())
                 .build();
     }
 
@@ -159,19 +159,19 @@ public class RequestService {
         for (Request request : requests) {
             RequestDto.Response response =
                     RequestDto.Response.builder()
-                            .requestId(request.getRequest_id())
+                            .requestId(request.getRequestId())
                             .petId(request.getPet().getPetId())
                             .petName(request.getPet().getPetName())
                             .petImageUrl(request.getPet().getPetImgUrl())
                             .majorBreed(
                                     commonCodeRepository.findCodeNmByCodeId(
                                             request.getPet().getMajorBreedCode()))
-                            .desiredServiceCode(request.getDesired_service_code())
-                            .isVisitRequired(request.getIs_delivery())
+                            .desiredServiceCode(request.getDesiredServiceCode())
+                            .isVisitRequired(request.getIsDelivery())
                             .createdAt(request.getCreatedAt())
                             .codeName(
                                     commonCodeRepository.findCodeNmByCodeId(
-                                            request.getRequest_status()))
+                                            request.getRequestStatus()))
                             .build();
             if (response.getCodeName() != "ST1") {
                 responses.add(response);

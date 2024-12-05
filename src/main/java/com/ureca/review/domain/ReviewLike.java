@@ -1,5 +1,6 @@
 package com.ureca.review.domain;
 
+import com.ureca.common.entity.BaseEntity;
 import com.ureca.review.domain.Enum.AuthorType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 @Getter
-public class ReviewLike {
+public class ReviewLike extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reviewLikeId;

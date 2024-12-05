@@ -20,7 +20,7 @@ public class Request extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long request_id;
+    private Long requestId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pet_id", nullable = false)
@@ -31,30 +31,30 @@ public class Request extends BaseEntity {
     private Customer customer;
 
     @Column(length = 20, nullable = false)
-    private String desired_service_code;
+    private String desiredServiceCode;
 
     @Column(length = 20, nullable = false)
-    private String last_grooming_date;
+    private String lastGroomingDate;
 
     @Column(nullable = false)
-    private LocalDateTime desired_date1;
+    private LocalDateTime desiredDate1;
 
-    @Column private LocalDateTime desired_date2;
+    @Column private LocalDateTime desiredDate2;
 
-    @Column private LocalDateTime desired_date3;
+    @Column private LocalDateTime desiredDate3;
 
     @Column(length = 50, nullable = false)
-    private String desired_region;
+    private String desiredRegion;
 
     @Column(nullable = false)
-    private Boolean is_delivery;
+    private Boolean isDelivery;
 
     @Column(nullable = false)
-    private Boolean is_monitoringIncluded;
+    private Boolean isMonitoringIncluded;
 
     @Column(length = 100)
-    private String additional_request;
+    private String additionalRequest;
 
     @Column(length = 20, nullable = false)
-    private String request_status;
+    private String requestStatus;
 }

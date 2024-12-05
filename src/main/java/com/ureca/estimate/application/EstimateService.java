@@ -41,10 +41,10 @@ public class EstimateService {
                         .designer(
                                 designerRepository.findByDesignerId(request.getDesignerId()).get())
                         .request(requestRepository.findById(request.getRequestId()).get())
-                        .estimate_detail(request.getRequestDetail())
-                        .desired_date(request.getRequestDate())
-                        .grooming_fee(request.getGroomingFee())
-                        .estimate_status("ST1")
+                        .estimateDetail(request.getRequestDetail())
+                        .desiredDate(request.getRequestDate())
+                        .groomingFee(request.getGroomingFee())
+                        .estimateStatus("ST1")
                         .build();
 
         List<EstimateImage> estimateImages = new ArrayList<>();
@@ -53,7 +53,7 @@ public class EstimateService {
                     s3Service.uploadFileImage(estimateImg, "estimate", "estimate");
             EstimateImage estimateImage =
                     EstimateImage.builder()
-                            .estimate_img_url(estimate_img_url)
+                            .estimateImgUrl(estimate_img_url)
                             .estimate(estimate)
                             .build();
             estimateImages.add(estimateImage);
@@ -75,15 +75,15 @@ public class EstimateService {
                                 .petName(pet.getPetName())
                                 .petImageUrl(pet.getPetImgUrl())
                                 .majorBreedCode(pet.getMajorBreedCode())
-                                .desiredServiceCode(request.getDesired_service_code())
-                                .lastGrommingDate(request.getLast_grooming_date())
-                                .desiredDate1(request.getDesired_date1())
-                                .desiredDate2(request.getDesired_date2())
-                                .desiredDate3(request.getDesired_date3())
-                                .desiredRegion(request.getDesired_region())
-                                .isVisitRequired(request.getIs_delivery())
-                                .isMonitoringIncluded(request.getIs_monitoringIncluded())
-                                .additionalRequest(request.getAdditional_request())
+                                .desiredServiceCode(request.getDesiredServiceCode())
+                                .lastGrommingDate(request.getLastGroomingDate())
+                                .desiredDate1(request.getDesiredDate1())
+                                .desiredDate2(request.getDesiredDate2())
+                                .desiredDate3(request.getDesiredDate3())
+                                .desiredRegion(request.getDesiredRegion())
+                                .isVisitRequired(request.getIsDelivery())
+                                .isMonitoringIncluded(request.getIsMonitoringIncluded())
+                                .additionalRequest(request.getAdditionalRequest())
                                 .createdAt(request.getCreatedAt())
                                 .estimateList(
                                         estimateRepository.findAllByRequest(request).stream()
@@ -92,7 +92,7 @@ public class EstimateService {
                                                                 EstimateDtoDetail.builder()
                                                                         .estimateId(
                                                                                 estimate
-                                                                                        .getEstimate_id())
+                                                                                        .getEstimateId())
                                                                         .designerId(
                                                                                 estimate.getDesigner()
                                                                                         .getDesignerId())
@@ -104,7 +104,7 @@ public class EstimateService {
                                                                                         .getDesignerImgUrl())
                                                                         .estimatePrice(
                                                                                 estimate
-                                                                                        .getGrooming_fee())
+                                                                                        .getGroomingFee())
                                                                         .petId(
                                                                                 estimate.getRequest()
                                                                                         .getPet()
@@ -143,26 +143,25 @@ public class EstimateService {
                                                                 .getPetImgUrl())
                                                 .desiredServiceCode(
                                                         estimate.getRequest()
-                                                                .getDesired_service_code())
+                                                                .getDesiredServiceCode())
                                                 .lastGrommingDate(
-                                                        estimate.getRequest()
-                                                                .getLast_grooming_date())
+                                                        estimate.getRequest().getLastGroomingDate())
                                                 .desiredDate1(
-                                                        estimate.getRequest().getDesired_date1())
+                                                        estimate.getRequest().getDesiredDate1())
                                                 .desiredDate2(
-                                                        estimate.getRequest().getDesired_date2())
+                                                        estimate.getRequest().getDesiredDate2())
                                                 .desiredDate3(
-                                                        estimate.getRequest().getDesired_date3())
+                                                        estimate.getRequest().getDesiredDate3())
                                                 .desiredRegion(
-                                                        estimate.getRequest().getDesired_region())
+                                                        estimate.getRequest().getDesiredRegion())
                                                 .isVisitRequired(
-                                                        estimate.getRequest().getIs_delivery())
+                                                        estimate.getRequest().getIsDelivery())
                                                 .isMonitoringIncluded(
                                                         estimate.getRequest()
-                                                                .getIs_monitoringIncluded())
+                                                                .getIsMonitoringIncluded())
                                                 .additionalRequest(
                                                         estimate.getRequest()
-                                                                .getAdditional_request())
+                                                                .getAdditionalRequest())
                                                 .build())
                         .collect(Collectors.toList());
 
@@ -178,21 +177,21 @@ public class EstimateService {
         List<EstimateImage> estimateImages = estimateImageRepository.findAllByEstimate(estimate);
         List<String> estimateImgList = new ArrayList<>();
         for (EstimateImage estimateimage : estimateImages) {
-            estimateImgList.add(estimateimage.getEstimate_img_url());
+            estimateImgList.add(estimateimage.getEstimateImgUrl());
         }
 
         return EstimateDtoDetail.builder()
-                .estimateId(estimate.getEstimate_id())
+                .estimateId(estimate.getEstimateId())
                 .designerId(estimate.getDesigner().getDesignerId())
                 .designerName(estimate.getDesigner().getDesignerName())
                 .designerImageUrl(estimate.getDesigner().getDesignerImgUrl())
                 .createdAt(estimate.getCreatedAt())
-                .estimateDetail(estimate.getEstimate_detail())
+                .estimateDetail(estimate.getEstimateDetail())
                 .customerId(estimate.getRequest().getCustomer().getCustomerId())
                 .customerName(estimate.getRequest().getCustomer().getCustomerName())
                 .phone(estimate.getRequest().getCustomer().getPhone())
                 .address(estimate.getRequest().getCustomer().getAddress1())
-                .groomingFee(estimate.getGrooming_fee())
+                .groomingFee(estimate.getGroomingFee())
                 .estimateImgList(estimateImgList)
                 .build();
     }

@@ -17,10 +17,10 @@ public class EstimateImage extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long estimate_img_id;
+    private Long estimateImgId;
 
     @Column(length = 300, nullable = false)
-    private String estimate_img_url; // 이미지 URL
+    private String estimateImgUrl; // 이미지 URL
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "estimate_id")
