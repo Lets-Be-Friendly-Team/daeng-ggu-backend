@@ -17,7 +17,7 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 
     List<Request> findAllByCustomer(Customer customer);
 
-    @Query("SELECT r FROM Request r WHERE r.pet = :pet AND r.request_status = :request_status")
+    @Query("SELECT r FROM Request r WHERE r.pet = :pet AND r.request_status = :requestStatus")
     Request findByPetAndRequest_status(
-            @Param("pet") Pet pet, @Param("request_status") String request_status);
+            @Param("pet") Pet pet, @Param("request_status") String requestStatus);
 }
