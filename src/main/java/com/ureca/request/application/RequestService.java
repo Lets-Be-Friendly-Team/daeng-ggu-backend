@@ -1,5 +1,7 @@
 package com.ureca.request.application;
 
+import com.ureca.alarm.application.AlarmService;
+import com.ureca.alarm.presentation.dto.AlarmDto;
 import com.ureca.common.exception.ApiException;
 import com.ureca.common.exception.ErrorCode;
 import com.ureca.profile.domain.Customer;
@@ -9,6 +11,7 @@ import com.ureca.profile.infrastructure.*;
 import com.ureca.request.domain.Request;
 import com.ureca.request.infrastructure.RequestRepository;
 import com.ureca.request.presentation.dto.RequestDto;
+import com.ureca.review.domain.Enum.AuthorType;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +29,7 @@ public class RequestService {
     private final CommonCodeRepository commonCodeRepository;
     private final ServicesRepository servicesRepository;
     private final BreedsRepository breedsRepository;
+    private final AlarmService alarmService;
 
     public List<RequestDto.Response> selectPetProfile(Long customerId) {
         Customer customer = customerRepository.findById(customerId).get();
@@ -112,9 +116,27 @@ public class RequestService {
     }
 
     private void categoryAndAlarm(Request request) {
-        List<Designer> designers =  servicesRepository.findDesignerByProvidedServicesCode(request.getDesiredServiceCode());
-        designers = breedsRepository.findDesignerByPossibleMajorBreedCode(request.getPet().getMajorBreedCode(),designers);
+        List<Designer> designers =
+                servicesRepository.findDesignerByProvidedServicesCode(
+                        request.getDesiredServiceCode());
+        designers =
+                breedsRepository.findDesignerByPossibleMajorBreedCode(
+                        request.getPet().getMajorBreedCode(), designers);
+        List<AlarmDto.Request> alarmList = new ArrayList<>();
+        for (Designer designer : designers) {
+            AlarmDto.Request alarmlist =
+                    AlarmDto.Request.builder()
+                            .senderId(request.getCustomer().getCustomerId())
+                            .senderType(AuthorType.CUSTOMER)
+                            .receiverId(designer.getDesignerId())
+                            .receiverType(AuthorType.DESIGNER)
+                            .objectId(request.getRequestId())
+                            .alarm_type("REQUEST")
+                            .build();
 
+            alarmList.add(alarmlist);
+        }
+        alarmService.sendNotificationsToUsers(alarmList);
     }
 
     public RequestDto.Response selectRequest(Long request_id) {

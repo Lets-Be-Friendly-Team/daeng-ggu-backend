@@ -63,7 +63,7 @@ public class Review extends BaseEntity {
                 .build();
     }
 
-    public Review updateReviewStar(Integer newStar) {
+    public Review updateReviewStar(Double newStar) {
         return this.toBuilder()
                 .reviewStar(newStar) // 별점만 변경
                 .build();
