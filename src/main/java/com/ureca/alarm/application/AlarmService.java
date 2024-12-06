@@ -36,7 +36,6 @@ public class AlarmService {
     // 사용자별 SseEmitter 객체를 저장하는 맵
     private final Map<String, SseEmitter> emitterMap = new ConcurrentHashMap<>();
 
-    // 야 누가 너보고 사람 때린대-- 이건 대,  아니 내가 때리긴 했는데, 맞을 짓을 했음 ㅇㅇ -- 이건 데 임
     // 여러 사용자에게 알림을 보내는 메서드
     public void sendNotificationsToUsers(List<AlarmDto.Request> requests) {
         for (AlarmDto.Request request : requests) {
