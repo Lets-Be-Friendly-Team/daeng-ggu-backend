@@ -25,7 +25,7 @@ public class Review extends BaseEntity {
     private String reviewContents;
 
     @Column(nullable = false)
-    private Integer reviewStar;
+    private Double reviewStar;
 
     @Column(nullable = false)
     private Boolean isFeedAdd; // 피드 참여 여부

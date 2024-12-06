@@ -15,4 +15,6 @@ public interface ServicesRepository extends JpaRepository<Services, Long> {
     // 디자이너와 서비스 코드로 제공 서비스 찾기
     Optional<Services> findByDesignerAndProvidedServicesCode(
             Designer designer, String providedServicesCode);
+
+    List<Designer> findDesignerByProvidedServicesCode(String desiredServiceCode);
 }

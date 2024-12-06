@@ -3,11 +3,9 @@ package com.ureca.request.application;
 import com.ureca.common.exception.ApiException;
 import com.ureca.common.exception.ErrorCode;
 import com.ureca.profile.domain.Customer;
+import com.ureca.profile.domain.Designer;
 import com.ureca.profile.domain.Pet;
-import com.ureca.profile.infrastructure.CommonCodeRepository;
-import com.ureca.profile.infrastructure.CustomerRepository;
-import com.ureca.profile.infrastructure.DesignerRepository;
-import com.ureca.profile.infrastructure.PetRepository;
+import com.ureca.profile.infrastructure.*;
 import com.ureca.request.domain.Request;
 import com.ureca.request.infrastructure.RequestRepository;
 import com.ureca.request.presentation.dto.RequestDto;
@@ -26,6 +24,8 @@ public class RequestService {
     private final CustomerRepository customerRepository;
     private final DesignerRepository designerRepository;
     private final CommonCodeRepository commonCodeRepository;
+    private final ServicesRepository servicesRepository;
+    private final BreedsRepository breedsRepository;
 
     public List<RequestDto.Response> selectPetProfile(Long customerId) {
         Customer customer = customerRepository.findById(customerId).get();
@@ -108,6 +108,13 @@ public class RequestService {
                         .build();
 
         requestRepository.save(request);
+        categoryAndAlarm(request);
+    }
+
+    private void categoryAndAlarm(Request request) {
+        List<Designer> designers =  servicesRepository.findDesignerByProvidedServicesCode(request.getDesiredServiceCode());
+        designers = breedsRepository.findDesignerByPossibleMajorBreedCode(request.getPet().getMajorBreedCode(),designers);
+
     }
 
     public RequestDto.Response selectRequest(Long request_id) {
