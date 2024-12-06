@@ -44,6 +44,7 @@ public class Alarm extends BaseEntity {
     @Column(length = 20, nullable = false)
     private String alarmType; // 알림 유형 (예: "REQUEST", "ESTIMATE" , "RESERVATION" , "REVIEW")
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean alarmStatus = false;
 }

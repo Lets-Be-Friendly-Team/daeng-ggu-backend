@@ -18,7 +18,8 @@ public class AlarmDto {
         private Long objectId;
         private String alarm_message;
         private String alarm_type;
-        private Integer page = 0;
+
+        @Builder.Default private Integer page = 0;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

@@ -34,7 +34,6 @@ public class S3Service {
 
             s3Client.putObject(bucketName, fileName, image.getInputStream(), metadata);
             return s3Client.getUrl(bucketName, fileName).toString();
-
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload file to S3.", e);
         }
