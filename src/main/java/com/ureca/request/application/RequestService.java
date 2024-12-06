@@ -1,6 +1,8 @@
 package com.ureca.request.application;
 
 import com.ureca.alarm.application.AlarmService;
+import com.ureca.alarm.domain.Alarm;
+import com.ureca.alarm.infrastructure.AlarmRepository;
 import com.ureca.alarm.presentation.dto.AlarmDto;
 import com.ureca.common.exception.ApiException;
 import com.ureca.common.exception.ErrorCode;
@@ -30,6 +32,7 @@ public class RequestService {
     private final ServicesRepository servicesRepository;
     private final BreedsRepository breedsRepository;
     private final AlarmService alarmService;
+    private final AlarmRepository alarmRepository;
 
     public List<RequestDto.Response> selectPetProfile(Long customerId) {
         Customer customer = customerRepository.findById(customerId).get();
@@ -218,5 +221,22 @@ public class RequestService {
         requestRepository.delete(request);
     }
 
-    public void selectDesignerRequest(Long customerId) {}
+    public List<RequestDto.Response> selectDesignerRequest(Long designerId) {
+        List<Long> requestIdList =  alarmRepository.findObjectIdByReceiverIdAndAlarmType(designerId, "A1");
+        List<RequestDto.Response> reqList = new ArrayList<>();
+        for(Long requestId : requestIdList) {
+            RequestDto.Response response = RequestDto.Response.builder()
+                    .requestId(requestId)
+                    .petId(requestRepository.findById(requestId).get().getPet().getPetId())
+                    .petName(requestRepository.findById(requestId).get().getPet().getPetName())
+                    .petImageUrl(requestRepository.findById(requestId).get().getPet().getPetImgUrl())
+                    .majorBreedCode(requestRepository.findById(requestId).get().getPet().getMajorBreedCode())
+                    .desiredServiceCode(requestRepository.findById(requestId).get().getDesiredServiceCode())
+                    .isVisitRequired(requestRepository.findById(requestId).get().getIsDelivery())
+                    .createdAt(requestRepository.findById(requestId).get().getCreatedAt())
+                    .build();
+            reqList.add(response);
+        }
+        return reqList;
+    }
 }
