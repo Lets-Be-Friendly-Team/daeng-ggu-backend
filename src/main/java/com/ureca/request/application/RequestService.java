@@ -195,4 +195,6 @@ public class RequestService {
                         .orElseThrow(() -> new ApiException(ErrorCode.REQUEST_NOT_EXIST));
         requestRepository.delete(request);
     }
+
+    public void selectDesignerRequest(Long customerId) {}
 }
