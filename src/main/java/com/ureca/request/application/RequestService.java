@@ -1,7 +1,6 @@
 package com.ureca.request.application;
 
 import com.ureca.alarm.application.AlarmService;
-import com.ureca.alarm.domain.Alarm;
 import com.ureca.alarm.infrastructure.AlarmRepository;
 import com.ureca.alarm.presentation.dto.AlarmDto;
 import com.ureca.common.exception.ApiException;
@@ -134,7 +133,7 @@ public class RequestService {
                             .receiverId(designer.getDesignerId())
                             .receiverType(AuthorType.DESIGNER)
                             .objectId(request.getRequestId())
-                            .alarm_type("REQUEST")
+                            .alarmType("A1")
                             .build();
 
             alarmList.add(alarmlist);
@@ -222,19 +221,41 @@ public class RequestService {
     }
 
     public List<RequestDto.Response> selectDesignerRequest(Long designerId) {
-        List<Long> requestIdList =  alarmRepository.findObjectIdByReceiverIdAndAlarmType(designerId, "A1");
+        List<Long> requestIdList =
+                alarmRepository.findObjectIdByReceiverIdAndAlarmType(designerId, "A1");
         List<RequestDto.Response> reqList = new ArrayList<>();
-        for(Long requestId : requestIdList) {
-            RequestDto.Response response = RequestDto.Response.builder()
-                    .requestId(requestId)
-                    .petId(requestRepository.findById(requestId).get().getPet().getPetId())
-                    .petName(requestRepository.findById(requestId).get().getPet().getPetName())
-                    .petImageUrl(requestRepository.findById(requestId).get().getPet().getPetImgUrl())
-                    .majorBreedCode(requestRepository.findById(requestId).get().getPet().getMajorBreedCode())
-                    .desiredServiceCode(requestRepository.findById(requestId).get().getDesiredServiceCode())
-                    .isVisitRequired(requestRepository.findById(requestId).get().getIsDelivery())
-                    .createdAt(requestRepository.findById(requestId).get().getCreatedAt())
-                    .build();
+        for (Long requestId : requestIdList) {
+            RequestDto.Response response =
+                    RequestDto.Response.builder()
+                            .requestId(requestId)
+                            .petId(requestRepository.findById(requestId).get().getPet().getPetId())
+                            .petName(
+                                    requestRepository
+                                            .findById(requestId)
+                                            .get()
+                                            .getPet()
+                                            .getPetName())
+                            .petImageUrl(
+                                    requestRepository
+                                            .findById(requestId)
+                                            .get()
+                                            .getPet()
+                                            .getPetImgUrl())
+                            .majorBreedCode(
+                                    requestRepository
+                                            .findById(requestId)
+                                            .get()
+                                            .getPet()
+                                            .getMajorBreedCode())
+                            .desiredServiceCode(
+                                    requestRepository
+                                            .findById(requestId)
+                                            .get()
+                                            .getDesiredServiceCode())
+                            .isVisitRequired(
+                                    requestRepository.findById(requestId).get().getIsDelivery())
+                            .createdAt(requestRepository.findById(requestId).get().getCreatedAt())
+                            .build();
             reqList.add(response);
         }
         return reqList;

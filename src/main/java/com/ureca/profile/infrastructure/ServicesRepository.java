@@ -5,6 +5,7 @@ import com.ureca.profile.domain.Services;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -16,5 +17,6 @@ public interface ServicesRepository extends JpaRepository<Services, Long> {
     Optional<Services> findByDesignerAndProvidedServicesCode(
             Designer designer, String providedServicesCode);
 
+    @Query("SELECT s.designer FROM Services s WHERE s.providedServicesCode = :desiredServiceCode")
     List<Designer> findDesignerByProvidedServicesCode(String desiredServiceCode);
 }

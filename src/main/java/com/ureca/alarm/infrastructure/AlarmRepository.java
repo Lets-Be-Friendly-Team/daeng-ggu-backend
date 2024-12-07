@@ -12,5 +12,6 @@ public interface AlarmRepository extends JpaRepository<Alarm, Long> {
 
     Page<Alarm> findByReceiverIdAndReceiverType(
             Long receiverId, AuthorType receiverType, Pageable pageable);
+
     List<Long> findObjectIdByReceiverIdAndAlarmType(Long designerId, String a1);
 }

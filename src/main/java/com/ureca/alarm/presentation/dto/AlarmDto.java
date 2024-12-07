@@ -16,8 +16,8 @@ public class AlarmDto {
         private Long receiverId;
         private AuthorType receiverType;
         private Long objectId;
-        private String alarm_message;
-        private String alarm_type;
+        private String alarmMessage;
+        private String alarmType;
 
         @Builder.Default private Integer page = 0;
     }

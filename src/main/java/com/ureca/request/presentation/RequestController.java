@@ -44,8 +44,10 @@ public class RequestController {
     }
 
     @PostMapping("/bid/request/designer")
-    ResponseDto<List<RequestDto.Response>> selectDesignerRequest(@RequestBody RequestDto.Request request) {
-        List<RequestDto.Response> reqList = requestService.selectDesignerRequest(request.getDesignerId());
+    ResponseDto<List<RequestDto.Response>> selectDesignerRequest(
+            @RequestBody RequestDto.Request request) {
+        List<RequestDto.Response> reqList =
+                requestService.selectDesignerRequest(request.getDesignerId());
         return ResponseUtil.SUCCESS("견적 요청서 리스트 조회가 완료되었습니다.", reqList);
     }
 
