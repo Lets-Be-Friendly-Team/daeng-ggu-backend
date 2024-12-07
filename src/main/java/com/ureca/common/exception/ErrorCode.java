@@ -25,6 +25,7 @@ public enum ErrorCode {
 
     // 3000번대: 인증 및 권한 관련 오류
     ACCESS_DENIED(403, "데이터 접근 권한이 없습니다.", 3000),
+    KAKAO_AUTHORIZE_DENIED(500, "카카오 인가 코드 획득에 실패했습니다.", 3010),
 
     // 4000번대: 예약 및 비즈니스 로직 관련 오류
     HISTORY_NOT_EXIST(500, "조건에 맞는 Reservation history 정보가 없습니다.", 4000),
