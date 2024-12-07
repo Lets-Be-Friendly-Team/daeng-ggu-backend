@@ -2,7 +2,7 @@ package com.ureca.profile.presentation;
 
 import com.ureca.common.response.ResponseDto;
 import com.ureca.common.response.ResponseUtil;
-import com.ureca.profile.application.service.PetService;
+import com.ureca.profile.application.PetService;
 import com.ureca.profile.presentation.dto.PetDetail;
 import com.ureca.profile.presentation.dto.PetUpdate;
 import org.slf4j.Logger;

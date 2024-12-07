@@ -2,7 +2,7 @@ package com.ureca.profile.presentation;
 
 import com.ureca.common.response.ResponseDto;
 import com.ureca.common.response.ResponseUtil;
-import com.ureca.profile.application.service.CustomerService;
+import com.ureca.profile.application.CustomerService;
 import com.ureca.profile.presentation.dto.CustomerDetail;
 import com.ureca.profile.presentation.dto.CustomerProfile;
 import com.ureca.profile.presentation.dto.CustomerUpdate;

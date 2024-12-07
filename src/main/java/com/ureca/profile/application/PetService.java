@@ -1,4 +1,4 @@
-package com.ureca.profile.application.service;
+package com.ureca.profile.application;
 
 import com.ureca.common.application.S3Service;
 import com.ureca.common.exception.ApiException;
