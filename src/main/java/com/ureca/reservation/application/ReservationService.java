@@ -84,7 +84,7 @@ public class ReservationService {
                                                 reservation.getEstimate() != null
                                                         ? reservation
                                                                 .getEstimate()
-                                                                .getEstimate_detail()
+                                                                .getEstimateDetail()
                                                         : null)
                                         .requestDetail(buildRequestDetailDto(reservation))
                                         .build())
@@ -112,12 +112,12 @@ public class ReservationService {
         if ("R2".equals(reservation.getReservationType()) && reservation.getRequest() != null) {
             // Auction 방식: Request 데이터 사용
             return RequestDetailDto.builder()
-                    .desiredService(getCodeDesc(reservation.getRequest().getDesired_service_code()))
-                    .lastGroomingDate(getCodeDesc(reservation.getRequest().getLast_grooming_date()))
-                    .isDelivery(reservation.getRequest().getIs_delivery())
-                    .desiredRegion(reservation.getRequest().getDesired_region())
-                    .isMonitoring(reservation.getRequest().getIs_monitoringIncluded())
-                    .additionalRequest(reservation.getRequest().getAdditional_request())
+                    .desiredService(getCodeDesc(reservation.getRequest().getDesiredServiceCode()))
+                    .lastGroomingDate(getCodeDesc(reservation.getRequest().getLastGroomingDate()))
+                    .isDelivery(reservation.getRequest().getIsDelivery())
+                    .desiredRegion(reservation.getRequest().getDesiredRegion())
+                    .isMonitoring(reservation.getRequest().getIsMonitoringIncluded())
+                    .additionalRequest(reservation.getRequest().getAdditionalRequest())
                     .build();
         }
 

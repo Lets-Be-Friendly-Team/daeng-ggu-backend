@@ -43,6 +43,12 @@ public class RequestController {
         return ResponseUtil.SUCCESS("견적 요청서 조회가 완료되었습니다.", response);
     }
 
+    @PostMapping("/bid/request/designer")
+    ResponseDto<String> selectDesignerRequest(@RequestBody RequestDto.Request request) {
+        requestService.selectDesignerRequest(request.getCustomerId());
+        return ResponseUtil.SUCCESS("견적 요청서 리스트 조회가 완료되었습니다.", null);
+    }
+
     @PostMapping("/bid/request/customer")
     ResponseDto<String> selectRequestBefore(@RequestBody RequestDto.Request request) {
         requestService.selectRequestBefore(request.getCustomerId());
