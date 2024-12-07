@@ -14,6 +14,8 @@ import com.ureca.profile.infrastructure.DesignerRepository;
 import com.ureca.profile.infrastructure.PetRepository;
 import com.ureca.request.domain.Request;
 import com.ureca.request.infrastructure.RequestRepository;
+
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,7 +37,9 @@ public class EstimateService {
 
     @Transactional
     public void makeEstimate(EstimateDto.Request request, List<MultipartFile> estimateImgList) {
-
+        BigDecimal totalFee = requestRepository.findById(request.getRequestId())
+                .map(req -> req.getDeliveryFee().add(req.getMonitoringFee()))
+                .orElse(BigDecimal.ZERO);
         Estimate estimate =
                 Estimate.builder()
                         .designer(
@@ -44,6 +48,7 @@ public class EstimateService {
                         .estimateDetail(request.getRequestDetail())
                         .desiredDate(request.getRequestDate())
                         .groomingFee(request.getGroomingFee())
+                        .estimatePayment(request.getGroomingFee().add(totalFee))
                         .estimateStatus("ST1")
                         .build();
 
@@ -102,9 +107,16 @@ public class EstimateService {
                                                                         .designerImageUrl(
                                                                                 estimate.getDesigner()
                                                                                         .getDesignerImgUrl())
+                                                                        .groomingFee(
+                                                                                estimate.getGroomingFee()
+                                                                        )
+                                                                        .deliveryFee(
+                                                                                estimate.getRequest().getDeliveryFee()
+                                                                        )
+                                                                        .monitoringFee(estimate.getRequest().getMonitoringFee())
                                                                         .estimatePrice(
                                                                                 estimate
-                                                                                        .getGroomingFee())
+                                                                                        .getEstimatePayment())
                                                                         .petId(
                                                                                 estimate.getRequest()
                                                                                         .getPet()

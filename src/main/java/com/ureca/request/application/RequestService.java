@@ -11,6 +11,8 @@ import com.ureca.profile.infrastructure.PetRepository;
 import com.ureca.request.domain.Request;
 import com.ureca.request.infrastructure.RequestRepository;
 import com.ureca.request.presentation.dto.RequestDto;
+
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -89,6 +91,31 @@ public class RequestService {
 
         Customer customer = pet.getCustomer(); // Pet에 Customer 연관 관계가 있어야 합니다.
         String region = customer.getAddress1() + customer.getDetailAddress();
+        BigDecimal deliveryFee = BigDecimal.ZERO;
+        if (Boolean.TRUE.equals(requestDto.getIsVisitRequired())) {
+            // 견종의 종류에 따라 가격을 설정
+            switch (pet.getMajorBreedCode()) {
+                case "P1":
+                    deliveryFee = BigDecimal.valueOf(20000);
+                    break;
+                case "P2":
+                    deliveryFee = BigDecimal.valueOf(30000);
+                    break;
+                case "P3":
+                    deliveryFee = BigDecimal.valueOf(40000);
+                    break;
+                case "P4":
+                    deliveryFee = BigDecimal.valueOf(50000);
+                    break;
+                default:
+                    throw new ApiException(ErrorCode.INVALID_BREED);
+            }
+        }
+
+        // isMonitoringIncluded에 따라 monitoringFee 계산
+        BigDecimal monitoringFee = Boolean.TRUE.equals(requestDto.getIsMonitoringIncluded())
+                ? BigDecimal.valueOf(50000)
+                : BigDecimal.ZERO;
         Request request =
                 Request.builder()
                         .pet(pet)
@@ -104,6 +131,8 @@ public class RequestService {
                         .isDelivery(requestDto.getIsVisitRequired())
                         .isMonitoringIncluded(requestDto.getIsMonitoringIncluded())
                         .additionalRequest(requestDto.getAdditionalRequest())
+                        .deliveryFee(deliveryFee)
+                        .monitoringFee(monitoringFee)
                         .requestStatus("ST1") // 기본 상태
                         .build();
 
@@ -149,6 +178,8 @@ public class RequestService {
                 .isVisitRequired(request.getIsDelivery())
                 .isMonitoringIncluded(request.getIsMonitoringIncluded())
                 .additionalRequest(request.getAdditionalRequest())
+                .deliveryFee(request.getDeliveryFee())
+                .monitoringFee(request.getMonitoringFee())
                 .build();
     }
 

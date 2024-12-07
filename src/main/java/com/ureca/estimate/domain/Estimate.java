@@ -41,12 +41,6 @@ public class Estimate extends BaseEntity {
     private BigDecimal groomingFee; // 미용비
 
     @Column(precision = 10, scale = 2)
-    private BigDecimal deliveryFee; // 배송비 (NULL 가능)
-
-    @Column(precision = 10, scale = 2)
-    private BigDecimal monitoringFee; // 모니터링비 (NULL 가능)
-
-    @Column(precision = 10, scale = 2)
     private BigDecimal estimatePayment;
 
     @Column(length = 20)

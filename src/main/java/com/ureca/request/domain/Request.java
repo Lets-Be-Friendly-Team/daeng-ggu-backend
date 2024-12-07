@@ -4,6 +4,8 @@ import com.ureca.common.entity.BaseEntity;
 import com.ureca.profile.domain.Customer;
 import com.ureca.profile.domain.Pet;
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -54,6 +56,12 @@ public class Request extends BaseEntity {
 
     @Column(length = 100)
     private String additionalRequest;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal deliveryFee; // 배송비 (NULL 가능)
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal monitoringFee; // 모니터링비 (NULL 가능)
 
     @Column(length = 20, nullable = false)
     private String requestStatus;

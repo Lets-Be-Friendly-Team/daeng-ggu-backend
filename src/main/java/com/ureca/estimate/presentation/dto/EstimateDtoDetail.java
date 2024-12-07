@@ -3,6 +3,8 @@ package com.ureca.estimate.presentation.dto;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import jakarta.persistence.Column;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -14,6 +16,9 @@ public class EstimateDtoDetail {
     private String designerName;
     private String designerImageUrl;
     private String estimateDetail;
+    private BigDecimal groomingFee;
+    private BigDecimal deliveryFee;
+    private BigDecimal monitoringFee;
     private BigDecimal estimatePrice;
     private Long petId;
     private String petName;
@@ -22,6 +27,5 @@ public class EstimateDtoDetail {
     private String customerName;
     private String phone;
     private String address;
-    private BigDecimal groomingFee;
     private List<String> estimateImgList;
 }
