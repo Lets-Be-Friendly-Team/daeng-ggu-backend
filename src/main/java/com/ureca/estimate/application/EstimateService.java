@@ -36,10 +36,13 @@ public class EstimateService {
     private final PetRepository petRepository;
 
     @Transactional
-    public void makeEstimate(EstimateDto.Request request, List<MultipartFile> estimateImgList) {
+    public void makeEstimate(EstimateDto.Request request,
+                             List<MultipartFile> estimateImgList,
+                             List<String> imgIdList) {
         BigDecimal totalFee = requestRepository.findById(request.getRequestId())
                 .map(req -> req.getDeliveryFee().add(req.getMonitoringFee()))
                 .orElse(BigDecimal.ZERO);
+
         Estimate estimate =
                 Estimate.builder()
                         .designer(
@@ -53,14 +56,19 @@ public class EstimateService {
                         .build();
 
         List<EstimateImage> estimateImages = new ArrayList<>();
-        for (MultipartFile estimateImg : estimateImgList) {
+        for (Integer i = 0; i < estimateImgList.size(); i++) {
             String estimate_img_url =
-                    s3Service.uploadFileImage(estimateImg, "estimate", "estimate");
+                    s3Service.uploadFileImage(
+                            estimateImgList.get(i),
+                            "estimate",
+                            imgIdList.get(i) + "-" + estimateImgList.get(i).getOriginalFilename());
             EstimateImage estimateImage =
                     EstimateImage.builder()
+                            .estimateTagId(imgIdList.get(i))
                             .estimateImgUrl(estimate_img_url)
                             .estimate(estimate)
                             .build();
+            estimateImageRepository.save(estimateImage);
             estimateImages.add(estimateImage);
         }
         estimate.toBuilder().estimateImages(estimateImages).build();

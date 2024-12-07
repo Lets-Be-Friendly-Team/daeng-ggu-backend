@@ -48,7 +48,7 @@ public class AlarmService {
         SseEmitter emitter = emitterMap.get(request.getReceiverId());
 
         String alarmMessage = "";
-        switch (request.getAlarm_type()) {
+        switch (request.getAlarmType()) {
             case "A1":
                 alarmMessage =
                         customerRepository
@@ -108,7 +108,7 @@ public class AlarmService {
                         .receiverId(request.getReceiverId())
                         .receiverType(request.getReceiverType())
                         .alarmMessage(alarmMessage)
-                        .alarmType(request.getAlarm_type()) // 알림 유형 예시
+                        .alarmType(request.getAlarmType()) // 알림 유형 예시
                         .alarmStatus(false) // 기본 상태는 '읽지 않음'
                         .build();
 
