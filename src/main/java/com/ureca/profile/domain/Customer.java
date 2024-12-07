@@ -20,7 +20,7 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long customerId;
 
-    // 로그인 아이디
+    // 로그인 아이디 (이메일+고유값)
     private String customerLoginId;
 
     // 이메일

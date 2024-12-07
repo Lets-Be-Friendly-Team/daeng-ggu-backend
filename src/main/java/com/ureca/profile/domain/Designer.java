@@ -20,7 +20,7 @@ public class Designer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long designerId;
 
-    // 로그인 아이디
+    // 로그인 아이디 (이메일+고유값)
     private String designerLoginId;
 
     // 이메일

@@ -2,7 +2,7 @@ package com.ureca.profile.presentation;
 
 import com.ureca.common.response.ResponseDto;
 import com.ureca.common.response.ResponseUtil;
-import com.ureca.profile.application.service.DesignerService;
+import com.ureca.profile.application.DesignerService;
 import com.ureca.profile.presentation.dto.DesignerDetail;
 import com.ureca.profile.presentation.dto.DesignerProfile;
 import com.ureca.profile.presentation.dto.DesignerUpdate;
