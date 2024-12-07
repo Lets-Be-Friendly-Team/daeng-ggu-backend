@@ -17,6 +17,8 @@ public interface DesignerRepository extends JpaRepository<Designer, Long> {
 
     Optional<Designer> findByDesignerId(Long designerId);
 
+    Optional<Designer> findByEmailAndDesignerLoginId(String email, String designerLoginId);
+
     // 디자이너 정보 조회
     @Query(
             "SELECT new com.ureca.profile.presentation.dto.DesignerProfile("
@@ -62,6 +64,7 @@ public interface DesignerRepository extends JpaRepository<Designer, Long> {
             nativeQuery = true)
     Double findAverageReviewStarByDesignerId(Long designerId);
 
+    // TODO nativeQuery 수정
     // 디자이너의 전체 리뷰 좋아요 수 조회
     @Query(
             value =
