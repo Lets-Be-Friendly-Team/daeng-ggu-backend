@@ -3,8 +3,6 @@ package com.ureca.estimate.presentation.dto;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import jakarta.persistence.Column;
 import lombok.Builder;
 import lombok.Getter;
 

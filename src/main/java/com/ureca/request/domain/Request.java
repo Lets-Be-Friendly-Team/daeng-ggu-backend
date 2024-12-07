@@ -4,7 +4,6 @@ import com.ureca.common.entity.BaseEntity;
 import com.ureca.profile.domain.Customer;
 import com.ureca.profile.domain.Pet;
 import jakarta.persistence.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;

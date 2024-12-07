@@ -12,9 +12,8 @@ import com.ureca.profile.infrastructure.*;
 import com.ureca.request.domain.Request;
 import com.ureca.request.infrastructure.RequestRepository;
 import com.ureca.request.presentation.dto.RequestDto;
-
-import java.math.BigDecimal;
 import com.ureca.review.domain.Enum.AuthorType;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -119,9 +118,10 @@ public class RequestService {
         }
 
         // isMonitoringIncluded에 따라 monitoringFee 계산
-        BigDecimal monitoringFee = Boolean.TRUE.equals(requestDto.getIsMonitoringIncluded())
-                ? BigDecimal.valueOf(50000)
-                : BigDecimal.ZERO;
+        BigDecimal monitoringFee =
+                Boolean.TRUE.equals(requestDto.getIsMonitoringIncluded())
+                        ? BigDecimal.valueOf(50000)
+                        : BigDecimal.ZERO;
         Request request =
                 Request.builder()
                         .pet(pet)

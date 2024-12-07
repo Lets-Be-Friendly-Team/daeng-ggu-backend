@@ -2,7 +2,6 @@ package com.ureca.request.presentation.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Builder;

@@ -21,7 +21,7 @@ public enum ErrorCode {
     PET_NOT_EXIST(500, "반려견 정보를 찾을 수 없습니다.", 2050),
     REQUEST_NOT_EXIST(500, "요청서 정보를 찾을 수 없습니다.", 2060),
     ESTIMATE_NOT_EXIST(500, "견적서 정보를 찾을 수 없습니다.", 2070),
-    INVALID_BREED(500, "잘못된 견종 코드입니다.",2080),
+    INVALID_BREED(500, "잘못된 견종 코드입니다.", 2080),
 
     // 3000번대: 인증 및 권한 관련 오류
     ACCESS_DENIED(403, "데이터 접근 권한이 없습니다.", 3000),
