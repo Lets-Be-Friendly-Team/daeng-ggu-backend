@@ -21,6 +21,7 @@ public enum ErrorCode {
     PET_NOT_EXIST(500, "반려견 정보를 찾을 수 없습니다.", 2050),
     REQUEST_NOT_EXIST(500, "요청서 정보를 찾을 수 없습니다.", 2060),
     ESTIMATE_NOT_EXIST(500, "견적서 정보를 찾을 수 없습니다.", 2070),
+    INVALID_BREED(500, "잘못된 견종 코드입니다.", 2080),
 
     // 3000번대: 인증 및 권한 관련 오류
     ACCESS_DENIED(403, "데이터 접근 권한이 없습니다.", 3000),
@@ -29,6 +30,7 @@ public enum ErrorCode {
     HISTORY_NOT_EXIST(500, "조건에 맞는 Reservation history 정보가 없습니다.", 4000),
     USER_CONFLICT_ERROR(409, "다른 사용자와 동시에 처리 중입니다.", 4010),
     SAME_USER_RESERVE_DENIED(400, "본인에게 예약은 불가능합니다.", 4020),
+    RESERVE_EXIST_ERROR(400, "예약이 존재해 삭제할 수 없습니다.", 4030),
 
     // 5000번대 : 파일처리 관련 오류
     FILE_NOT_EXIST(500, "파일 업로드에 실패했습니다.", 5010),
@@ -36,7 +38,10 @@ public enum ErrorCode {
     // 6000번대: 결제 관련 오류
     PAYMENT_SERVER_ERROR(500, "결제 서버 오류가 발생했습니다.", 6000),
     PAYMENT_VALIDATION_FAILED(400, "결제 요청 데이터가 유효하지 않습니다.", 6010),
-    PAYMENT_PROCESS_FAILED(500, "결제 처리 중 오류가 발생했습니다.", 6020);
+    PAYMENT_PROCESS_FAILED(500, "결제 처리 중 오류가 발생했습니다.", 6020),
+
+    // 7000 : 견적 관련 오류
+    REQUEST_FULL_ESTIMATE(500, "모든 견적서가 전송되었습니다", 7000);
 
     private final int status; // HTTP 상태 코드
     private final String message; // 에러 메시지

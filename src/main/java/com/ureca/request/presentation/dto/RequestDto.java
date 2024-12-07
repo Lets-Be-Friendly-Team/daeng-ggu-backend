@@ -2,6 +2,7 @@ package com.ureca.request.presentation.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
@@ -68,6 +69,8 @@ public class RequestDto {
         private Boolean isVisitRequired;
         private Boolean isMonitoringIncluded;
         private String additionalRequest;
+        private BigDecimal deliveryFee;
+        private BigDecimal monitoringFee;
 
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime createdAt;

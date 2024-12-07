@@ -14,6 +14,9 @@ public class EstimateDtoDetail {
     private String designerName;
     private String designerImageUrl;
     private String estimateDetail;
+    private BigDecimal groomingFee;
+    private BigDecimal deliveryFee;
+    private BigDecimal monitoringFee;
     private BigDecimal estimatePrice;
     private Long petId;
     private String petName;
@@ -22,6 +25,5 @@ public class EstimateDtoDetail {
     private String customerName;
     private String phone;
     private String address;
-    private BigDecimal groomingFee;
     private List<String> estimateImgList;
 }
