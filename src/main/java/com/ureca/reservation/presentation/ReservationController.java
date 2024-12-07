@@ -55,13 +55,12 @@ public class ReservationController {
 
     @PostMapping("reservation/direct")
     public ResponseDto<Long> createDirectReservation(
-        @RequestParam Long customerId,
-        @RequestBody DirectReservationRequestDto directReservationRequestDto) {
-        log.info(
-            "POST /daengggu/reservation/direct - request: {}", directReservationRequestDto);
+            @RequestParam Long customerId,
+            @RequestBody DirectReservationRequestDto directReservationRequestDto) {
+        log.info("POST /daengggu/reservation/direct - request: {}", directReservationRequestDto);
 
         return ResponseUtil.SUCCESS(
-            "예약 생성 성공",
-            reservationService.directReservation(customerId, directReservationRequestDto));
+                "예약 생성 성공",
+                reservationService.directReservation(customerId, directReservationRequestDto));
     }
 }

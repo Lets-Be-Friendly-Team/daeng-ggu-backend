@@ -248,9 +248,11 @@ public class ReservationService {
             Long customerId, EstimateReservationRequestDto estimateReservationRequestDto) {
         // 1. 예약 가능 여부에 대한 검증
         ValidationUtil.validateReservationTime(
-            estimateReservationRequestDto.getStartTime(), estimateReservationRequestDto.getEndTime());
+                estimateReservationRequestDto.getStartTime(),
+                estimateReservationRequestDto.getEndTime());
         ValidationUtil.validateAfterCurrentDateTime(
-            estimateReservationRequestDto.getReservationDate(), estimateReservationRequestDto.getStartTime());
+                estimateReservationRequestDto.getReservationDate(),
+                estimateReservationRequestDto.getStartTime());
 
         // 2. 고객 및 요청 데이터 유효성 확인
         if (!customerRepository.existsById(customerId)) {
@@ -287,7 +289,6 @@ public class ReservationService {
     private PaymentRequestDto buildPaymentRequest(
             EstimateReservationRequestDto reservationRequestDto) {
         return PaymentRequestDto.builder()
-
                 .paymentKey(reservationRequestDto.getPaymentKey())
                 .orderId(reservationRequestDto.getOrderId())
                 .amount(reservationRequestDto.getTotalPayment())
@@ -338,10 +339,15 @@ public class ReservationService {
         }
     }
 
-    public Long directReservation(Long customerId, DirectReservationRequestDto directReservationRequestDto) {
+    public Long directReservation(
+            Long customerId, DirectReservationRequestDto directReservationRequestDto) {
         // 1. 예약 가능 여부 검증
-        ValidationUtil.validateReservationTime(directReservationRequestDto.getStartTime(), directReservationRequestDto.getEndTime());
-        ValidationUtil.validateAfterCurrentDateTime(directReservationRequestDto.getReservationDate(), directReservationRequestDto.getStartTime());
+        ValidationUtil.validateReservationTime(
+                directReservationRequestDto.getStartTime(),
+                directReservationRequestDto.getEndTime());
+        ValidationUtil.validateAfterCurrentDateTime(
+                directReservationRequestDto.getReservationDate(),
+                directReservationRequestDto.getStartTime());
 
         // TODO: 서비스별 소요 시간 반영 end time 생성 (디자이너의 데이터에서 가져와서 연산 수행)
 
@@ -351,11 +357,12 @@ public class ReservationService {
         }
 
         // 3. 결제 서버에 요청
-        PaymentRequestDto paymentRequestDto = PaymentRequestDto.builder()
-            .paymentKey(directReservationRequestDto.getPaymentKey())
-            .orderId(directReservationRequestDto.getOrderId())
-            .amount(directReservationRequestDto.getAmount())
-            .build();
+        PaymentRequestDto paymentRequestDto =
+                PaymentRequestDto.builder()
+                        .paymentKey(directReservationRequestDto.getPaymentKey())
+                        .orderId(directReservationRequestDto.getOrderId())
+                        .amount(directReservationRequestDto.getAmount())
+                        .build();
 
         PaymentResponseDto paymentResponse = processPayment(paymentRequestDto);
 
@@ -364,27 +371,36 @@ public class ReservationService {
         }
 
         // 4. 예약 데이터 저장
-        Reservation reservation = Reservation.builder()
-            .pet(petRepository.findById(directReservationRequestDto.getPetId())
-                .orElseThrow(() -> new ApiException(ErrorCode.PET_NOT_EXIST)))
-            .designer(designerRepository.findById(directReservationRequestDto.getDesignerId())
-                .orElseThrow(() -> new ApiException(ErrorCode.DESIGNER_NOT_EXIST)))
-            .reservationType("R1") // Direct 예약
-            .isFinished(false)
-            .isCanceled(false)
-            .reservationDate(directReservationRequestDto.getReservationDate())
-            .startTime(directReservationRequestDto.getStartTime())
-            .endTime(directReservationRequestDto.getEndTime())
-            .groomingFee(directReservationRequestDto.getGroomingFee())
-            .deliveryFee(directReservationRequestDto.getDeliveryFee())
-            .monitoringFee(directReservationRequestDto.getMonitoringFee())
-            .totalPayment(directReservationRequestDto.getTotalPayment())
-            .desiredService(directReservationRequestDto.getDesiredService())
-            .lastGroomingDate(directReservationRequestDto.getLastGroomingDate())
-            .isDelivery(directReservationRequestDto.getIsDelivery())
-            .isMonitoring(directReservationRequestDto.getIsMonitoring())
-            .additionalRequest(directReservationRequestDto.getAdditionalRequest())
-            .build();
+        Reservation reservation =
+                Reservation.builder()
+                        .pet(
+                                petRepository
+                                        .findById(directReservationRequestDto.getPetId())
+                                        .orElseThrow(
+                                                () -> new ApiException(ErrorCode.PET_NOT_EXIST)))
+                        .designer(
+                                designerRepository
+                                        .findById(directReservationRequestDto.getDesignerId())
+                                        .orElseThrow(
+                                                () ->
+                                                        new ApiException(
+                                                                ErrorCode.DESIGNER_NOT_EXIST)))
+                        .reservationType("R1") // Direct 예약
+                        .isFinished(false)
+                        .isCanceled(false)
+                        .reservationDate(directReservationRequestDto.getReservationDate())
+                        .startTime(directReservationRequestDto.getStartTime())
+                        .endTime(directReservationRequestDto.getEndTime())
+                        .groomingFee(directReservationRequestDto.getGroomingFee())
+                        .deliveryFee(directReservationRequestDto.getDeliveryFee())
+                        .monitoringFee(directReservationRequestDto.getMonitoringFee())
+                        .totalPayment(directReservationRequestDto.getTotalPayment())
+                        .desiredService(directReservationRequestDto.getDesiredService())
+                        .lastGroomingDate(directReservationRequestDto.getLastGroomingDate())
+                        .isDelivery(directReservationRequestDto.getIsDelivery())
+                        .isMonitoring(directReservationRequestDto.getIsMonitoring())
+                        .additionalRequest(directReservationRequestDto.getAdditionalRequest())
+                        .build();
         reservationRepository.save(reservation);
         // 5. 예약 성공 ID 반환
         return reservation.getReservationId();
