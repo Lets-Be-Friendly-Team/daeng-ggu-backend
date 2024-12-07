@@ -25,7 +25,7 @@ public class ReviewDto {
         private LocalDateTime lastCreatedAt;
 
         private String reviewContents;
-        private Integer reviewStar;
+        private Double reviewStar;
         private Boolean isFeedAdd;
         private Integer page;
         private List<MultipartFile> FeedImgList;
@@ -48,7 +48,7 @@ public class ReviewDto {
         private String customerImgUrl;
         private String customerName;
         private String reviewContents;
-        private Integer reviewStar;
+        private Double reviewStar;
         private Integer reviewLikeCnt;
         private Boolean isReviewLike;
         private Boolean feedExposure;

@@ -25,7 +25,7 @@ public class Review extends BaseEntity {
     private String reviewContents;
 
     @Column(nullable = false)
-    private Integer reviewStar;
+    private Double reviewStar;
 
     @Column(nullable = false)
     private Boolean isFeedAdd; // 피드 참여 여부
@@ -63,7 +63,7 @@ public class Review extends BaseEntity {
                 .build();
     }
 
-    public Review updateReviewStar(Integer newStar) {
+    public Review updateReviewStar(Double newStar) {
         return this.toBuilder()
                 .reviewStar(newStar) // 별점만 변경
                 .build();
