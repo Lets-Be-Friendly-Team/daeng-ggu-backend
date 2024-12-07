@@ -4,6 +4,7 @@ import com.ureca.common.response.ResponseDto;
 import com.ureca.common.response.ResponseUtil;
 import com.ureca.reservation.application.ReservationService;
 import com.ureca.reservation.presentation.dto.DesignerAvailableDatesResponseDto;
+import com.ureca.reservation.presentation.dto.DirectReservationRequestDto;
 import com.ureca.reservation.presentation.dto.EstimateReservationRequestDto;
 import com.ureca.reservation.presentation.dto.ReservationHistoryResponseDto;
 import java.util.List;
@@ -41,7 +42,7 @@ public class ReservationController {
     }
 
     @PostMapping("reservation/estimate")
-    public ResponseDto<Long> createReservation(
+    public ResponseDto<Long> createEstimateReservation(
             @RequestParam Long customerId,
             @RequestBody EstimateReservationRequestDto estimateReservationRequestDto) {
         log.info(
@@ -50,5 +51,16 @@ public class ReservationController {
         return ResponseUtil.SUCCESS(
                 "예약 생성 성공",
                 reservationService.estimateReservation(customerId, estimateReservationRequestDto));
+    }
+
+    @PostMapping("reservation/direct")
+    public ResponseDto<Long> createDirectReservation(
+            @RequestParam Long customerId,
+            @RequestBody DirectReservationRequestDto directReservationRequestDto) {
+        log.info("POST /daengggu/reservation/direct - request: {}", directReservationRequestDto);
+
+        return ResponseUtil.SUCCESS(
+                "예약 생성 성공",
+                reservationService.directReservation(customerId, directReservationRequestDto));
     }
 }
