@@ -99,7 +99,8 @@ public class EstimateService {
 
             estimateRepository.save(estimate);
 
-            request1.toBuilder().requestCnt(request1.getRequestCnt() + 1);
+            request1.setRequestCnt(request1.getRequestCnt() + 1);
+            requestRepository.save(request1);
             redisLockUtil.unlock(lockKey);
         } else {
             redisLockUtil.unlock(lockKey);

@@ -56,14 +56,18 @@ public class Request extends BaseEntity {
     @Column(length = 100)
     private String additionalRequest;
 
-    @Column(precision = 10, scale = 2)
-    private BigDecimal deliveryFee; // 배송비 (NULL 가능)
+    @Column(precision = 10, scale = 2, nullable = false)
+    private BigDecimal deliveryFee; // 댕동비
 
-    @Column(precision = 10, scale = 2)
-    private BigDecimal monitoringFee; // 모니터링비 (NULL 가능)
+    @Column(precision = 10, scale = 2, nullable = false)
+    private BigDecimal monitoringFee; // 모니터링비
 
     @Column(length = 20, nullable = false)
     private String requestStatus;
 
     @Column @Builder.Default private Integer requestCnt = 0;
+
+    public void setRequestCnt(Integer requestCnt) {
+        this.requestCnt = requestCnt;
+    }
 }
