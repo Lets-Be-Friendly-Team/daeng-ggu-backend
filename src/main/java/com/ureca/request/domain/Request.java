@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 public class Request extends BaseEntity {
 
     @Id
@@ -64,4 +64,6 @@ public class Request extends BaseEntity {
 
     @Column(length = 20, nullable = false)
     private String requestStatus;
+
+    @Column @Builder.Default private Integer requestCnt = 0;
 }

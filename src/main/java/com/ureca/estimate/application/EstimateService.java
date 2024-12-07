@@ -3,6 +3,7 @@ package com.ureca.estimate.application;
 import com.ureca.common.application.S3Service;
 import com.ureca.common.exception.ApiException;
 import com.ureca.common.exception.ErrorCode;
+import com.ureca.config.Redis.RedisLockUtil;
 import com.ureca.estimate.domain.Estimate;
 import com.ureca.estimate.domain.EstimateImage;
 import com.ureca.estimate.infrastructure.EstimateImageRepository;
@@ -33,6 +34,9 @@ public class EstimateService {
     private final RequestRepository requestRepository;
     private final DesignerRepository designerRepository;
     private final PetRepository petRepository;
+    private final RedisLockUtil redisLockUtil;
+
+    private static final String LOCK_KEY_PREFIX = "estimate:cnt:";
 
     @Transactional
     public void makeEstimate(
@@ -44,38 +48,63 @@ public class EstimateService {
                         .findById(request.getRequestId())
                         .map(req -> req.getDeliveryFee().add(req.getMonitoringFee()))
                         .orElse(BigDecimal.ZERO);
+        Request request1 =
+                requestRepository
+                        .findById(request.getRequestId())
+                        .orElseThrow(() -> new ApiException(ErrorCode.REQUEST_NOT_EXIST));
 
-        Estimate estimate =
-                Estimate.builder()
-                        .designer(
-                                designerRepository.findByDesignerId(request.getDesignerId()).get())
-                        .request(requestRepository.findById(request.getRequestId()).get())
-                        .estimateDetail(request.getRequestDetail())
-                        .desiredDate(request.getRequestDate())
-                        .groomingFee(request.getGroomingFee())
-                        .estimatePayment(request.getGroomingFee().add(totalFee))
-                        .estimateStatus("ST1")
-                        .build();
+        String lockKey = LOCK_KEY_PREFIX + request1.getRequestId();
 
-        List<EstimateImage> estimateImages = new ArrayList<>();
-        for (Integer i = 0; i < estimateImgList.size(); i++) {
-            String estimate_img_url =
-                    s3Service.uploadFileImage(
-                            estimateImgList.get(i),
-                            "estimate",
-                            imgIdList.get(i) + "-" + estimateImgList.get(i).getOriginalFilename());
-            EstimateImage estimateImage =
-                    EstimateImage.builder()
-                            .estimateTagId(imgIdList.get(i))
-                            .estimateImgUrl(estimate_img_url)
-                            .estimate(estimate)
-                            .build();
-            estimateImageRepository.save(estimateImage);
-            estimateImages.add(estimateImage);
+        // 1. 락 시도 (유효 시간 5초)
+        boolean lockAcquired = redisLockUtil.tryLock(lockKey, 5000);
+
+        if (!lockAcquired) {
+            throw new ApiException(ErrorCode.USER_CONFLICT_ERROR);
         }
-        estimate.toBuilder().estimateImages(estimateImages).build();
 
-        estimateRepository.save(estimate);
+        if (request1.getRequestCnt() < 10) {
+            Estimate estimate =
+                    Estimate.builder()
+                            .designer(
+                                    designerRepository
+                                            .findByDesignerId(request.getDesignerId())
+                                            .get())
+                            .request(request1)
+                            .estimateDetail(request.getRequestDetail())
+                            .desiredDate(request.getRequestDate())
+                            .groomingFee(request.getGroomingFee())
+                            .estimatePayment(request.getGroomingFee().add(totalFee))
+                            .estimateStatus("ST1")
+                            .build();
+
+            List<EstimateImage> estimateImages = new ArrayList<>();
+            for (Integer i = 0; i < estimateImgList.size(); i++) {
+                String estimate_img_url =
+                        s3Service.uploadFileImage(
+                                estimateImgList.get(i),
+                                "estimate",
+                                imgIdList.get(i)
+                                        + "-"
+                                        + estimateImgList.get(i).getOriginalFilename());
+                EstimateImage estimateImage =
+                        EstimateImage.builder()
+                                .estimateTagId(imgIdList.get(i))
+                                .estimateImgUrl(estimate_img_url)
+                                .estimate(estimate)
+                                .build();
+                estimateImageRepository.save(estimateImage);
+                estimateImages.add(estimateImage);
+            }
+            estimate.toBuilder().estimateImages(estimateImages).build();
+
+            estimateRepository.save(estimate);
+
+            request1.toBuilder().requestCnt(request1.getRequestCnt() + 1);
+            redisLockUtil.unlock(lockKey);
+        } else {
+            redisLockUtil.unlock(lockKey);
+            throw new ApiException(ErrorCode.REQUEST_FULL_ESTIMATE);
+        }
     }
 
     public List<EstimateDto.Response> selectCustomerEstimate(Long customerId) {

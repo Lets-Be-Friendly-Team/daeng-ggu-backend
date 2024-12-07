@@ -248,7 +248,11 @@ public class RequestService {
                 requestRepository
                         .findById(requestId)
                         .orElseThrow(() -> new ApiException(ErrorCode.REQUEST_NOT_EXIST));
-        requestRepository.delete(request);
+        if (request.getRequestStatus() == "ST1" || request.getRequestStatus() == "ST3") {
+            requestRepository.delete(request);
+        } else {
+            throw new ApiException(ErrorCode.RESERVE_EXIST_ERROR);
+        }
     }
 
     public List<RequestDto.Response> selectDesignerRequest(Long designerId) {
