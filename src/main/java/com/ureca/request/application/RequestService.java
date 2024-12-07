@@ -1,16 +1,18 @@
 package com.ureca.request.application;
 
+import com.ureca.alarm.application.AlarmService;
+import com.ureca.alarm.infrastructure.AlarmRepository;
+import com.ureca.alarm.presentation.dto.AlarmDto;
 import com.ureca.common.exception.ApiException;
 import com.ureca.common.exception.ErrorCode;
 import com.ureca.profile.domain.Customer;
+import com.ureca.profile.domain.Designer;
 import com.ureca.profile.domain.Pet;
-import com.ureca.profile.infrastructure.CommonCodeRepository;
-import com.ureca.profile.infrastructure.CustomerRepository;
-import com.ureca.profile.infrastructure.DesignerRepository;
-import com.ureca.profile.infrastructure.PetRepository;
+import com.ureca.profile.infrastructure.*;
 import com.ureca.request.domain.Request;
 import com.ureca.request.infrastructure.RequestRepository;
 import com.ureca.request.presentation.dto.RequestDto;
+import com.ureca.review.domain.Enum.AuthorType;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,10 @@ public class RequestService {
     private final CustomerRepository customerRepository;
     private final DesignerRepository designerRepository;
     private final CommonCodeRepository commonCodeRepository;
+    private final ServicesRepository servicesRepository;
+    private final BreedsRepository breedsRepository;
+    private final AlarmService alarmService;
+    private final AlarmRepository alarmRepository;
 
     public List<RequestDto.Response> selectPetProfile(Long customerId) {
         Customer customer = customerRepository.findById(customerId).get();
@@ -108,6 +114,31 @@ public class RequestService {
                         .build();
 
         requestRepository.save(request);
+        categoryAndAlarm(request);
+    }
+
+    private void categoryAndAlarm(Request request) {
+        List<Designer> designers =
+                servicesRepository.findDesignerByProvidedServicesCode(
+                        request.getDesiredServiceCode());
+        designers =
+                breedsRepository.findDesignerByPossibleMajorBreedCode(
+                        request.getPet().getMajorBreedCode(), designers);
+        List<AlarmDto.Request> alarmList = new ArrayList<>();
+        for (Designer designer : designers) {
+            AlarmDto.Request alarmlist =
+                    AlarmDto.Request.builder()
+                            .senderId(request.getCustomer().getCustomerId())
+                            .senderType(AuthorType.CUSTOMER)
+                            .receiverId(designer.getDesignerId())
+                            .receiverType(AuthorType.DESIGNER)
+                            .objectId(request.getRequestId())
+                            .alarmType("A1")
+                            .build();
+
+            alarmList.add(alarmlist);
+        }
+        alarmService.sendNotificationsToUsers(alarmList);
     }
 
     public RequestDto.Response selectRequest(Long request_id) {
@@ -189,5 +220,44 @@ public class RequestService {
         requestRepository.delete(request);
     }
 
-    public void selectDesignerRequest(Long customerId) {}
+    public List<RequestDto.Response> selectDesignerRequest(Long designerId) {
+        List<Long> requestIdList =
+                alarmRepository.findObjectIdByReceiverIdAndAlarmType(designerId, "A1");
+        List<RequestDto.Response> reqList = new ArrayList<>();
+        for (Long requestId : requestIdList) {
+            RequestDto.Response response =
+                    RequestDto.Response.builder()
+                            .requestId(requestId)
+                            .petId(requestRepository.findById(requestId).get().getPet().getPetId())
+                            .petName(
+                                    requestRepository
+                                            .findById(requestId)
+                                            .get()
+                                            .getPet()
+                                            .getPetName())
+                            .petImageUrl(
+                                    requestRepository
+                                            .findById(requestId)
+                                            .get()
+                                            .getPet()
+                                            .getPetImgUrl())
+                            .majorBreedCode(
+                                    requestRepository
+                                            .findById(requestId)
+                                            .get()
+                                            .getPet()
+                                            .getMajorBreedCode())
+                            .desiredServiceCode(
+                                    requestRepository
+                                            .findById(requestId)
+                                            .get()
+                                            .getDesiredServiceCode())
+                            .isVisitRequired(
+                                    requestRepository.findById(requestId).get().getIsDelivery())
+                            .createdAt(requestRepository.findById(requestId).get().getCreatedAt())
+                            .build();
+            reqList.add(response);
+        }
+        return reqList;
+    }
 }

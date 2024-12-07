@@ -1,6 +1,7 @@
 package com.ureca.estimate.presentation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ureca.common.response.ResponseDto;
 import com.ureca.common.response.ResponseUtil;
@@ -23,11 +24,16 @@ public class EstimateController {
     @PutMapping("/bid/estimate")
     ResponseDto<String> makeEstimate(
             @RequestPart("estimateRequest") String estimateRequestJson,
-            @RequestPart("estimateImgList") List<MultipartFile> estimateImgList)
+            @RequestPart("estimateImgList") List<MultipartFile> estimateImgList,
+            @RequestPart("estimateImgIdList") String estimateImgIdListJson)
             throws JsonProcessingException {
         EstimateDto.Request request =
                 objectMapper.readValue(estimateRequestJson, EstimateDto.Request.class);
-        estimateService.makeEstimate(request, estimateImgList);
+        // estimateImgIdListJson을 List<String>으로 변환
+        JavaType listType =
+                objectMapper.getTypeFactory().constructCollectionType(List.class, String.class);
+        List<String> estimateImgIdList = objectMapper.readValue(estimateImgIdListJson, listType);
+        estimateService.makeEstimate(request, estimateImgList, estimateImgIdList);
         return ResponseUtil.SUCCESS("견적서 생성이 완료되었습니다.", null);
     }
 
