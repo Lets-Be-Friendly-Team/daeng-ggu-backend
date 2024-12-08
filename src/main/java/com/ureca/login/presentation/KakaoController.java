@@ -7,6 +7,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +21,9 @@ public class KakaoController {
     private final KakaoService kakaoService;
     private final LoginService loginService;
 
-    private static final String REDIRECT_URL = "https://www.daeng-ggu.com/daengggu/login/callback";
+    @Value("${login.redirect.uri}")
+    String LOGIN_REDIRECT_URL;
+
     private static final String CUSTOMER = "C";
     private static final String DESIGNER = "D";
 
@@ -45,7 +48,7 @@ public class KakaoController {
         cookie.setPath("/"); // 모든 경로에서 접근할 수 있도록 설정
         response.addCookie(cookie);
 
-        response.sendRedirect(REDIRECT_URL);
+        response.sendRedirect(LOGIN_REDIRECT_URL);
     }
 
     /**
@@ -69,6 +72,6 @@ public class KakaoController {
         cookie.setPath("/");
         response.addCookie(cookie);
 
-        response.sendRedirect(REDIRECT_URL);
+        response.sendRedirect(LOGIN_REDIRECT_URL);
     }
 }
