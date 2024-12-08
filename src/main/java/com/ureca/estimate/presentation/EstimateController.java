@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/daenggu")
+@RequestMapping("/daengggu")
 public class EstimateController {
 
     private final EstimateService estimateService;

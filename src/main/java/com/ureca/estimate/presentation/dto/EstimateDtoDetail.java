@@ -13,6 +13,7 @@ public class EstimateDtoDetail {
     private Long designerId;
     private String designerName;
     private String designerImageUrl;
+    private String designerAddress;
     private String estimateDetail;
     private BigDecimal groomingFee;
     private BigDecimal deliveryFee;
