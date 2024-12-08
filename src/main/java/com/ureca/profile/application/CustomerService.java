@@ -7,11 +7,14 @@ import com.ureca.common.util.ValidationUtil;
 import com.ureca.profile.domain.Bookmark;
 import com.ureca.profile.domain.Breeds;
 import com.ureca.profile.domain.Customer;
+import com.ureca.profile.domain.Designer;
 import com.ureca.profile.domain.Pet;
 import com.ureca.profile.infrastructure.BookmarkRepository;
 import com.ureca.profile.infrastructure.CustomerRepository;
+import com.ureca.profile.infrastructure.DesignerRepository;
 import com.ureca.profile.infrastructure.PetRepository;
 import com.ureca.profile.presentation.dto.BookmarkInfo;
+import com.ureca.profile.presentation.dto.BookmarkYn;
 import com.ureca.profile.presentation.dto.CustomerDetail;
 import com.ureca.profile.presentation.dto.CustomerProfile;
 import com.ureca.profile.presentation.dto.CustomerUpdate;
@@ -36,6 +39,7 @@ public class CustomerService {
     private static final Logger logger = LoggerFactory.getLogger(CustomerService.class);
 
     @Autowired private CustomerRepository customerRepository;
+    @Autowired private DesignerRepository designerRepository;
     @Autowired private PetRepository petRepository;
     @Autowired private ReviewRepository reviewRepository;
     @Autowired private BookmarkRepository bookmarkRepository;
@@ -265,4 +269,39 @@ public class CustomerService {
             customerRepository.save(updatedCustomer);
         }
     } // updateCustomerProfile
+
+    /**
+     * @title 보호자 - 디자이너 찜하기
+     * @param customerId 보호자 아이디
+     * @param designerId 디자이너 아이디
+     * @param bookmarkYn 찜 유무
+     * @description 보호자와 디자이너 북마크 데이터 추가/삭제
+     * @return BookmarkYn 찜 상태
+     */
+    @Transactional
+    public BookmarkYn updateBookmark(Long customerId, Long designerId, Boolean bookmarkYn) {
+        if (!bookmarkYn) { // 찜하기
+            if (!bookmarkRepository.existsByCustomerCustomerIdAndDesignerDesignerId(
+                    customerId, designerId)) {
+                Customer customer =
+                        customerRepository
+                                .findById(customerId)
+                                .orElseThrow(() -> new ApiException(ErrorCode.CUSTOMER_NOT_EXIST));
+                Designer designer =
+                        designerRepository
+                                .findById(designerId)
+                                .orElseThrow(() -> new ApiException(ErrorCode.DESIGNER_NOT_EXIST));
+                Bookmark bookmark =
+                        Bookmark.builder().customer(customer).designer(designer).build();
+                bookmarkRepository.save(bookmark);
+            }
+        } else { // 찜취소
+            if (bookmarkRepository.existsByCustomerCustomerIdAndDesignerDesignerId(
+                    customerId, designerId)) {
+                bookmarkRepository.deleteByCustomerCustomerIdAndDesignerDesignerId(
+                        customerId, designerId);
+            }
+        }
+        return BookmarkYn.builder().bookmarkYn(!bookmarkYn).build();
+    } // updateBookmark
 }
