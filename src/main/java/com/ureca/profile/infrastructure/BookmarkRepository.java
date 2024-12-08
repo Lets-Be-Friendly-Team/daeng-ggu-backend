@@ -12,4 +12,10 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
 
     // 고객과 디자이너로 즐겨찾기 찾기
     Bookmark findByCustomerCustomerIdAndDesignerDesignerId(Long customerId, Long designerId);
+
+    // 고객 아이디와 디자이너 아이디로 즐겨찾기 존재 여부 확인
+    boolean existsByCustomerCustomerIdAndDesignerDesignerId(Long customerId, Long designerId);
+
+    // 고객 아이디와 디자이너 아이디로 즐겨찾기 삭제
+    void deleteByCustomerCustomerIdAndDesignerDesignerId(Long customerId, Long designerId);
 }
