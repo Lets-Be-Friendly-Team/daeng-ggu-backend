@@ -32,6 +32,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+
+/**
+ * 예약 관련 서비스 클래스
+ */
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
@@ -45,10 +49,18 @@ public class ReservationService {
     private final PaymentServerConfig paymentServerConfig;
     private final RestTemplate restTemplate;
 
+    /**
+     * 고객 ID를 기반으로 예약 목록을 조회합니다.
+     *
+     * @param customerId 보호자의 고유 ID
+     * @return 보호자의 예약 목록
+     * @throws ApiException CUSTOMER_NOT_EXIST: 보호자가 존재하지 않을 경우
+     *                      HISTORY_NOT_EXIST: 예약 기록이 없을 경우
+     */
     public List<ReservationHistoryResponseDto> getReservationsByCustomerId(Long customerId) {
 
         if (!customerRepository.existsById(customerId)) {
-            throw new ApiException(ErrorCode.USER_NOT_EXIST);
+            throw new ApiException(ErrorCode.CUSTOMER_NOT_EXIST);
         }
 
         // TODO: 현재 로그인 중인 사용자와 찾으려는 예약정보의 customerId가 일치하는지 검증 필요 (시큐리티 적용 후 로그인된 유저 활용)
@@ -57,6 +69,7 @@ public class ReservationService {
         if (reservations.isEmpty()) {
             throw new ApiException(ErrorCode.HISTORY_NOT_EXIST);
         }
+
         return reservations.stream()
                 .map(
                         reservation ->
@@ -136,6 +149,15 @@ public class ReservationService {
         return commonCodeRepository.findByCodeId(code).getCodeDesc();
     }
 
+    /**
+     * 특정 디자이너의 예약 가능 날짜를 조회합니다.
+     *
+     * @param designerId 디자이너의 고유 ID
+     * @param year 예약 가능 날짜 조회 연도
+     * @param month 예약 가능 날짜 조회 월
+     * @return 디자이너의 예약 가능 날짜 리스트
+     * @throws ApiException DESIGNER_NOT_EXIST: 디자이너가 존재하지 않을 경우
+     */
     public List<DesignerAvailableDatesResponseDto> getAvailableDate(
             Long designerId, int year, int month) {
 
@@ -143,7 +165,7 @@ public class ReservationService {
 
         // 조회하려는 디자이너가 데이터베이스에 존재하는 디자이너인지 검증
         if (!designerRepository.existsById(designerId)) {
-            throw new ApiException(ErrorCode.USER_NOT_EXIST);
+            throw new ApiException(ErrorCode.DESIGNER_NOT_EXIST);
         }
 
         ValidationUtil.validateYearAndMonth(year, month);
@@ -244,6 +266,16 @@ public class ReservationService {
         return times;
     }
 
+    /**
+     * 입찰 예약을 생성합니다.
+     *
+     * @param customerId 보호자의 고유 ID
+     * @param estimateReservationRequestDto 예약 요청 데이터
+     * @return 생성된 예약 ID
+     * @throws ApiException CUSTOMER_NOT_EXIST: 보호자가 존재하지 않을 경우
+     *                      DATA_NOT_EXIST: 견적 데이터가 없을 경우
+     *                      PAYMENT_PROCESS_FAILED: 결제 실패 시
+     */
     public Long estimateReservation(
             Long customerId, EstimateReservationRequestDto estimateReservationRequestDto) {
         // 1. 예약 가능 여부에 대한 검증
@@ -254,9 +286,9 @@ public class ReservationService {
                 estimateReservationRequestDto.getReservationDate(),
                 estimateReservationRequestDto.getStartTime());
 
-        // 2. 고객 및 요청 데이터 유효성 확인
+        // 2. 보호자 및 요청 데이터 유효성 확인
         if (!customerRepository.existsById(customerId)) {
-            throw new ApiException(ErrorCode.USER_NOT_EXIST);
+            throw new ApiException(ErrorCode.CUSTOMER_NOT_EXIST);
         }
 
         Estimate estimate =
@@ -317,28 +349,15 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 
-    // 결제 요청
-    public PaymentResponseDto processPayment(PaymentRequestDto paymentRequestDto) {
-        String paymentUrl = paymentServerConfig.getLocalPaymentServerUrl() + "/v1/toss/confirm";
-
-        try {
-            // 결제 서버에 요청
-            PaymentResponseDto response =
-                    restTemplate.postForObject(
-                            paymentUrl, paymentRequestDto, PaymentResponseDto.class);
-
-            // 응답 검증
-            if (response == null) {
-                throw new ApiException(ErrorCode.PAYMENT_SERVER_ERROR);
-            }
-            return response;
-
-        } catch (Exception e) {
-            // 결제 서버 예외 처리
-            throw new ApiException(ErrorCode.PAYMENT_PROCESS_FAILED);
-        }
-    }
-
+    /**
+     * 직접 예약을 생성합니다.
+     *
+     * @param customerId 보호자의 고유 ID
+     * @param directReservationRequestDto 예약 요청 데이터
+     * @return 생성된 예약 ID
+     * @throws ApiException CUSTOMER_NOT_EXIST: 보호자 존재하지 않을 경우
+     *                      PAYMENT_PROCESS_FAILED: 결제 실패 시
+     */
     public Long directReservation(
             Long customerId, DirectReservationRequestDto directReservationRequestDto) {
         // 1. 예약 가능 여부 검증
@@ -351,19 +370,13 @@ public class ReservationService {
 
         // TODO: 서비스별 소요 시간 반영 end time 생성 (디자이너의 데이터에서 가져와서 연산 수행)
 
-        // 2. 고객 및 요청 데이터 유효성 확인
+        // 2. 보호자 및 요청 데이터 유효성 확인
         if (!customerRepository.existsById(customerId)) {
-            throw new ApiException(ErrorCode.USER_NOT_EXIST);
+            throw new ApiException(ErrorCode.CUSTOMER_NOT_EXIST);
         }
 
         // 3. 결제 서버에 요청
-        PaymentRequestDto paymentRequestDto =
-                PaymentRequestDto.builder()
-                        .paymentKey(directReservationRequestDto.getPaymentKey())
-                        .orderId(directReservationRequestDto.getOrderId())
-                        .amount(directReservationRequestDto.getAmount())
-                        .build();
-
+        PaymentRequestDto paymentRequestDto = buildPaymentRequest(directReservationRequestDto);
         PaymentResponseDto paymentResponse = processPayment(paymentRequestDto);
 
         if ("FAILED".equals(paymentResponse.getStatus())) {
@@ -371,38 +384,69 @@ public class ReservationService {
         }
 
         // 4. 예약 데이터 저장
-        Reservation reservation =
-                Reservation.builder()
-                        .pet(
-                                petRepository
-                                        .findById(directReservationRequestDto.getPetId())
-                                        .orElseThrow(
-                                                () -> new ApiException(ErrorCode.PET_NOT_EXIST)))
-                        .designer(
-                                designerRepository
-                                        .findById(directReservationRequestDto.getDesignerId())
-                                        .orElseThrow(
-                                                () ->
-                                                        new ApiException(
-                                                                ErrorCode.DESIGNER_NOT_EXIST)))
-                        .reservationType("R1") // Direct 예약
-                        .isFinished(false)
-                        .isCanceled(false)
-                        .reservationDate(directReservationRequestDto.getReservationDate())
-                        .startTime(directReservationRequestDto.getStartTime())
-                        .endTime(directReservationRequestDto.getEndTime())
-                        .groomingFee(directReservationRequestDto.getGroomingFee())
-                        .deliveryFee(directReservationRequestDto.getDeliveryFee())
-                        .monitoringFee(directReservationRequestDto.getMonitoringFee())
-                        .totalPayment(directReservationRequestDto.getTotalPayment())
-                        .desiredService(directReservationRequestDto.getDesiredService())
-                        .lastGroomingDate(directReservationRequestDto.getLastGroomingDate())
-                        .isDelivery(directReservationRequestDto.getIsDelivery())
-                        .isMonitoring(directReservationRequestDto.getIsMonitoring())
-                        .additionalRequest(directReservationRequestDto.getAdditionalRequest())
-                        .build();
-        reservationRepository.save(reservation);
+        Reservation reservation = saveDirectReservation(directReservationRequestDto);
+
         // 5. 예약 성공 ID 반환
         return reservation.getReservationId();
+    }
+
+    private PaymentRequestDto buildPaymentRequest(DirectReservationRequestDto directReservationRequestDto) {
+        return PaymentRequestDto.builder()
+            .paymentKey(directReservationRequestDto.getPaymentKey())
+            .orderId(directReservationRequestDto.getOrderId())
+            .amount(directReservationRequestDto.getAmount())
+            .build();
+    }
+
+    private Reservation saveDirectReservation(DirectReservationRequestDto directReservationRequestDto) {
+        return reservationRepository.save(
+            Reservation.builder()
+                .pet(
+                    petRepository
+                        .findById(directReservationRequestDto.getPetId())
+                        .orElseThrow(() -> new ApiException(ErrorCode.PET_NOT_EXIST)))
+                .designer(
+                    designerRepository
+                        .findById(directReservationRequestDto.getDesignerId())
+                        .orElseThrow(() -> new ApiException(ErrorCode.DESIGNER_NOT_EXIST)))
+                .reservationType("R1") // Direct 예약
+                .isFinished(false)
+                .isCanceled(false)
+                .reservationDate(directReservationRequestDto.getReservationDate())
+                .startTime(directReservationRequestDto.getStartTime())
+                .endTime(directReservationRequestDto.getEndTime())
+                .groomingFee(directReservationRequestDto.getGroomingFee())
+                .deliveryFee(directReservationRequestDto.getDeliveryFee())
+                .monitoringFee(directReservationRequestDto.getMonitoringFee())
+                .totalPayment(directReservationRequestDto.getTotalPayment())
+                .desiredService(directReservationRequestDto.getDesiredService())
+                .lastGroomingDate(directReservationRequestDto.getLastGroomingDate())
+                .isDelivery(directReservationRequestDto.getIsDelivery())
+                .isMonitoring(directReservationRequestDto.getIsMonitoring())
+                .additionalRequest(directReservationRequestDto.getAdditionalRequest())
+                .build());
+    }
+
+
+    // 결제 요청
+    public PaymentResponseDto processPayment(PaymentRequestDto paymentRequestDto) {
+        String paymentUrl = paymentServerConfig.getLocalPaymentServerUrl() + "/v1/toss/confirm";
+
+        try {
+            // 결제 서버에 요청
+            PaymentResponseDto response =
+                restTemplate.postForObject(
+                    paymentUrl, paymentRequestDto, PaymentResponseDto.class);
+
+            // 응답 검증
+            if (response == null) {
+                throw new ApiException(ErrorCode.PAYMENT_SERVER_ERROR);
+            }
+            return response;
+
+        } catch (Exception e) {
+            // 결제 서버 예외 처리
+            throw new ApiException(ErrorCode.PAYMENT_PROCESS_FAILED);
+        }
     }
 }
