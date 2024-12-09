@@ -45,6 +45,7 @@ public class KakaoController {
         String cookie = CookieUtil.createCookies(jwt);
 
         response.setHeader("Set-Cookie", cookie);
+        response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         response.sendRedirect(LOGIN_REDIRECT_URL);
     }
 
@@ -66,6 +67,7 @@ public class KakaoController {
         String cookie = CookieUtil.createCookies(jwt);
 
         response.setHeader("Set-Cookie", cookie);
+        response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         response.sendRedirect(LOGIN_REDIRECT_URL);
     }
 }
