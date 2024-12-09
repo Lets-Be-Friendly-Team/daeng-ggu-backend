@@ -61,12 +61,16 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'io.lettuce:lettuce-core:6.5.0.RELEASE'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
-    // Jacksonlocalhost:8080/daengggu/login?userType=C
+    // Jackson
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.0'
     // Login Test View - thymeleaf
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     // swagger
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0"
+    // jwt
+    implementation "io.jsonwebtoken:jjwt:0.9.1"
+    implementation 'javax.xml.bind:jaxb-api:2.3.1'
+    implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.5'
 }
 
 tasks.named('test') {
