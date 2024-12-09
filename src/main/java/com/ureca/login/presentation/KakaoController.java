@@ -48,6 +48,8 @@ public class KakaoController {
         cookie.setPath("/"); // 모든 경로에서 접근할 수 있도록 설정
         response.addCookie(cookie);
 
+        response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
+
         response.sendRedirect(LOGIN_REDIRECT_URL);
     }
 
@@ -71,6 +73,8 @@ public class KakaoController {
         cookie.setMaxAge(60 * 60);
         cookie.setPath("/");
         response.addCookie(cookie);
+
+        response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
 
         response.sendRedirect(LOGIN_REDIRECT_URL);
     }
