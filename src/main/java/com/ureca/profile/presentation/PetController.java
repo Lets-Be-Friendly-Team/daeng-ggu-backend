@@ -5,6 +5,7 @@ import com.ureca.common.response.ResponseUtil;
 import com.ureca.profile.application.PetService;
 import com.ureca.profile.presentation.dto.PetDetail;
 import com.ureca.profile.presentation.dto.PetUpdate;
+import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,29 +23,20 @@ public class PetController {
 
     @Autowired private PetService petService;
 
-    /**
-     * @title 반려견 - 프로필 상세 조회
-     * @param customerId 보호자 아이디
-     * @param petId 반려견 아이디
-     * @description /daengggu/pet/profile/detail
-     */
     @GetMapping("/pet/profile/detail")
+    @Operation(summary = "반려견 프로필 상세", description = "[MYP3000] 반려견 프로필 상세 조회 API")
     public ResponseDto<PetDetail> petDetail(
             @RequestParam(defaultValue = "") Long customerId,
             @RequestParam(defaultValue = "") Long petId) {
         // service - 반려견 프로필 상세 조회
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", petService.getPetDetail(customerId, petId));
-    } // petDetail
+    }
 
-    /**
-     * @title 반려견 - 프로필 수정
-     * @param data 입력 내용
-     * @description /daengggu/pet/profile/update
-     */
     @GetMapping("/pet/profile/update")
+    @Operation(summary = "반려견 프로필 수정", description = "[MYP3000] 반려견 프로필 수정 API")
     public ResponseDto<Void> petUpdate(@ModelAttribute PetUpdate data) {
         // service - 반려견 프로필 수정
         petService.updatePetProfile(data);
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
-    } // petUpdate
+    }
 }

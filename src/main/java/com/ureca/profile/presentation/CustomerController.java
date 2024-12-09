@@ -7,6 +7,7 @@ import com.ureca.profile.presentation.dto.BookmarkYn;
 import com.ureca.profile.presentation.dto.CustomerDetail;
 import com.ureca.profile.presentation.dto.CustomerProfile;
 import com.ureca.profile.presentation.dto.CustomerUpdate;
+import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,50 +25,32 @@ public class CustomerController {
 
     @Autowired private CustomerService customerService;
 
-    /**
-     * @title 보호자 - 프로필
-     * @param customerId 보호자 아이디
-     * @description /daengggu/customer/profile
-     */
     @GetMapping("/customer/profile")
+    @Operation(summary = "보호자 프로필", description = "[MYP1000] 보호자 프로필 조회 API")
     public ResponseDto<CustomerProfile> customerProfile(
             @RequestParam(defaultValue = "") Long customerId) {
         // service - 보호자 프로필
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", customerService.getCustomerProfile(customerId));
-    } // customerProfile
+    }
 
-    /**
-     * @title 보호자 - 프로필 상세 조회
-     * @param customerId 보호자 아이디
-     * @description /daengggu/customer/profile/detail
-     */
     @GetMapping("/customer/profile/detail")
+    @Operation(summary = "보호자 프로필 상세 조회", description = "[MYP2000] 보호자 프로필 상세 조회 API")
     public ResponseDto<CustomerDetail> customerDetail(
             @RequestParam(defaultValue = "") Long customerId) {
         // service - 보호자 프로필 상세 조회
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", customerService.getCustomerDetail(customerId));
-    } // customerDetail
+    }
 
-    /**
-     * @title 보호자 - 프로필 수정
-     * @param data 입력 내용
-     * @description /daengggu/customer/profile/update
-     */
     @GetMapping("/customer/profile/update")
+    @Operation(summary = "보호자 프로필 수정", description = "[MYP2000] 보호자 프로필 수정 API")
     public ResponseDto<Void> customerUpdate(@ModelAttribute CustomerUpdate data) {
         // service - 보호자 프로필 수정
         customerService.updateCustomerProfile(data);
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
-    } // customerUpdate
+    }
 
-    /**
-     * @title 보호자 - 디자이너 찜하기
-     * @param customerId 보호자 아이디
-     * @param designerId 디자이너 아이디
-     * @param bookmarkYn 찜 유무
-     * @description /daengggu/customer/bookmark
-     */
     @GetMapping("/customer/bookmark")
+    @Operation(summary = "보호자 디자이너 찜하기", description = "[DMYP1000] 보호자 디자이너 찜하기 API")
     public ResponseDto<BookmarkYn> customerBookmark(
             @RequestParam(defaultValue = "") Long customerId,
             @RequestParam(defaultValue = "") Long designerId,
@@ -75,5 +58,5 @@ public class CustomerController {
         // service - 북마크 테이블 업데이트
         return ResponseUtil.SUCCESS(
                 "처리가 완료되었습니다.", customerService.updateBookmark(customerId, designerId, bookmarkYn));
-    } // customerBookmark
+    }
 }

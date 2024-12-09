@@ -6,6 +6,7 @@ import com.ureca.login.application.KakaoService;
 import com.ureca.login.application.LoginService;
 import com.ureca.login.presentation.dto.KakaoDTO;
 import com.ureca.login.presentation.dto.UserDTO;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class LoginController {
      * @return kakaoUrl 리다이렉트 정보 포함한 uri, 로그인 성공 시 인가 코드 반환함
      */
     @GetMapping("/login")
+    @Operation(summary = "카카오 로그인 요청", description = "[LOG1000] 보호자/디자이너 로그인 요청 API")
     public ResponseDto<String> loginPage(@RequestParam(defaultValue = "") String userType) {
         // service - kakaoUrl 매핑
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", kakaoService.getKakaoLogin(userType));
@@ -46,6 +48,7 @@ public class LoginController {
      * @return 사용자 정보
      */
     @GetMapping("/login/callback")
+    @Operation(summary = "사용자 정보 요청", description = "[LOG1000] 보호자/디자이너 사용자 정보 API")
     public ResponseDto<UserDTO> loginCallback(HttpServletRequest request) {
         KakaoDTO kakaoDTO = null;
         for (Cookie cookie : request.getCookies()) {

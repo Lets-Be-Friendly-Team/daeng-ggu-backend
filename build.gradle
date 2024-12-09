@@ -65,6 +65,8 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.0'
     // Login Test View - thymeleaf
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    // swagger
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0"
 }
 
 tasks.named('test') {
