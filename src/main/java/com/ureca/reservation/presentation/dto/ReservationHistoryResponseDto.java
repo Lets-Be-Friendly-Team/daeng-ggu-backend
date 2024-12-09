@@ -1,7 +1,6 @@
 package com.ureca.reservation.presentation.dto;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,11 +13,17 @@ import lombok.NoArgsConstructor;
 public class ReservationHistoryResponseDto {
     private Long reservationId;
     private String petName;
-    private LocalDate reservationDate;
-    private LocalTime startTime;
-    private Boolean isFinished;
+    private String majorBreedCode;
+    private String majorBreed;
+    private String subBreedCode;
+    private String subBreed;
     private String reservationType;
+    private Boolean isFinished;
     private Boolean isCanceled;
+    private LocalDate reservationDate;
+    private String dayOfWeek;
+    private String amPm;
+    private Integer startTime;
     private Integer groomingFee;
     private Integer deliveryFee;
     private Integer monitoringFee;

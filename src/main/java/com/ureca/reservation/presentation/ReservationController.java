@@ -18,10 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * ReservationController
- * 예약 관련 요청을 처리하는 REST API 컨트롤러
- */
+/** ReservationController 예약 관련 요청을 처리하는 REST API 컨트롤러 */
 @Slf4j
 @RequiredArgsConstructor
 @RestController

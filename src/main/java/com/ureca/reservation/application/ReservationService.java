@@ -32,10 +32,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-
-/**
- * 예약 관련 서비스 클래스
- */
+/** 예약 관련 서비스 클래스 */
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
@@ -54,8 +51,7 @@ public class ReservationService {
      *
      * @param customerId 보호자의 고유 ID
      * @return 보호자의 예약 목록
-     * @throws ApiException CUSTOMER_NOT_EXIST: 보호자가 존재하지 않을 경우
-     *                      HISTORY_NOT_EXIST: 예약 기록이 없을 경우
+     * @throws ApiException CUSTOMER_NOT_EXIST: 보호자가 존재하지 않을 경우 HISTORY_NOT_EXIST: 예약 기록이 없을 경우
      */
     public List<ReservationHistoryResponseDto> getReservationsByCustomerId(Long customerId) {
 
@@ -76,11 +72,30 @@ public class ReservationService {
                                 ReservationHistoryResponseDto.builder()
                                         .reservationId(reservation.getReservationId())
                                         .petName(reservation.getPet().getPetName())
-                                        .reservationDate(reservation.getReservationDate())
-                                        .startTime(reservation.getStartTime())
-                                        .isFinished(reservation.getIsFinished())
+                                        .majorBreedCode(reservation.getPet().getMajorBreedCode())
+                                        .majorBreed(
+                                                getCodeDesc(
+                                                        reservation.getPet().getMajorBreedCode()))
+                                        .subBreedCode(reservation.getPet().getSubBreedCode())
+                                        .subBreed(
+                                                getCodeDesc(reservation.getPet().getSubBreedCode()))
                                         .reservationType(reservation.getReservationType())
+                                        .isFinished(reservation.getIsFinished())
                                         .isCanceled(reservation.getIsCanceled())
+                                        .reservationDate(reservation.getReservationDate())
+                                        .dayOfWeek(
+                                                convertDayOfWeekToKorean(
+                                                        reservation
+                                                                .getReservationDate()
+                                                                .getDayOfWeek()))
+                                        .amPm(
+                                                reservation.getStartTime().getHour() < 12
+                                                        ? "AM"
+                                                        : "PM")
+                                        .startTime(
+                                                (reservation.getStartTime().getHour() % 12 == 0)
+                                                        ? 12
+                                                        : reservation.getStartTime().getHour() % 12)
                                         .groomingFee(reservation.getGroomingFee().intValue())
                                         .deliveryFee(
                                                 reservation.getDeliveryFee() != null
@@ -91,17 +106,30 @@ public class ReservationService {
                                                         ? reservation.getMonitoringFee().intValue()
                                                         : null)
                                         .totalPayment(reservation.getTotalPayment().intValue())
-                                        .designerInfo(
-                                                buildDesignerInfoDto(reservation.getDesigner()))
                                         .estimateDetail(
                                                 reservation.getEstimate() != null
                                                         ? reservation
                                                                 .getEstimate()
                                                                 .getEstimateDetail()
                                                         : null)
+                                        .designerInfo(
+                                                buildDesignerInfoDto(reservation.getDesigner()))
                                         .requestDetail(buildRequestDetailDto(reservation))
                                         .build())
                 .collect(Collectors.toList());
+    }
+
+    private String convertDayOfWeekToKorean(java.time.DayOfWeek dayOfWeek) {
+        return switch (dayOfWeek) {
+            case MONDAY -> "월";
+            case TUESDAY -> "화";
+            case WEDNESDAY -> "수";
+            case THURSDAY -> "목";
+            case FRIDAY -> "금";
+            case SATURDAY -> "토";
+            case SUNDAY -> "일";
+            default -> throw new ApiException(ErrorCode.INVALID_DAY_OF_WEEK);
+        };
     }
 
     private DesignerInfoDto buildDesignerInfoDto(Designer designer) {
@@ -272,9 +300,8 @@ public class ReservationService {
      * @param customerId 보호자의 고유 ID
      * @param estimateReservationRequestDto 예약 요청 데이터
      * @return 생성된 예약 ID
-     * @throws ApiException CUSTOMER_NOT_EXIST: 보호자가 존재하지 않을 경우
-     *                      DATA_NOT_EXIST: 견적 데이터가 없을 경우
-     *                      PAYMENT_PROCESS_FAILED: 결제 실패 시
+     * @throws ApiException CUSTOMER_NOT_EXIST: 보호자가 존재하지 않을 경우 DATA_NOT_EXIST: 견적 데이터가 없을 경우
+     *     PAYMENT_PROCESS_FAILED: 결제 실패 시
      */
     public Long estimateReservation(
             Long customerId, EstimateReservationRequestDto estimateReservationRequestDto) {
@@ -355,8 +382,7 @@ public class ReservationService {
      * @param customerId 보호자의 고유 ID
      * @param directReservationRequestDto 예약 요청 데이터
      * @return 생성된 예약 ID
-     * @throws ApiException CUSTOMER_NOT_EXIST: 보호자 존재하지 않을 경우
-     *                      PAYMENT_PROCESS_FAILED: 결제 실패 시
+     * @throws ApiException CUSTOMER_NOT_EXIST: 보호자 존재하지 않을 경우 PAYMENT_PROCESS_FAILED: 결제 실패 시
      */
     public Long directReservation(
             Long customerId, DirectReservationRequestDto directReservationRequestDto) {
@@ -390,43 +416,48 @@ public class ReservationService {
         return reservation.getReservationId();
     }
 
-    private PaymentRequestDto buildPaymentRequest(DirectReservationRequestDto directReservationRequestDto) {
+    private PaymentRequestDto buildPaymentRequest(
+            DirectReservationRequestDto directReservationRequestDto) {
         return PaymentRequestDto.builder()
-            .paymentKey(directReservationRequestDto.getPaymentKey())
-            .orderId(directReservationRequestDto.getOrderId())
-            .amount(directReservationRequestDto.getAmount())
-            .build();
+                .paymentKey(directReservationRequestDto.getPaymentKey())
+                .orderId(directReservationRequestDto.getOrderId())
+                .amount(directReservationRequestDto.getAmount())
+                .build();
     }
 
-    private Reservation saveDirectReservation(DirectReservationRequestDto directReservationRequestDto) {
+    private Reservation saveDirectReservation(
+            DirectReservationRequestDto directReservationRequestDto) {
         return reservationRepository.save(
-            Reservation.builder()
-                .pet(
-                    petRepository
-                        .findById(directReservationRequestDto.getPetId())
-                        .orElseThrow(() -> new ApiException(ErrorCode.PET_NOT_EXIST)))
-                .designer(
-                    designerRepository
-                        .findById(directReservationRequestDto.getDesignerId())
-                        .orElseThrow(() -> new ApiException(ErrorCode.DESIGNER_NOT_EXIST)))
-                .reservationType("R1") // Direct 예약
-                .isFinished(false)
-                .isCanceled(false)
-                .reservationDate(directReservationRequestDto.getReservationDate())
-                .startTime(directReservationRequestDto.getStartTime())
-                .endTime(directReservationRequestDto.getEndTime())
-                .groomingFee(directReservationRequestDto.getGroomingFee())
-                .deliveryFee(directReservationRequestDto.getDeliveryFee())
-                .monitoringFee(directReservationRequestDto.getMonitoringFee())
-                .totalPayment(directReservationRequestDto.getTotalPayment())
-                .desiredService(directReservationRequestDto.getDesiredService())
-                .lastGroomingDate(directReservationRequestDto.getLastGroomingDate())
-                .isDelivery(directReservationRequestDto.getIsDelivery())
-                .isMonitoring(directReservationRequestDto.getIsMonitoring())
-                .additionalRequest(directReservationRequestDto.getAdditionalRequest())
-                .build());
+                Reservation.builder()
+                        .pet(
+                                petRepository
+                                        .findById(directReservationRequestDto.getPetId())
+                                        .orElseThrow(
+                                                () -> new ApiException(ErrorCode.PET_NOT_EXIST)))
+                        .designer(
+                                designerRepository
+                                        .findById(directReservationRequestDto.getDesignerId())
+                                        .orElseThrow(
+                                                () ->
+                                                        new ApiException(
+                                                                ErrorCode.DESIGNER_NOT_EXIST)))
+                        .reservationType("R1") // Direct 예약
+                        .isFinished(false)
+                        .isCanceled(false)
+                        .reservationDate(directReservationRequestDto.getReservationDate())
+                        .startTime(directReservationRequestDto.getStartTime())
+                        .endTime(directReservationRequestDto.getEndTime())
+                        .groomingFee(directReservationRequestDto.getGroomingFee())
+                        .deliveryFee(directReservationRequestDto.getDeliveryFee())
+                        .monitoringFee(directReservationRequestDto.getMonitoringFee())
+                        .totalPayment(directReservationRequestDto.getTotalPayment())
+                        .desiredService(directReservationRequestDto.getDesiredService())
+                        .lastGroomingDate(directReservationRequestDto.getLastGroomingDate())
+                        .isDelivery(directReservationRequestDto.getIsDelivery())
+                        .isMonitoring(directReservationRequestDto.getIsMonitoring())
+                        .additionalRequest(directReservationRequestDto.getAdditionalRequest())
+                        .build());
     }
-
 
     // 결제 요청
     public PaymentResponseDto processPayment(PaymentRequestDto paymentRequestDto) {
@@ -435,8 +466,8 @@ public class ReservationService {
         try {
             // 결제 서버에 요청
             PaymentResponseDto response =
-                restTemplate.postForObject(
-                    paymentUrl, paymentRequestDto, PaymentResponseDto.class);
+                    restTemplate.postForObject(
+                            paymentUrl, paymentRequestDto, PaymentResponseDto.class);
 
             // 응답 검증
             if (response == null) {
