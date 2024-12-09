@@ -17,7 +17,7 @@ public enum ErrorCode {
     USER_NOT_EXIST(500, "해당하는 유저가 없습니다.", 2010),
     REVIEW_NOT_EXIST(500, "리뷰를 찾을 수 없습니다.", 2020),
     CUSTOMER_NOT_EXIST(500, "보호자 정보를 찾을 수 없습니다.", 2030),
-    DESIGNER_NOT_EXIST(500, "미용사 정보를 찾을 수 없습니다.", 2040),
+    DESIGNER_NOT_EXIST(500, "디자이너 정보를 찾을 수 없습니다.", 2040),
     PET_NOT_EXIST(500, "반려견 정보를 찾을 수 없습니다.", 2050),
     REQUEST_NOT_EXIST(500, "요청서 정보를 찾을 수 없습니다.", 2060),
     ESTIMATE_NOT_EXIST(500, "견적서 정보를 찾을 수 없습니다.", 2070),

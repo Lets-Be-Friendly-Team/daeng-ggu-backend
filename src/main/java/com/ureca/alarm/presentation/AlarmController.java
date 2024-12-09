@@ -11,7 +11,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/daenggu")
+@RequestMapping("/daengggu")
 public class AlarmController {
 
     private final AlarmService alarmService;

@@ -1,5 +1,6 @@
 package com.ureca.profile.domain;
 
+import com.ureca.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,7 +10,7 @@ import lombok.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(exclude = {"customer", "designer"})
-public class Bookmark {
+public class Bookmark extends BaseEntity {
 
     // 즐겨찾기 아이디
     @Id

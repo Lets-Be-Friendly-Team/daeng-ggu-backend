@@ -147,6 +147,11 @@ public class EstimateService {
                                                                         .designerImageUrl(
                                                                                 estimate.getDesigner()
                                                                                         .getDesignerImgUrl())
+                                                                        .designerAddress(
+                                                                                estimate.getDesigner()
+                                                                                                .getAddress1()
+                                                                                        + estimate.getDesigner()
+                                                                                                .getDetailAddress())
                                                                         .groomingFee(
                                                                                 estimate
                                                                                         .getGroomingFee())

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/daenggu")
+@RequestMapping("/daengggu")
 public class RequestController {
 
     private final RequestService requestService;
