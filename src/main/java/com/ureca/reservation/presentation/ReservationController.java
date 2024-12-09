@@ -42,6 +42,19 @@ public class ReservationController {
     }
 
     /**
+     * 디자이너 ID를 기반으로 예약 목록을 조회합니다.
+     *
+     * @param designerId 디자이너의 고유 ID
+     * @return 예약 목록 (List<ReservationHistoryResponseDto>)
+     */
+    @GetMapping("designer/{designerId}/daengggu/reservations")
+    public ResponseDto<List<ReservationHistoryResponseDto>> getReservationListByDesigner(
+            @PathVariable Long designerId) {
+        return ResponseUtil.SUCCESS(
+                "예약 목록 조회 성공", reservationService.getReservationsByDesignerId(designerId));
+    }
+
+    /**
      * 특정 디자이너의 예약 가능 날짜를 조회합니다.
      *
      * @param designerId 디자이너의 고유 ID

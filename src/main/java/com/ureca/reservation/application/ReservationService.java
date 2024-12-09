@@ -119,6 +119,84 @@ public class ReservationService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 디자이너 ID를 기반으로 예약 내역을 조회합니다.
+     *
+     * @param designerId 디자이너의 고유 ID
+     * @return 디자이너의 예약 내역 목록
+     * @throws ApiException DESIGNER_NOT_EXIST: 디자이너가 존재하지 않을 경우 HISTORY_NOT_EXIST: 예약 기록이 없을 경우
+     */
+    public List<ReservationHistoryResponseDto> getReservationsByDesignerId(Long designerId) {
+
+        if (!designerRepository.existsById(designerId)) {
+            throw new ApiException(ErrorCode.DESIGNER_NOT_EXIST);
+        }
+
+        // TODO: 현재 로그인 중인 사용자와 찾으려는 예약정보의 designerId가 일치하는지 검증 필요 (시큐리티 적용 후 로그인된 유저 활용)
+
+        List<Reservation> reservations = reservationRepository.findAllByDesignerId(designerId);
+        if (reservations.isEmpty()) {
+            throw new ApiException(ErrorCode.HISTORY_NOT_EXIST);
+        }
+
+        return reservations.stream()
+                .map(
+                        reservation ->
+                                ReservationHistoryResponseDto.builder()
+                                        .reservationId(reservation.getReservationId())
+                                        .petName(reservation.getPet().getPetName())
+                                        .majorBreedCode(reservation.getPet().getMajorBreedCode())
+                                        .majorBreed(
+                                                getCodeDesc(
+                                                        reservation.getPet().getMajorBreedCode()))
+                                        .subBreedCode(reservation.getPet().getSubBreedCode())
+                                        .subBreed(
+                                                getCodeDesc(reservation.getPet().getSubBreedCode()))
+                                        .reservationType(reservation.getReservationType())
+                                        .isFinished(reservation.getIsFinished())
+                                        .isCanceled(reservation.getIsCanceled())
+                                        .reservationDate(reservation.getReservationDate())
+                                        .dayOfWeek(
+                                                convertDayOfWeekToKorean(
+                                                        reservation
+                                                                .getReservationDate()
+                                                                .getDayOfWeek()))
+                                        .amPm(
+                                                reservation.getStartTime().getHour() < 12
+                                                        ? "AM"
+                                                        : "PM")
+                                        .startTime(
+                                                (reservation.getStartTime().getHour() % 12 == 0)
+                                                        ? 12
+                                                        : reservation.getStartTime().getHour() % 12)
+                                        .groomingFee(reservation.getGroomingFee().intValue())
+                                        .deliveryFee(
+                                                reservation.getDeliveryFee() != null
+                                                        ? reservation.getDeliveryFee().intValue()
+                                                        : null)
+                                        .monitoringFee(
+                                                reservation.getMonitoringFee() != null
+                                                        ? reservation.getMonitoringFee().intValue()
+                                                        : null)
+                                        .totalPayment(reservation.getTotalPayment().intValue())
+                                        .estimateDetail(
+                                                reservation.getEstimate() != null
+                                                        ? reservation
+                                                                .getEstimate()
+                                                                .getEstimateDetail()
+                                                        : null)
+                                        .requestDetail(buildRequestDetailDto(reservation))
+                                        .customerNickname(
+                                                reservation.getPet().getCustomer().getNickname())
+                                        .customerImgUrl(
+                                                reservation
+                                                        .getPet()
+                                                        .getCustomer()
+                                                        .getCustomerImgUrl())
+                                        .build())
+                .collect(Collectors.toList());
+    }
+
     private String convertDayOfWeekToKorean(java.time.DayOfWeek dayOfWeek) {
         return switch (dayOfWeek) {
             case MONDAY -> "월";

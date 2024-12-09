@@ -19,6 +19,14 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
                     + "ORDER BY r.reservationDate DESC, r.startTime DESC")
     List<Reservation> findAllByCustomerId(@Param("customerId") Long customerId);
 
+    // 디자이너 ID를 기준으로 예약 내역 조회, 최근 데이터가 맨 앞으로 오도록 정렬
+
+    @Query(
+            "SELECT r FROM Reservation r "
+                    + "WHERE r.designer.designerId = :designerId "
+                    + "ORDER BY r.reservationDate DESC, r.startTime DESC")
+    List<Reservation> findAllByDesignerId(@Param("designerId") Long designerId);
+
     // 디자이너 ID와 연도, 월에 해당하는 예약 정보를 ReservationInfo DTO로 조회
     @Query(
             "SELECT new com.ureca.reservation.presentation.dto.ReservationInfo(r.reservationDate, r.startTime, r.endTime) "

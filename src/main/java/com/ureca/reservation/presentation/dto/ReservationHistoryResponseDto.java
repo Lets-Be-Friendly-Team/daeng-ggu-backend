@@ -32,4 +32,8 @@ public class ReservationHistoryResponseDto {
 
     private DesignerInfoDto designerInfo;
     private RequestDetailDto requestDetail;
+
+    // 디자이너 관점에만 필요한 필드
+    private String customerNickname; // 보호자 닉네임
+    private String customerImgUrl; // 보호자 이미지 URL
 }
