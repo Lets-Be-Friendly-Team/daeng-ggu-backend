@@ -30,6 +30,7 @@ public class AlarmDto {
         private String alarmMessage; // 알림 메시지
         private String alarmType; // 알림 유형
         private Boolean alarmStatus; // 알림 상태
+        private String senderUrl;
 
         // Entity -> DTO 변환
         public static Response fromEntity(Alarm alarm) {
