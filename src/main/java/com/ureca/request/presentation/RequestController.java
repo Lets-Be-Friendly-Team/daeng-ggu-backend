@@ -16,7 +16,7 @@ public class RequestController {
 
     private final RequestService requestService;
 
-    @PostMapping("/bid/request/pet")
+    @GetMapping("/bid/request/pet")
     @Operation(summary = "반려견 프로필 조회", description = "[REQ1000] 요청서 작성 페이지에서 반려견 프로필 조회")
     ResponseDto<List<RequestDto.Response>> selectPetProfile() { // TODO : 토큰 수정
         List<RequestDto.Response> responses = requestService.selectPetProfile(2L);
@@ -73,9 +73,9 @@ public class RequestController {
 
     @GetMapping("/bid/request/customer")
     @Operation(summary = "보호자 견적요청서 조회", description = "[REQ3000] 보호자 지난 견적요청서 list 조회.")
-    ResponseDto<String> selectRequestBefore() { // TODO : 토큰 수정
-        requestService.selectRequestBefore(2L);
-        return ResponseUtil.SUCCESS("견적 요청서 리스트 조회가 완료되었습니다.", null);
+    ResponseDto<List<RequestDto.Response>> selectRequestBefore() { // TODO : 토큰 수정
+        List<RequestDto.Response> response = requestService.selectRequestBefore(2L);
+        return ResponseUtil.SUCCESS("견적 요청서 리스트 조회가 완료되었습니다.", response);
     }
 
     /**
