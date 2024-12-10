@@ -23,6 +23,7 @@ public enum ErrorCode {
     ESTIMATE_NOT_EXIST(500, "견적서 정보를 찾을 수 없습니다.", 2070),
     INVALID_BREED(500, "잘못된 견종 코드입니다.", 2080),
     INVALID_DAY_OF_WEEK(500, "유효하지 않은 요일 값입니다.", 2090),
+    INVALID_CUSTOMER_KEY(500, "잘못된 customer key 입니다.", 2100),
 
     // 3000번대: 권한 관련 오류
     ACCESS_DENIED(403, "데이터 접근 권한이 없습니다.", 3000),

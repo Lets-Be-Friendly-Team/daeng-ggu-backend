@@ -5,6 +5,7 @@ import com.ureca.common.exception.ErrorCode;
 import com.ureca.common.util.ValidationUtil;
 import com.ureca.estimate.domain.Estimate;
 import com.ureca.estimate.infrastructure.EstimateRepository;
+import com.ureca.profile.domain.Customer;
 import com.ureca.profile.domain.Designer;
 import com.ureca.profile.infrastructure.CommonCodeRepository;
 import com.ureca.profile.infrastructure.CustomerRepository;
@@ -17,18 +18,24 @@ import com.ureca.reservation.presentation.dto.DesignerAvailableDatesResponseDto;
 import com.ureca.reservation.presentation.dto.DesignerInfoDto;
 import com.ureca.reservation.presentation.dto.DirectReservationRequestDto;
 import com.ureca.reservation.presentation.dto.EstimateReservationRequestDto;
+import com.ureca.reservation.presentation.dto.OrderKeysAndAmountDto;
+import com.ureca.reservation.presentation.dto.OrderKeysDto;
 import com.ureca.reservation.presentation.dto.PaymentRequestDto;
 import com.ureca.reservation.presentation.dto.PaymentResponseDto;
 import com.ureca.reservation.presentation.dto.RequestDetailDto;
 import com.ureca.reservation.presentation.dto.ReservationHistoryResponseDto;
 import com.ureca.reservation.presentation.dto.ReservationInfo;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -370,6 +377,70 @@ public class ReservationService {
             times.add(hour);
         }
         return times;
+    }
+
+    /**
+     * customerKey와 orderId 생성 및 반환
+     *
+     * @param customerId 고객의 고유 ID
+     * @return OrderKeysDto (customerKey, orderId)
+     * @throws ApiException CUSTOMER_NOT_EXIST: 고객 정보가 없을 경우
+     */
+    public OrderKeysDto getCustomerKeyAndOrderId(Long customerId) {
+        Customer customer =
+                customerRepository
+                        .findById(customerId)
+                        .orElseThrow(() -> new ApiException(ErrorCode.CUSTOMER_NOT_EXIST));
+
+        // CustomerKey는 고객의 고유 로그인 ID
+        String customerKey = customer.getCustomerLoginId();
+
+        // OrderId 생성 (UUID + 날짜 시간 형식)
+        String orderId = generateOrderId();
+
+        return OrderKeysDto.builder().customerKey(customerKey).orderId(orderId).build();
+    }
+
+    private String generateOrderId() {
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmmss"));
+        return UUID.randomUUID().toString().replace("-", "").substring(0, 8) + timestamp;
+    }
+
+    /**
+     * 결제 데이터 저장
+     *
+     * @param customerId 고객의 고유 ID
+     * @param orderKeysAndAmountDto 결제 요청 데이터
+     * @throws ApiException CUSTOMER_NOT_EXIST: 고객 정보가 없을 경우
+     */
+    public void saveOrderKeysAndAmount(
+            Long customerId, OrderKeysAndAmountDto orderKeysAndAmountDto) {
+        Customer customer =
+                customerRepository
+                        .findById(customerId)
+                        .orElseThrow(() -> new ApiException(ErrorCode.CUSTOMER_NOT_EXIST));
+
+        if (!customer.getCustomerLoginId().equals(orderKeysAndAmountDto.getCustomerKey())) {
+            throw new ApiException(ErrorCode.INVALID_CUSTOMER_KEY);
+        }
+
+        sendOrderInfoToPaymentServer(orderKeysAndAmountDto);
+    }
+
+    // 결제 서버로 전달
+    private void sendOrderInfoToPaymentServer(OrderKeysAndAmountDto paymentRequestDto) {
+        String paymentServerUrl = paymentServerConfig.getLocalPaymentServerUrl() + "v1/orders";
+
+        try {
+            ResponseEntity<Void> response =
+                    restTemplate.postForEntity(paymentServerUrl, paymentRequestDto, Void.class);
+
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new ApiException(ErrorCode.PAYMENT_SERVER_ERROR);
+            }
+        } catch (Exception e) {
+            throw new ApiException(ErrorCode.PAYMENT_SERVER_ERROR);
+        }
     }
 
     /**
