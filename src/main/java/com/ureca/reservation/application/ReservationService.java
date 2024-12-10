@@ -5,6 +5,7 @@ import com.ureca.common.exception.ErrorCode;
 import com.ureca.common.util.ValidationUtil;
 import com.ureca.estimate.domain.Estimate;
 import com.ureca.estimate.infrastructure.EstimateRepository;
+import com.ureca.profile.domain.Customer;
 import com.ureca.profile.domain.Designer;
 import com.ureca.profile.infrastructure.CommonCodeRepository;
 import com.ureca.profile.infrastructure.CustomerRepository;
@@ -557,5 +558,20 @@ public class ReservationService {
             // 결제 서버 예외 처리
             throw new ApiException(ErrorCode.PAYMENT_PROCESS_FAILED);
         }
+    }
+
+    /**
+     * customerKey 반환
+     *
+     * @param customerId 고객의 고유 ID
+     * @return String customerKey
+     * @throws ApiException CUSTOMER_NOT_EXIST: 보호자 존재하지 않을 경우
+     */
+    public String getCustomerKey(Long customerId) {
+        Customer customer =
+                customerRepository
+                        .findById(customerId)
+                        .orElseThrow(() -> new ApiException(ErrorCode.CUSTOMER_NOT_EXIST));
+        return customer.getCustomerLoginId();
     }
 }

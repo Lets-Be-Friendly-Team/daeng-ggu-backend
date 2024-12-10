@@ -70,6 +70,18 @@ public class ReservationController {
     }
 
     /**
+     * customerKey 반환 API
+     *
+     * @param customerId 고객의 고유 ID
+     * @return customerKey (결제에 활용할 고유 값)
+     */
+    @GetMapping("reservation/customer-key")
+    public ResponseDto<String> getCustomerKey(@RequestParam Long customerId) {
+        return ResponseUtil.SUCCESS(
+                "Customer key 반환 성공", reservationService.getCustomerKey(customerId));
+    }
+
+    /**
      * 입찰 예약을 생성합니다.
      *
      * @param customerId 고객의 고유 ID
