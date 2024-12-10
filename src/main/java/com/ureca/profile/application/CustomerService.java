@@ -5,7 +5,6 @@ import com.ureca.common.exception.ApiException;
 import com.ureca.common.exception.ErrorCode;
 import com.ureca.common.util.ValidationUtil;
 import com.ureca.profile.domain.Bookmark;
-import com.ureca.profile.domain.Breeds;
 import com.ureca.profile.domain.Customer;
 import com.ureca.profile.domain.Designer;
 import com.ureca.profile.domain.Pet;
@@ -15,6 +14,7 @@ import com.ureca.profile.infrastructure.DesignerRepository;
 import com.ureca.profile.infrastructure.PetRepository;
 import com.ureca.profile.presentation.dto.BookmarkInfo;
 import com.ureca.profile.presentation.dto.BookmarkYn;
+import com.ureca.profile.presentation.dto.BreedSub;
 import com.ureca.profile.presentation.dto.CustomerDetail;
 import com.ureca.profile.presentation.dto.CustomerProfile;
 import com.ureca.profile.presentation.dto.CustomerUpdate;
@@ -114,29 +114,17 @@ public class CustomerService {
                                     BookmarkInfo bookmarkInfo = new BookmarkInfo();
                                     bookmarkInfo.setDesignerId(
                                             bookmark.getDesigner().getDesignerId());
+                                    bookmarkInfo.setNickname(
+                                            bookmark.getDesigner().getOfficialName());
                                     bookmarkInfo.setDesignerImgUrl(
                                             bookmark.getDesigner().getDesignerImgUrl());
                                     bookmarkInfo.setDesignerAddress(
-                                            bookmark.getDesigner().getAddress1()
-                                                    + bookmark.getDesigner().getAddress2());
-
-                                    List<Breeds> breedsList = bookmark.getDesigner().getBreeds();
-                                    if (breedsList != null) {
-                                        String[] breedArray =
-                                                breedsList.stream()
-                                                        .map(
-                                                                breed ->
-                                                                        breed
-                                                                                .toString()) // Breeds 객체에서 String 값을 추출하여 String 배열로 변환
-                                                        .toArray(
-                                                                String[]::new); // 변환된 배열을 String[]로
-                                        // 수집
-                                        bookmarkInfo.setPossibleBreed(
-                                                breedArray); // 변환된 breedArray를 possibleBreed에 설정
-                                    } else {
-                                        bookmarkInfo.setPossibleBreed(
-                                                new String[0]); // null인 경우 빈 배열로 설정
-                                    }
+                                            bookmark.getDesigner().getAddress1());
+                                    List<BreedSub> possibleBreeds =
+                                            designerRepository.findDesignerSubBreeds(
+                                                    bookmark.getDesigner().getDesignerId());
+                                    if (possibleBreeds == null) bookmarkInfo.setPossibleBreed(null);
+                                    bookmarkInfo.setPossibleBreed(possibleBreeds);
                                     return bookmarkInfo;
                                 })
                         .collect(Collectors.toList());

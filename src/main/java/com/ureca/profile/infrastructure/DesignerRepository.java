@@ -2,6 +2,7 @@ package com.ureca.profile.infrastructure;
 
 import com.ureca.profile.domain.Designer;
 import com.ureca.profile.presentation.dto.Breed;
+import com.ureca.profile.presentation.dto.BreedSub;
 import com.ureca.profile.presentation.dto.DesignerDetail;
 import com.ureca.profile.presentation.dto.DesignerProfile;
 import com.ureca.profile.presentation.dto.Service;
@@ -84,13 +85,21 @@ public interface DesignerRepository extends JpaRepository<Designer, Long> {
                     + "WHERE d.designerId = :designerId")
     List<Service> findDesignerProvidedServices(Long designerId);
 
-    // 디자이너 미용 가능 견종 조회
+    // 디자이너 미용 가능 견종 조회 - 대분류
     @Query(
             "SELECT new com.ureca.profile.presentation.dto.Breed(b.possibleMajorBreedCode, c.codeDesc) "
                     + "FROM Breeds b "
                     + "JOIN CommonCode c ON c.codeId = b.possibleMajorBreedCode "
                     + "WHERE b.designer.designerId = :designerId")
     List<Breed> findDesignerMajorBreeds(Long designerId);
+
+    // 디자이너 미용 가능 견종 조회 - 소분류
+    @Query(
+            "SELECT new com.ureca.profile.presentation.dto.BreedSub(b.possibleSubBreedCode, c.codeDesc) "
+                    + "FROM Breeds b "
+                    + "JOIN CommonCode c ON c.codeId = b.possibleSubBreedCode "
+                    + "WHERE b.designer.designerId = :designerId")
+    List<BreedSub> findDesignerSubBreeds(Long designerId);
 
     // 디자이너 미용 가능 견종 대분류 코드 조회
     @Query(
