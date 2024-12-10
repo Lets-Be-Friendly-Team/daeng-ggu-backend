@@ -12,10 +12,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -43,7 +44,10 @@ public class DesignerController {
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", designerService.getDesignerDetail(designerId));
     }
 
-    @PostMapping("/designer/profile/update")
+    @RequestMapping(
+            method = RequestMethod.POST,
+            value = "/designer/profile/update",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "디자이너 프로필 수정", description = "[DMYP2000] 디자이너 프로필 수정 API")
     public ResponseDto<Void> designerUpdate(@ModelAttribute DesignerUpdate data) {
         // service - 보호자 프로필 수정
@@ -62,7 +66,10 @@ public class DesignerController {
                 designerService.getDesignerPortfolioDetail(designerId, portfolioId));
     }
 
-    @PostMapping("/designer/portfolio/update")
+    @RequestMapping(
+            method = RequestMethod.POST,
+            value = "/designer/portfolio/update",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "디자이너 포트폴리오 수정", description = "[DLOG3110] 디자이너 포트폴리오 수정 API")
     public ResponseDto<Void> designerUpdate(@ModelAttribute PortfolioUpdate data) {
         // service - 디자이너 포트폴리오 수정
