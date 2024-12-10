@@ -18,6 +18,7 @@ import com.ureca.reservation.presentation.dto.DesignerAvailableDatesResponseDto;
 import com.ureca.reservation.presentation.dto.DesignerInfoDto;
 import com.ureca.reservation.presentation.dto.DirectReservationRequestDto;
 import com.ureca.reservation.presentation.dto.EstimateReservationRequestDto;
+import com.ureca.reservation.presentation.dto.OrderKeysAndAmountDto;
 import com.ureca.reservation.presentation.dto.OrderKeysDto;
 import com.ureca.reservation.presentation.dto.PaymentRequestDto;
 import com.ureca.reservation.presentation.dto.PaymentResponseDto;
@@ -34,6 +35,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -402,6 +404,43 @@ public class ReservationService {
     private String generateOrderId() {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmmss"));
         return UUID.randomUUID().toString().replace("-", "").substring(0, 8) + timestamp;
+    }
+
+    /**
+     * 결제 데이터 저장
+     *
+     * @param customerId 고객의 고유 ID
+     * @param orderKeysAndAmountDto 결제 요청 데이터
+     * @throws ApiException CUSTOMER_NOT_EXIST: 고객 정보가 없을 경우
+     */
+    public void saveOrderKeysAndAmount(
+            Long customerId, OrderKeysAndAmountDto orderKeysAndAmountDto) {
+        Customer customer =
+                customerRepository
+                        .findById(customerId)
+                        .orElseThrow(() -> new ApiException(ErrorCode.CUSTOMER_NOT_EXIST));
+
+        if (!customer.getCustomerLoginId().equals(orderKeysAndAmountDto.getCustomerKey())) {
+            throw new ApiException(ErrorCode.INVALID_CUSTOMER_KEY);
+        }
+
+        sendOrderInfoToPaymentServer(orderKeysAndAmountDto);
+    }
+
+    // 결제 서버로 전달
+    private void sendOrderInfoToPaymentServer(OrderKeysAndAmountDto paymentRequestDto) {
+        String paymentServerUrl = paymentServerConfig.getLocalPaymentServerUrl() + "v1/orders";
+
+        try {
+            ResponseEntity<Void> response =
+                    restTemplate.postForEntity(paymentServerUrl, paymentRequestDto, Void.class);
+
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new ApiException(ErrorCode.PAYMENT_SERVER_ERROR);
+            }
+        } catch (Exception e) {
+            throw new ApiException(ErrorCode.PAYMENT_SERVER_ERROR);
+        }
     }
 
     /**

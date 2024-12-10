@@ -6,6 +6,7 @@ import com.ureca.reservation.application.ReservationService;
 import com.ureca.reservation.presentation.dto.DesignerAvailableDatesResponseDto;
 import com.ureca.reservation.presentation.dto.DirectReservationRequestDto;
 import com.ureca.reservation.presentation.dto.EstimateReservationRequestDto;
+import com.ureca.reservation.presentation.dto.OrderKeysAndAmountDto;
 import com.ureca.reservation.presentation.dto.OrderKeysDto;
 import com.ureca.reservation.presentation.dto.ReservationHistoryResponseDto;
 import java.util.List;
@@ -80,6 +81,21 @@ public class ReservationController {
     public ResponseDto<OrderKeysDto> getCustomerKey(@RequestParam Long customerId) {
         return ResponseUtil.SUCCESS(
                 "Customer key 반환 성공", reservationService.getCustomerKeyAndOrderId(customerId));
+    }
+
+    /**
+     * customerKey, orderId, amount 저장 API
+     *
+     * @param customerId 고객의 고유 ID
+     * @param paymentRequestDto 결제 요청 정보
+     * @return 처리 상태 메시지
+     */
+    @PostMapping("reservation/payment/keys")
+    public ResponseDto<Void> savePaymentData(
+            @RequestParam Long customerId,
+            @RequestBody OrderKeysAndAmountDto orderKeysAndAmountDto) {
+        reservationService.saveOrderKeysAndAmount(customerId, orderKeysAndAmountDto);
+        return ResponseUtil.SUCCESS("결제 데이터 저장 성공", null);
     }
 
     /**
