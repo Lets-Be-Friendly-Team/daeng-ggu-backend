@@ -34,6 +34,12 @@ public class RequestService {
     private final AlarmService alarmService;
     private final AlarmRepository alarmRepository;
 
+    /**
+     * 반려견의 프로필 목록을 조회하는 서비스
+     *
+     * @param customerId 고객 ID
+     * @return 반려견 프로필 목록
+     */
     public List<RequestDto.Response> selectPetProfile(Long customerId) {
         Customer customer = customerRepository.findById(customerId).get();
         List<Pet> pets = petRepository.findByCustomerCustomerId(customerId);
@@ -53,6 +59,13 @@ public class RequestService {
         return responses;
     }
 
+    /**
+     * 반려견의 상세 프로필을 조회하는 서비스
+     *
+     * @param customer_id 고객 ID
+     * @param pet_id 반려견 ID
+     * @return 반려견 상세 프로필
+     */
     public RequestDto.Response selectPetProfileDetail(Long customer_id, Long pet_id) {
 
         Pet pet =
@@ -88,6 +101,11 @@ public class RequestService {
         return response;
     }
 
+    /**
+     * 견적 요청서를 생성하는 서비스
+     *
+     * @param requestDto 요청 정보 DTO
+     */
     public void makeRequest(RequestDto.Request requestDto) {
         Pet pet =
                 petRepository
@@ -146,6 +164,11 @@ public class RequestService {
         categoryAndAlarm(request);
     }
 
+    /**
+     * 요청서를 생성한 후 관련된 디자이너들에게 알림을 보내는 서비스
+     *
+     * @param request 요청 정보
+     */
     private void categoryAndAlarm(Request request) {
         List<Designer> designers =
                 servicesRepository.findDesignerByProvidedServicesCode(
@@ -170,6 +193,12 @@ public class RequestService {
         alarmService.sendNotificationsToUsers(alarmList);
     }
 
+    /**
+     * 요청서를 ID로 조회하는 서비스
+     *
+     * @param request_id 요청서 ID
+     * @return 요청서 상세 정보
+     */
     public RequestDto.Response selectRequest(Long request_id) {
         // 요청서를 ID로 조회
         Request request =
@@ -214,6 +243,12 @@ public class RequestService {
                 .build();
     }
 
+    /**
+     * 고객 ID로 이전의 요청서를 조회하는 서비스
+     *
+     * @param customerId 고객 ID
+     * @return 이전 요청서 목록
+     */
     public List<RequestDto.Response> selectRequestBefore(Long customerId) {
         Customer customer = customerRepository.findByCustomerId(customerId).get();
         List<Request> requests = requestRepository.findAllByCustomer(customer);
@@ -242,6 +277,11 @@ public class RequestService {
         return responses;
     }
 
+    /**
+     * 요청서를 삭제하는 서비스 요청 상태가 'ST1' 또는 'ST3'일 경우에만 요청서를 삭제할 수 있습니다. 그 외의 상태에서는 삭제할 수 없으며 예외를 발생시킵니다.
+     *
+     * @param requestId 삭제할 요청서의 ID
+     */
     @Transactional
     public void deleteRequest(Long requestId) {
         Request request =
@@ -255,6 +295,12 @@ public class RequestService {
         }
     }
 
+    /**
+     * 디자이너에게 할당된 요청서 목록을 조회하는 서비스 디자이너가 수신한 알림에 따라 요청서를 찾아서 반환합니다.
+     *
+     * @param designerId 디자이너 ID
+     * @return 디자이너에게 할당된 요청서 목록
+     */
     public List<RequestDto.Response> selectDesignerRequest(Long designerId) {
         List<Long> requestIdList =
                 alarmRepository.findObjectIdByReceiverIdAndAlarmType(designerId, "A1");
