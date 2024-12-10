@@ -3,17 +3,20 @@ package com.ureca.review.presentation.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ureca.review.domain.Enum.AuthorType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 // 피드 등록/관리 Dto
+
 public class ReviewDto {
     @Builder(toBuilder = true)
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
+    @Schema(name = "ReviewRequest")
     public static class Request {
         private Long customerId;
         private Long designerId;
