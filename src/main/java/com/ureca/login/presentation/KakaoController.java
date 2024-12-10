@@ -4,6 +4,7 @@ import com.ureca.common.util.CookieUtil;
 import com.ureca.login.application.KakaoService;
 import com.ureca.login.application.LoginService;
 import com.ureca.login.presentation.dto.KakaoDTO;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -42,9 +43,10 @@ public class KakaoController {
         // service - 토큰 발급
         String jwt = loginService.generateJwtToken(kakaoInfo);
         // util - 쿠키 생성
-        String cookie = CookieUtil.createCookies(jwt);
+        Cookie cookie = CookieUtil.createCookies(jwt);
 
-        response.setHeader("Set-Cookie", cookie);
+        response.addCookie(cookie);
+        // response.setHeader("Set-Cookie", cookie);
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         response.sendRedirect(LOGIN_REDIRECT_URL);
     }
@@ -64,9 +66,10 @@ public class KakaoController {
         // service - 토큰 발급
         String jwt = loginService.generateJwtToken(kakaoInfo);
         // util - 쿠키 생성
-        String cookie = CookieUtil.createCookies(jwt);
+        Cookie cookie = CookieUtil.createCookies(jwt);
 
-        response.setHeader("Set-Cookie", cookie);
+        response.addCookie(cookie);
+        // response.setHeader("Set-Cookie", cookie);
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         response.sendRedirect(LOGIN_REDIRECT_URL);
     }
