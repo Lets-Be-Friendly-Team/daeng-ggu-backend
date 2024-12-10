@@ -301,6 +301,7 @@ public class RequestService {
      * @param designerId 디자이너 ID
      * @return 디자이너에게 할당된 요청서 목록
      */
+    @Transactional
     public List<RequestDto.Response> selectDesignerRequest(Long designerId) {
         List<Long> requestIdList =
                 alarmRepository.findObjectIdByReceiverIdAndAlarmType(designerId, "A1");
