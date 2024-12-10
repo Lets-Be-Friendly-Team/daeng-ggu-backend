@@ -59,7 +59,7 @@ public class LoginController {
 
         // util - 쿠키에서 jwt 꺼내기
         Cookie cookie = CookieUtil.getJwtFromCookies(request);
-        if (cookie.getValue().isEmpty()) throw new ApiException(ErrorCode.JWT_NOT_EXIST);
+        if (cookie == null) throw new ApiException(ErrorCode.JWT_NOT_EXIST);
 
         // util - 유효한 토큰인지 확인
         boolean isValid = TokenUtils.isValidToken(cookie.getValue());
@@ -71,8 +71,11 @@ public class LoginController {
             throw new ApiException(ErrorCode.INVALID_TOKEN);
         }
         // util - 쿠키 그대로 전달
-        response.addCookie(cookie);
-
+        String cookieHeader =
+                String.format(
+                        "jwt=%s; HttpOnly; Secure; Max-Age=%d; Path=%s; SameSite=%s",
+                        cookie.getValue(), cookie.getMaxAge(), cookie.getPath(), "None");
+        response.setHeader("Set-Cookie", cookieHeader);
         // service - 카카오 로그인 사용자 정보 조회
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", loginService.getLoginUserInfo(kakaoDTO));
     }

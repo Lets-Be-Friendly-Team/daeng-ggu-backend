@@ -21,7 +21,7 @@ public class CookieUtil {
         cookie.setSecure(true); // HTTPS 환경에서만 쿠키를 전송하도록 설정 (필요에 따라)
         cookie.setMaxAge(60 * 60); // 쿠키 유효 시간 설정 (1시간)
         cookie.setPath("/"); // 모든 경로에서 접근할 수 있도록 설정
-        cookie.setDomain("localhost");
+
         return cookie;
     }
 

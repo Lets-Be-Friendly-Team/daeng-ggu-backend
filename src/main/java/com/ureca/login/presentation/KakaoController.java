@@ -44,9 +44,11 @@ public class KakaoController {
         String jwt = loginService.generateJwtToken(kakaoInfo);
         // util - 쿠키 생성
         Cookie cookie = CookieUtil.createCookies(jwt);
-
-        response.addCookie(cookie);
-        // response.setHeader("Set-Cookie", cookie);
+        String cookieHeader =
+                String.format(
+                        "jwt=%s; HttpOnly; Secure; Max-Age=%d; Path=%s; SameSite=%s",
+                        cookie.getValue(), cookie.getMaxAge(), cookie.getPath(), "None");
+        response.setHeader("Set-Cookie", cookieHeader);
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         response.sendRedirect(LOGIN_REDIRECT_URL);
     }
@@ -67,9 +69,11 @@ public class KakaoController {
         String jwt = loginService.generateJwtToken(kakaoInfo);
         // util - 쿠키 생성
         Cookie cookie = CookieUtil.createCookies(jwt);
-
-        response.addCookie(cookie);
-        // response.setHeader("Set-Cookie", cookie);
+        String cookieHeader =
+                String.format(
+                        "jwt=%s; HttpOnly; Secure; Max-Age=%d; Path=%s; SameSite=%s",
+                        cookie.getValue(), cookie.getMaxAge(), cookie.getPath(), "None");
+        response.setHeader("Set-Cookie", cookieHeader);
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         response.sendRedirect(LOGIN_REDIRECT_URL);
     }
