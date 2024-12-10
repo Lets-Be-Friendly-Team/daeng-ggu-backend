@@ -16,7 +16,7 @@ public class UserDTO {
     // 이메일
     private String email;
     // 로그인 아이디 (고유값)
-    private long loginId;
+    private String loginId;
     // 리프레시 토큰
     private String refreshToken;
 }

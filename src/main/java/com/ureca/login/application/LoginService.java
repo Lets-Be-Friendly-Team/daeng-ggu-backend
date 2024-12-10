@@ -1,5 +1,6 @@
 package com.ureca.login.application;
 
+import com.ureca.common.util.TokenUtils;
 import com.ureca.login.presentation.dto.KakaoDTO;
 import com.ureca.login.presentation.dto.UserDTO;
 import com.ureca.profile.domain.Customer;
@@ -29,28 +30,8 @@ public class LoginService {
      * @return String JWT
      */
     public String generateJwtToken(KakaoDTO kakaoInfo) {
-        Map<String, Object> payloads = new HashMap<>();
-        Map<String, Object> headers = new HashMap<>();
-
-        headers.put("alg", "HS256");
-        headers.put("typ", "JWT");
-        payloads.put("role", kakaoInfo.getEmail());
-        payloads.put("email", kakaoInfo.getEmail());
-        payloads.put("oauthId", kakaoInfo.getId());
-        payloads.put("accessToken", kakaoInfo.getAccessToken());
-        payloads.put("refreshToken", kakaoInfo.getRefreshToken());
-
-        return ""; // TODO 토큰에 담아서 보내기
-        /*
-        return Jwts.builder()
-                .setHeader(headers)
-                .setClaims(payloads)
-                .setIssuer("daengguu")
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 60 * 1000 * 60))
-                .signWith(SignatureAlgorithm.HS256, "secret")
-                .compact();*/
-
+        String resultToken = TokenUtils.generateJwtToken(kakaoInfo);
+        return resultToken;
     }
 
     /**
@@ -94,7 +75,7 @@ public class LoginService {
                         .userType(role)
                         .id(id)
                         .email(email)
-                        .loginId(kakaoDTO.getId())
+                        .loginId(loginId)
                         .refreshToken(kakaoDTO.getRefreshToken())
                         .build();
 
