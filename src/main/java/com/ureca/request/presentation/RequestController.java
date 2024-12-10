@@ -26,7 +26,7 @@ public class RequestController {
     /**
      * 특정 반려견 프로필 조회 API 고객 ID와 반려견 ID를 기반으로 해당 반려견의 상세 정보를 조회합니다.
      *
-     * @param request 고객 ID와 반려견 ID를 포함하는 요청 DTO
+     * @param request 고객 ID와 반려견 ID를 포함하는 요청하는 DTO
      * @return 특정 반려견의 상세 정보가 포함된 응답 DTO
      */
     @PostMapping("/bid/request/profile")
