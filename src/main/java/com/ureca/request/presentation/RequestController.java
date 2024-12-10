@@ -32,9 +32,9 @@ public class RequestController {
     @PostMapping("/bid/request/profile")
     @Operation(summary = "반려견 프로필 상세 조회", description = "[REQ1000] 요청서 작성 페이지에서 선택한 반려견 프로필 상세 조회")
     ResponseDto<RequestDto.Response> selectPetProfileDetail(
-            @RequestBody RequestDto.Request request) {
+            @RequestBody RequestDto.Request request) { // TODO : 토큰 수정
         RequestDto.Response response =
-                requestService.selectPetProfileDetail(request.getCustomerId(), request.getPetId());
+                requestService.selectPetProfileDetail(2L, request.getPetId());
         return ResponseUtil.SUCCESS("반려견 프로필 조회가 완료되었습니다.", response);
     }
 
