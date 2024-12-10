@@ -18,16 +18,20 @@ import com.ureca.reservation.presentation.dto.DesignerAvailableDatesResponseDto;
 import com.ureca.reservation.presentation.dto.DesignerInfoDto;
 import com.ureca.reservation.presentation.dto.DirectReservationRequestDto;
 import com.ureca.reservation.presentation.dto.EstimateReservationRequestDto;
+import com.ureca.reservation.presentation.dto.OrderKeysDto;
 import com.ureca.reservation.presentation.dto.PaymentRequestDto;
 import com.ureca.reservation.presentation.dto.PaymentResponseDto;
 import com.ureca.reservation.presentation.dto.RequestDetailDto;
 import com.ureca.reservation.presentation.dto.ReservationHistoryResponseDto;
 import com.ureca.reservation.presentation.dto.ReservationInfo;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -374,6 +378,33 @@ public class ReservationService {
     }
 
     /**
+     * customerKey와 orderId 생성 및 반환
+     *
+     * @param customerId 고객의 고유 ID
+     * @return OrderKeysDto (customerKey, orderId)
+     * @throws ApiException CUSTOMER_NOT_EXIST: 고객 정보가 없을 경우
+     */
+    public OrderKeysDto getCustomerKeyAndOrderId(Long customerId) {
+        Customer customer =
+                customerRepository
+                        .findById(customerId)
+                        .orElseThrow(() -> new ApiException(ErrorCode.CUSTOMER_NOT_EXIST));
+
+        // CustomerKey는 고객의 고유 로그인 ID
+        String customerKey = customer.getCustomerLoginId();
+
+        // OrderId 생성 (UUID + 날짜 시간 형식)
+        String orderId = generateOrderId();
+
+        return OrderKeysDto.builder().customerKey(customerKey).orderId(orderId).build();
+    }
+
+    private String generateOrderId() {
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmmss"));
+        return UUID.randomUUID().toString().replace("-", "").substring(0, 8) + timestamp;
+    }
+
+    /**
      * 입찰 예약을 생성합니다.
      *
      * @param customerId 보호자의 고유 ID
@@ -558,20 +589,5 @@ public class ReservationService {
             // 결제 서버 예외 처리
             throw new ApiException(ErrorCode.PAYMENT_PROCESS_FAILED);
         }
-    }
-
-    /**
-     * customerKey 반환
-     *
-     * @param customerId 고객의 고유 ID
-     * @return String customerKey
-     * @throws ApiException CUSTOMER_NOT_EXIST: 보호자 존재하지 않을 경우
-     */
-    public String getCustomerKey(Long customerId) {
-        Customer customer =
-                customerRepository
-                        .findById(customerId)
-                        .orElseThrow(() -> new ApiException(ErrorCode.CUSTOMER_NOT_EXIST));
-        return customer.getCustomerLoginId();
     }
 }

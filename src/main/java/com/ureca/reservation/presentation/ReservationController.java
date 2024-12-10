@@ -6,6 +6,7 @@ import com.ureca.reservation.application.ReservationService;
 import com.ureca.reservation.presentation.dto.DesignerAvailableDatesResponseDto;
 import com.ureca.reservation.presentation.dto.DirectReservationRequestDto;
 import com.ureca.reservation.presentation.dto.EstimateReservationRequestDto;
+import com.ureca.reservation.presentation.dto.OrderKeysDto;
 import com.ureca.reservation.presentation.dto.ReservationHistoryResponseDto;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -70,15 +71,15 @@ public class ReservationController {
     }
 
     /**
-     * customerKey 반환 API
+     * customerKey, orderId 반환 API
      *
      * @param customerId 고객의 고유 ID
-     * @return customerKey (결제에 활용할 고유 값)
+     * @return customerKey (결제에 활용할 고유 값), orderId (결제 및 예약에 활용될 고유 값)
      */
-    @GetMapping("reservation/customer-key")
-    public ResponseDto<String> getCustomerKey(@RequestParam Long customerId) {
+    @GetMapping("reservation/payment/keys")
+    public ResponseDto<OrderKeysDto> getCustomerKey(@RequestParam Long customerId) {
         return ResponseUtil.SUCCESS(
-                "Customer key 반환 성공", reservationService.getCustomerKey(customerId));
+                "Customer key 반환 성공", reservationService.getCustomerKeyAndOrderId(customerId));
     }
 
     /**
