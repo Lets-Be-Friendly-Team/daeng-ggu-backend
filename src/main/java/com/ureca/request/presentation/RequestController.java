@@ -65,7 +65,7 @@ public class RequestController {
     }
 
     @GetMapping("/bid/request/designer")
-    @Operation(summary = "디자이너 요청서 조회", description = "[DREQ1300] 디자이너에게 온 견적요청서 list 조회.")
+    @Operation(summary = "디자이너 요청서 조회", description = "[DREQ1300] 디자이너에게서 온 견적요청서 list 조회.")
     ResponseDto<List<RequestDto.Response>> selectDesignerRequest() { // TODO : 토큰 수정
         List<RequestDto.Response> reqList = requestService.selectDesignerRequest(1L);
         return ResponseUtil.SUCCESS("견적 요청서 리스트 조회가 완료되었습니다.", reqList);
