@@ -87,7 +87,7 @@ public class ReservationController {
      * customerKey, orderId, amount 저장 API
      *
      * @param customerId 고객의 고유 ID
-     * @param paymentRequestDto 결제 요청 정보
+     * @param orderKeysAndAmountDto 결제 요청 정보
      * @return 처리 상태 메시지
      */
     @PostMapping("reservation/payment/keys")
