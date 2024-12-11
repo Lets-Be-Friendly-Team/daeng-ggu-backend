@@ -69,7 +69,7 @@ public class RequestService {
                             .customerId(customer.getCustomerId())
                             .customerName(customer.getCustomerName())
                             .phone(customer.getPhone())
-                            .address(customer.getAddress1())
+                            .address(customer.getAddress1() + customer.getDetailAddress())
                             .build();
             responses.add(response);
         }
