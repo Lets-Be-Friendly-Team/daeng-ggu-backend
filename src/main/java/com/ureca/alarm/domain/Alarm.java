@@ -42,7 +42,8 @@ public class Alarm extends BaseEntity {
     private String alarmMessage; // 알림 내용
 
     @Column(length = 20, nullable = false)
-    private String alarmType; // 알림 유형 (예: "REQUEST", "ESTIMATE" , "RESERVATION" , "REVIEW")
+    private String
+            alarmType; // 알림 유형 (예: A1: "REQUEST",A2: "ESTIMATE" ,A3: "RESERVATION" ,A4: "REVIEW")
 
     @Builder.Default
     @Column(nullable = false)

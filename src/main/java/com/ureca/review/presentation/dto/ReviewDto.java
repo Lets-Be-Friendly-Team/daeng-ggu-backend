@@ -38,6 +38,7 @@ public class ReviewDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Builder
     @Getter
+    @Schema(name = "ReviewResponse")
     public static class Response {
         private Long reviewId;
         private String reviewImgUrl1;

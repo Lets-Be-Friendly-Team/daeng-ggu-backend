@@ -2,6 +2,7 @@ package com.ureca.request.presentation.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Builder;
@@ -10,6 +11,7 @@ import lombok.Getter;
 public class RequestDto {
     @Builder(toBuilder = true)
     @Getter
+    @Schema(name = "RequestRequest")
     public static class Request {
         private Long designerId;
         private Long customerId;
@@ -32,6 +34,7 @@ public class RequestDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Builder(toBuilder = true)
     @Getter
+    @Schema(name = "RequestResponse")
     public static class Response {
         private Long requestId;
         private Long petId;
