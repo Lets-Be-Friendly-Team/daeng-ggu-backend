@@ -45,7 +45,8 @@ public class AlarmService {
 
     // 개별 사용자에게 알림을 보내는 메서드
     private void sendNotification(AlarmDto.Request request) {
-        SseEmitter emitter = emitterMap.get(request.getReceiverId());
+        SseEmitter emitter =
+                emitterMap.get(request.getReceiverType().name() + request.getReceiverId());
 
         String alarmMessage = "";
         switch (request.getAlarmType()) {
