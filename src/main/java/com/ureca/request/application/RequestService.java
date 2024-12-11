@@ -53,6 +53,23 @@ public class RequestService {
                             .petImageUrl(pet.getPetImgUrl())
                             .isPetRequested(
                                     requestRepository.existsByPetAndRequestStatus(pet, "ST1"))
+                            .birthDate(String.valueOf(pet.getBirthDate()))
+                            .gender(pet.getGender())
+                            .isNeutered(pet.getIsNeutered())
+                            .weight(pet.getWeight())
+                            .majorBreedCode(String.valueOf(pet.getMajorBreedCode()))
+                            .majorBreed(
+                                    commonCodeRepository.findCodeNmByCodeId(
+                                            pet.getMajorBreedCode()))
+                            .subBreedCode(String.valueOf(pet.getSubBreedCode()))
+                            .subBreed(
+                                    commonCodeRepository.findCodeNmByCodeId(pet.getSubBreedCode()))
+                            .specialNotes(pet.getSpecialNotes())
+                            .isRequested(requestRepository.existsByPetAndRequestStatus(pet, "ST1"))
+                            .customerId(customer.getCustomerId())
+                            .customerName(customer.getCustomerName())
+                            .phone(customer.getPhone())
+                            .address(customer.getAddress1() + customer.getDetailAddress())
                             .build();
             responses.add(response);
         }
