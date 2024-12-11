@@ -1,5 +1,6 @@
 package com.ureca.estimate.presentation.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -8,6 +9,7 @@ import lombok.Getter;
 
 @Builder(toBuilder = true)
 @Getter
+@Schema(name = "EstimateDetail")
 public class EstimateDtoDetail {
     private Long estimateId;
     private Long designerId;

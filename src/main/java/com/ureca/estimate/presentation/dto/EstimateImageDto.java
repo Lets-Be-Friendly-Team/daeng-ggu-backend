@@ -1,5 +1,6 @@
 package com.ureca.estimate.presentation.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,6 +12,7 @@ public class EstimateImageDto {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
+    @Schema(name = "EstimateImageRequest")
     public static class Request {
         private String estimateTagId;
         private MultipartFile estimateImgUrl;
