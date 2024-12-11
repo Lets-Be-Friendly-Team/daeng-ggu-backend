@@ -13,13 +13,7 @@ public class RequestDto {
     @Getter
     @Schema(name = "RequestRequest")
     public static class Request {
-        private Long designerId;
-        private Long customerId;
-        private Long requestId;
         private Long petId;
-        private String petName;
-        private String petImageUrl;
-        private Boolean isPetRequested;
         private String desiredServiceCode;
         private String lastGroomingDate;
         private LocalDateTime desiredDate1;

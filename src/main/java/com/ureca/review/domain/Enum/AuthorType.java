@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum AuthorType {
     DESIGNER,
-    CUSTOMER;
+    CUSTOMER,
+    GUARDIAN;
 
     @JsonCreator
     public static AuthorType fromString(String key) {
