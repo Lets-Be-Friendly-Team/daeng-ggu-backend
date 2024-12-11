@@ -3,12 +3,14 @@ package com.ureca.alarm.presentation.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ureca.alarm.domain.Alarm;
 import com.ureca.review.domain.Enum.AuthorType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
 public class AlarmDto {
     @Builder(toBuilder = true)
     @Getter
+    @Schema(name = "AlarmRequest")
     public static class Request {
         private Long alarmId;
         private Long senderId;
@@ -25,6 +27,7 @@ public class AlarmDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Builder(toBuilder = true)
     @Getter
+    @Schema(name = "AlarmResponse")
     public static class Response {
         private Long alarmId; // 알림 ID
         private String alarmMessage; // 알림 메시지

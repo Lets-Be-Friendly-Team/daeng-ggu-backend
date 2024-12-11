@@ -2,6 +2,7 @@ package com.ureca.estimate.presentation.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,6 +18,7 @@ public class EstimateDto {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
+    @Schema(name = "EstimateRequest")
     public static class Request {
         private Long estimateId;
         private Long requestId;
@@ -35,6 +37,7 @@ public class EstimateDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Builder(toBuilder = true)
     @Getter
+    @Schema(name = "EstimateResponse")
     public static class Response {
         private Long estimateId;
         private Long petId;

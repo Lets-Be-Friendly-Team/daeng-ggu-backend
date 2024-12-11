@@ -137,8 +137,32 @@ public class AlarmService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<AlarmDto.Response> getUnreadAlarms(Long receiverId, AuthorType receiverType) {
+        // 읽지 않은 (alarmStatus = false) 알림만 조회
+        List<Alarm> unreadAlarms =
+                alarmRepository.findByReceiverIdAndReceiverTypeAndAlarmStatus(
+                        receiverId, receiverType, false);
+
+        // 조회된 엔티티를 Response DTO로 변환하여 반환
+        return unreadAlarms.stream()
+                .map(AlarmDto.Response::fromEntity) // Alarm 엔티티 -> Response DTO 변환
+                .collect(Collectors.toList());
+    }
+
     // SseEmitter에 접근하는 메서드
     public Map<String, SseEmitter> getEmitterMap() {
         return emitterMap;
+    }
+
+    @Transactional
+    public void markAlarmsAsRead(Long receiverId, AuthorType authorType) {
+        List<Alarm> alarmList =
+                alarmRepository.findByReceiverIdAndReceiverTypeAndAlarmStatus(
+                        receiverId, authorType, false);
+        for (Alarm alarm : alarmList) {
+            alarm.toBuilder().alarmStatus(true).build();
+            alarmRepository.save(alarm);
+        }
     }
 }

@@ -19,4 +19,11 @@ public interface AlarmRepository extends JpaRepository<Alarm, Long> {
             "SELECT a.objectId FROM Alarm a WHERE a.receiverId = :receiverId AND a.alarmType = :alarmType")
     List<Long> findObjectIdByReceiverIdAndAlarmType(
             @Param("receiverId") Long receiverId, @Param("alarmType") String alarmType);
+
+    @Query(
+            "SELECT a FROM Alarm a WHERE a.receiverId = :receiverId AND a.receiverType = :receiverType AND a.alarmStatus = :alarmStatus")
+    List<Alarm> findByReceiverIdAndReceiverTypeAndAlarmStatus(
+            @Param("receiverId") Long receiverId,
+            @Param("receiverType") AuthorType receiverType,
+            @Param("alarmStatus") boolean alarmStatus);
 }

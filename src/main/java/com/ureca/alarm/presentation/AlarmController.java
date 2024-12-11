@@ -6,6 +6,7 @@ import com.ureca.common.response.ResponseDto;
 import com.ureca.common.response.ResponseUtil;
 import com.ureca.review.domain.Enum.AuthorType;
 import io.swagger.v3.oas.annotations.Operation;
+import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -22,17 +23,27 @@ public class AlarmController {
     @Operation(summary = "알람 포트 연결", description = "[HOM1000] 클라이언트가 알림 서버 연결 요청.")
     public ResponseDto<SseEmitter> subscribe() { // TODO : 토큰 수정
         SseEmitter emitter = new SseEmitter();
-        alarmService.getEmitterMap().put("CUSTOMER" + String.valueOf(1L), emitter);
+        alarmService.getEmitterMap().put("DESIGNER" + String.valueOf(1L), emitter);
 
         // 클라이언트 연결 해제 시 맵에서 제거
         emitter.onCompletion(
-                () -> alarmService.getEmitterMap().remove("CUSTOMER" + String.valueOf(1L)));
+                () -> alarmService.getEmitterMap().remove("DESIGNER" + String.valueOf(1L)));
         emitter.onTimeout(
-                () -> alarmService.getEmitterMap().remove("CUSTOMER" + String.valueOf(1L)));
+                () -> alarmService.getEmitterMap().remove("DESIGNER" + String.valueOf(1L)));
 
-        // 연결 시, 읽지 않은 알림을 보냄
-        List<AlarmDto.Response> alarms =
-                alarmService.getAlarmsByReceiver(1L, AuthorType.valueOf("CUSTOMER"), 0);
+        // 연결 시 미수신 알람을 가져와 클라이언트로 전송
+        List<AlarmDto.Response> unreadAlarms =
+                alarmService.getUnreadAlarms(1L, AuthorType.DESIGNER);
+        for (AlarmDto.Response alarm : unreadAlarms) {
+            try {
+                emitter.send(alarm); // 알림 전송
+            } catch (IOException e) {
+                e.printStackTrace(); // 전송 실패 시 로그
+            }
+        }
+
+        // 알림 상태를 읽음으로 업데이트
+        alarmService.markAlarmsAsRead(1L, AuthorType.CUSTOMER);
 
         return ResponseUtil.SUCCESS("알림 연결을 완료하였습니다", emitter);
     }
