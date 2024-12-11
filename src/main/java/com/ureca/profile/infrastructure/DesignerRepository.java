@@ -1,5 +1,6 @@
 package com.ureca.profile.infrastructure;
 
+import com.ureca.home.presentation.dto.MapDesignerInfo;
 import com.ureca.profile.domain.Designer;
 import com.ureca.profile.presentation.dto.Breed;
 import com.ureca.profile.presentation.dto.BreedSub;
@@ -121,8 +122,8 @@ public interface DesignerRepository extends JpaRepository<Designer, Long> {
                     + "d.address1 AS address1, "
                     + "d.address2 AS address2, "
                     + "d.detailAddress AS detailAddress, "
-                    + "d.xPosition AS xPosition, "
-                    + "d.yPosition AS yPosition "
+                    + "d.xPosition AS lng, "
+                    + "d.yPosition AS lat "
                     + "FROM Designer d "
                     + "LEFT JOIN Review r ON d.designerId = r.designer.designerId "
                     + "LEFT JOIN Bookmark bk ON d.designerId = bk.designer.designerId "
@@ -169,4 +170,40 @@ public interface DesignerRepository extends JpaRepository<Designer, Long> {
     List<Object[]> findDesignersByProvidedServiceCode(
             @Param("providedServicesCode") String providedServicesCode,
             @Param("searchKeyword") String searchKeyword);
+
+    // 좌표 범위 내의 디자이너 조회
+    @Query(
+            "SELECT new com.ureca.home.presentation.dto.MapDesignerInfo("
+                    + "d.designerId, "
+                    + "d.designerName, "
+                    + "d.officialName, "
+                    + "d.xPosition, "
+                    + "d.yPosition, "
+                    + "d.address1, "
+                    + "d.address2, "
+                    + "d.detailAddress) "
+                    + "FROM Designer d "
+                    + "WHERE d.xPosition BETWEEN :minX AND :maxX "
+                    + "AND d.yPosition BETWEEN :minY AND :maxY")
+    List<MapDesignerInfo> findDesignersWithinBounds(
+            @Param("minX") double minX,
+            @Param("maxX") double maxX,
+            @Param("minY") double minY,
+            @Param("maxY") double maxY);
+
+    // 지도 디자이너명, 업체명 검색
+    @Query(
+            "SELECT new com.ureca.home.presentation.dto.MapDesignerInfo("
+                    + "d.designerId, "
+                    + "d.designerName, "
+                    + "d.officialName, "
+                    + // nickname을 officialName으로 사용
+                    "d.xPosition, "
+                    + "d.yPosition, "
+                    + "d.address1, "
+                    + "d.address2, "
+                    + "d.detailAddress) "
+                    + "FROM Designer d "
+                    + "WHERE d.designerName LIKE %:searchWord% OR d.officialName LIKE %:searchWord%")
+    List<MapDesignerInfo> findByDesignerNameOrOfficialName(@Param("searchWord") String searchWord);
 }
