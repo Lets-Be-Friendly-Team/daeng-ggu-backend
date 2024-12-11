@@ -80,11 +80,13 @@ public class ReviewService {
         return reviewList;
     }
 
-    public ReviewDto.Response selectCustomerFeedDetail(Long customerId, Long reviewId) {
-
-        Customer customer = customerRepository.findById(customerId).orElse(null);
+    public ReviewDto.Response selectCustomerFeedDetail(Long reviewId) {
 
         Review review = reviewRepository.findById(reviewId).get();
+
+        Customer customer = review.getCustomer();
+
+        Long customerId = customer.getCustomerId();
 
         List<ReviewImage> reviewImages = reviewImageRepository.findByReview(review);
         ReviewLike reviewLike =
@@ -121,8 +123,12 @@ public class ReviewService {
         return response;
     }
 
-    public ReviewDto.Response selectDesignerFeedDetail(Long designerId, Long reviewId) {
+    public ReviewDto.Response selectDesignerFeedDetail(Long reviewId) {
         Review review = reviewRepository.findById(reviewId).get();
+
+        Designer designer = review.getDesigner();
+
+        Long designerId = designer.getDesignerId();
 
         List<ReviewImage> reviewImages = reviewImageRepository.findByReview(review);
         ReviewLike reviewLike =

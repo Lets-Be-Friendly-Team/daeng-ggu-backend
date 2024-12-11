@@ -9,6 +9,7 @@ import com.ureca.review.domain.Enum.AuthorType;
 import com.ureca.review.presentation.dto.ReviewDto;
 import com.ureca.review.presentation.dto.ReviewLikeDto;
 import io.swagger.v3.oas.annotations.Operation;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -42,22 +43,16 @@ public class ReviewController {
     // 보호자 피드 세부 조회
     @PostMapping("/feed/customer")
     @Operation(summary = "보호자 피드 세부 조회", description = "[FED1100] 보호자 프로필 조회- 피드 세부 조회")
-    public ResponseDto<ReviewDto.Response> selectCustomerFeedDetail(
-            @RequestBody ReviewDto.Request request) {
-        ReviewDto.Response reviewList =
-                reviewService.selectCustomerFeedDetail(
-                        request.getCustomerId(), request.getReviewId());
+    public ResponseDto<ReviewDto.Response> selectCustomerFeedDetail(@RequestBody Long reviewId) {
+        ReviewDto.Response reviewList = reviewService.selectCustomerFeedDetail(reviewId);
         return ResponseUtil.SUCCESS("피드 조회가 완료되었습니다.", reviewList);
     }
 
     // 디자이너 피드 세부 조회
     @PostMapping("/feed/designer")
     @Operation(summary = "디자이너 피드 세부 조회", description = "[FED1200] 디자이너 프로필 조회- 피드 세부 조회")
-    public ResponseDto<ReviewDto.Response> selectDesignerFeedDetail(
-            @RequestBody ReviewDto.Request request) {
-        ReviewDto.Response review =
-                reviewService.selectDesignerFeedDetail(
-                        request.getDesignerId(), request.getReviewId());
+    public ResponseDto<ReviewDto.Response> selectDesignerFeedDetail(@RequestBody Long reviewId) {
+        ReviewDto.Response review = reviewService.selectDesignerFeedDetail(reviewId);
         return ResponseUtil.SUCCESS("피드 조회가 완료되었습니다.", review);
     }
 
@@ -106,15 +101,13 @@ public class ReviewController {
     @PostMapping("/feed")
     @Operation(summary = "피드탭 피드 조회", description = "[FED1000] 피드 탭에서 전체 피드 10개씩 조회")
     public ResponseDto<List<ReviewDto.Response>> getFeed(
-            @RequestBody(required = false) ReviewDto.Request request) {
+            @RequestBody LocalDateTime lastCreatedAt,
+            @RequestBody Long userId,
+            @RequestBody String userType) {
         int size = 20;
         // request.getLastCreatedAt()을 사용하여 피드 조회
         List<ReviewDto.Response> feeds =
-                reviewService.getFeeds(
-                        request.getLastCreatedAt(),
-                        size,
-                        request.getUserId(),
-                        request.getUserType());
+                reviewService.getFeeds(lastCreatedAt, size, userId, AuthorType.valueOf(userType));
         return ResponseUtil.SUCCESS("완료되었습니다.", feeds);
     }
 
