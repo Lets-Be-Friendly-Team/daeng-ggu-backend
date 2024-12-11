@@ -10,7 +10,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
 public class EstimateDto {
 
@@ -20,18 +19,14 @@ public class EstimateDto {
     @NoArgsConstructor
     @Schema(name = "EstimateRequest")
     public static class Request {
-        private Long estimateId;
         private Long requestId;
-        private Long customerId;
         private Long designerId;
-        private Long petId;
         private String requestDetail;
 
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime requestDate;
 
-        private BigDecimal groomingFee;
-        private List<MultipartFile> estimateImgList;
+        private BigDecimal requestPrice;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

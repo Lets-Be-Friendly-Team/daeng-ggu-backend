@@ -72,8 +72,8 @@ public class EstimateService {
                             .request(request1)
                             .estimateDetail(request.getRequestDetail())
                             .desiredDate(request.getRequestDate())
-                            .groomingFee(request.getGroomingFee())
-                            .estimatePayment(request.getGroomingFee().add(totalFee))
+                            .groomingFee(request.getRequestPrice())
+                            .estimatePayment(request.getRequestPrice().add(totalFee))
                             .estimateStatus("ST1")
                             .build();
 

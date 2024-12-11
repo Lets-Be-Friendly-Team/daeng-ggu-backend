@@ -57,9 +57,8 @@ public class EstimateController {
 
     @PostMapping("/bid/estimate")
     @Operation(summary = "견적서 세부 조회", description = "[REQ3000] 디자이너,미용사가 특정 견적서의 세부 정보 조회.")
-    public ResponseDto<EstimateDtoDetail> getEstimateDetail(
-            @RequestBody EstimateDto.Request request) {
-        EstimateDtoDetail response = estimateService.getEstimateDetail(request.getEstimateId());
+    public ResponseDto<EstimateDtoDetail> getEstimateDetail(@RequestBody Long estimateId) {
+        EstimateDtoDetail response = estimateService.getEstimateDetail(estimateId);
         return ResponseUtil.SUCCESS("견적서 세부 조회에 성공하였습니다.    ", response);
     }
 }

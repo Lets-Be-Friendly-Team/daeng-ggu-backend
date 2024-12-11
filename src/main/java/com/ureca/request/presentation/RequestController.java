@@ -24,21 +24,6 @@ public class RequestController {
     }
 
     /**
-     * 특정 반려견 프로필 조회 API 고객 ID와 반려견 ID를 기반으로 해당 반려견의 상세 정보를 조회합니다.
-     *
-     * @param request 고객 ID와 반려견 ID를 포함하는 요청하는 DTO
-     * @return 특정 반려견의 상세 정보가 포함된 응답 DTO
-     */
-    @PostMapping("/bid/request/profile")
-    @Operation(summary = "반려견 프로필 상세 조회", description = "[REQ1000] 요청서 작성 페이지에서 선택한 반려견 프로필 상세 조회")
-    ResponseDto<RequestDto.Response> selectPetProfileDetail(
-            @RequestBody RequestDto.Request request) { // TODO : 토큰 수정
-        RequestDto.Response response =
-                requestService.selectPetProfileDetail(2L, request.getPetId());
-        return ResponseUtil.SUCCESS("반려견 프로필 조회가 완료되었습니다.", response);
-    }
-
-    /**
      * 견적 요청서 생성 API 새로운 견적 요청서를 생성합니다.
      *
      * @param request 견적 요청 정보를 포함하는 요청 DTO
@@ -54,13 +39,13 @@ public class RequestController {
     /**
      * 특정 견적 요청서 조회 API 요청 ID를 기반으로 특정 견적 요청서를 조회합니다.
      *
-     * @param request 요청 ID를 포함하는 요청 DTO
+     * @param requestId 요청 ID를 포함하는 요청 DTO
      * @return 요청서 정보가 포함된 응답 DTO
      */
     @PostMapping("/bid/request")
     @Operation(summary = "요청서 세부조회", description = "[REQ1300] 디자이너,보호자가 요청서 정보 세부 조회 API.")
-    ResponseDto<RequestDto.Response> selectRequest(@RequestBody RequestDto.Request request) {
-        RequestDto.Response response = requestService.selectRequest(request.getRequestId());
+    ResponseDto<RequestDto.Response> selectRequest(@RequestBody Long requestId) {
+        RequestDto.Response response = requestService.selectRequest(requestId);
         return ResponseUtil.SUCCESS("견적 요청서 조회가 완료되었습니다.", response);
     }
 
