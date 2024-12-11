@@ -1,5 +1,7 @@
 package com.ureca.home.presentation.dto;
 
+import com.ureca.profile.presentation.dto.Breed;
+import java.util.List;
 import lombok.Data;
 
 // 디자이너 찾기 - 디자이너 상세
@@ -15,9 +17,9 @@ public class HomeDesignerDetail {
     private String address1; // 기본주소1
     private String address2; // 기본주소2
     private String detailAddress; // 상세 주소
-    private String[] possibleBreed; // 미용 가능 견종
-    private Double xPosition; // x좌표
-    private Double yPosition; // y좌표
+    private List<Breed> possibleBreed; // 미용 가능 견종
+    private Double lng; // x좌표
+    private Double lat; // y좌표
 
     // 쿼리 결과 담는 생성자
     public HomeDesignerDetail(
@@ -30,9 +32,9 @@ public class HomeDesignerDetail {
             String address1,
             String address2,
             String detailAddress,
-            String[] possibleBreed,
-            Double xPosition,
-            Double yPosition) {
+            List<Breed> possibleBreed,
+            Double lng,
+            Double lat) {
         this.designerId = designerId;
         this.designerName = designerName;
         this.nickname = nickname;
@@ -43,7 +45,7 @@ public class HomeDesignerDetail {
         this.address2 = address2;
         this.possibleBreed = possibleBreed;
         this.detailAddress = detailAddress;
-        this.xPosition = xPosition;
-        this.yPosition = yPosition;
+        this.lng = lng;
+        this.lat = lat;
     }
 }

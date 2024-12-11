@@ -2,8 +2,8 @@ package com.ureca.home.presentation;
 
 import com.ureca.common.response.ResponseDto;
 import com.ureca.common.response.ResponseUtil;
+import com.ureca.home.application.HomeService;
 import com.ureca.home.presentation.dto.HomeInfo;
-import com.ureca.home.service.HomeService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

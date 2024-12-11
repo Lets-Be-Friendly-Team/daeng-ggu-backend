@@ -1,8 +1,9 @@
-package com.ureca.home.service;
+package com.ureca.home.application;
 
 import com.ureca.home.presentation.dto.HomeDesignerDetail;
 import com.ureca.home.presentation.dto.HomeInfo;
 import com.ureca.profile.infrastructure.DesignerRepository;
+import com.ureca.profile.presentation.dto.Breed;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -38,11 +39,9 @@ public class HomeService {
             String address1 = (String) designer[6];
             String address2 = (String) designer[7];
             String detailAddress = (String) designer[8];
-            Double xPosition = (Double) designer[9];
-            Double yPosition = (Double) designer[10];
-            List<String> possibleBreedList =
-                    designerRepository.findPossibleMajorBreedCodesByDesignerId(designerId);
-            String[] possibleBreeds = possibleBreedList.toArray(new String[0]);
+            Double lng = (Double) designer[9];
+            Double lat = (Double) designer[10];
+            List<Breed> possibleBreedList = designerRepository.findDesignerMajorBreeds(designerId);
             HomeDesignerDetail homeDesignerDetail =
                     new HomeDesignerDetail(
                             designerId,
@@ -54,9 +53,9 @@ public class HomeService {
                             address1,
                             address2,
                             detailAddress,
-                            possibleBreeds,
-                            xPosition,
-                            yPosition);
+                            possibleBreedList,
+                            lng,
+                            lat);
             allDesignerList.add(homeDesignerDetail);
         }
 
@@ -97,11 +96,10 @@ public class HomeService {
                 String address1 = (String) designer[6];
                 String address2 = (String) designer[7];
                 String detailAddress = (String) designer[8];
-                Double xPosition = (Double) designer[9];
-                Double yPosition = (Double) designer[10];
-                List<String> possibleBreedList =
-                        designerRepository.findPossibleMajorBreedCodesByDesignerId(designerId);
-                String[] possibleBreeds = possibleBreedList.toArray(new String[0]);
+                Double lng = (Double) designer[9];
+                Double lat = (Double) designer[10];
+                List<Breed> possibleBreedList =
+                        designerRepository.findDesignerMajorBreeds(designerId);
                 HomeDesignerDetail homeDesignerDetail =
                         new HomeDesignerDetail(
                                 designerId,
@@ -113,9 +111,9 @@ public class HomeService {
                                 address1,
                                 address2,
                                 detailAddress,
-                                possibleBreeds,
-                                xPosition,
-                                yPosition);
+                                possibleBreedList,
+                                lng,
+                                lat);
                 premiumList.add(homeDesignerDetail);
             }
             switch (serviceCode) {
