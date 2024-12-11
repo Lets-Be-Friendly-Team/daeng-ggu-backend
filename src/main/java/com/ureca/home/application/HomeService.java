@@ -2,6 +2,7 @@ package com.ureca.home.application;
 
 import com.ureca.home.presentation.dto.HomeDesignerDetail;
 import com.ureca.home.presentation.dto.HomeInfo;
+import com.ureca.home.presentation.dto.MapDesignerInfo;
 import com.ureca.profile.infrastructure.DesignerRepository;
 import com.ureca.profile.presentation.dto.Breed;
 import java.util.*;
@@ -137,4 +138,34 @@ public class HomeService {
                 .premiumStList(premiumStList)
                 .build();
     } // getCustomerHome
+
+    /**
+     * @title 보호자 홈 지도 - 좌표 기준 디자이너 검색
+     * @description 디자이너 주소 정보
+     * @param minX 최소 X좌표
+     * @param maxX 최대 X좌표
+     * @param minY 최소 Y좌표
+     * @param maxY 최대 Y좌표
+     * @return List<MapDesignerInfo> 홈 지도 디자이너 목록
+     */
+    public List<MapDesignerInfo> getMapDesigner(
+            double minX, double maxX, double minY, double maxY) {
+        // 좌표 범위 내 디자이너 목록
+        List<MapDesignerInfo> resultDesignerList =
+                designerRepository.findDesignersWithinBounds(minX, maxX, minY, maxY);
+        return resultDesignerList;
+    } // getMapDesigner
+
+    /**
+     * @title 보호자 홈 지도 - 검색어 기준 디자이너 검색
+     * @description 디자이너 주소 정보
+     * @param searchWord 검색어
+     * @return List<MapDesignerInfo> 홈 지도 디자이너 목록
+     */
+    public List<MapDesignerInfo> getMapDesignerSearch(String searchWord) {
+        // 검색어 조회 디자이너 목록
+        List<MapDesignerInfo> resultDesignerList =
+                designerRepository.findByDesignerNameOrOfficialName(searchWord);
+        return resultDesignerList;
+    } // getMapDesignerSearch
 }
