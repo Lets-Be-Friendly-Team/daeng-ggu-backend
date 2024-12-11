@@ -11,10 +11,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -42,7 +43,10 @@ public class CustomerController {
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", customerService.getCustomerDetail(customerId));
     }
 
-    @PostMapping("/customer/profile/update")
+    @RequestMapping(
+            method = RequestMethod.POST,
+            value = "/customer/profile/update",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "보호자 프로필 수정", description = "[MYP2000] 보호자 프로필 수정 API")
     public ResponseDto<Void> customerUpdate(@ModelAttribute CustomerUpdate data) {
         // service - 보호자 프로필 수정
