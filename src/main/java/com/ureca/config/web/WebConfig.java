@@ -13,7 +13,11 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**") // 모든 경로에 대해
                 .allowedOrigins(
                         "http://localhost:5173",
+                        "http://localhost:5174",
+                        "http://localhost:5175",
                         "https://localhost:5173",
+                        "https://localhost:5174",
+                        "https://localhost:5175",
                         "https://www.daeng-ggu-backend.com",
                         "https://www.daeng-ggu.com") // 허용할 도메인
                 .allowedMethods("GET", "POST", "PUT", "DELETE") // 허용할 HTTP 메소드

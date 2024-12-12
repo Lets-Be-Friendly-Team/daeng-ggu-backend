@@ -1,6 +1,7 @@
 package com.ureca.profile.domain;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import lombok.*;
@@ -36,7 +37,7 @@ public class Customer {
     private String customerName;
 
     // 생년월일
-    private Date birthDate;
+    private LocalDate birthDate;
 
     // 성별
     private String gender;

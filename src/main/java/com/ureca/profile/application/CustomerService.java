@@ -23,7 +23,6 @@ import com.ureca.profile.presentation.dto.ReviewInfo;
 import com.ureca.review.domain.Review;
 import com.ureca.review.domain.ReviewImage;
 import com.ureca.review.infrastructure.ReviewRepository;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -155,9 +154,7 @@ public class CustomerService {
         customerDetail.setCustomerImgName(customer.getCustomerImgName());
         customerDetail.setNickname(customer.getNickname());
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        String formattedDate = dateFormat.format(customer.getBirthDate());
-        customerDetail.setBirthDate(formattedDate);
+        customerDetail.setBirthDate(ValidationUtil.dateToString(customer.getBirthDate()));
         customerDetail.setGender(customer.getGender());
         customerDetail.setPhone(customer.getPhone());
 
@@ -199,7 +196,7 @@ public class CustomerService {
                                 "profile"); // TODO 파일명 짓는 양식 정하기
                 fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
             }
-
+            logger.info(">>>>>> Service Start !!! ");
             // 입력 내용
             Customer newCustomer =
                     Customer.builder()
@@ -220,6 +217,9 @@ public class CustomerService {
             customerRepository.save(newCustomer);
 
         } else {
+
+            logger.info(">>>>>> Service START !!! ");
+
             // 기존 정보 조회
             Customer customer =
                     customerRepository
@@ -252,6 +252,8 @@ public class CustomerService {
                             .detailAddress(data.getDetailAddress())
                             .updatedAt(LocalDateTime.now())
                             .build();
+
+            logger.info(">>>>>> Service END !!! ");
 
             // 업데이트
             customerRepository.save(updatedCustomer);

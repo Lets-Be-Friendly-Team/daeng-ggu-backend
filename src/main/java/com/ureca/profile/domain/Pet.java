@@ -1,6 +1,7 @@
 package com.ureca.profile.domain;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import lombok.*;
@@ -29,7 +30,7 @@ public class Pet {
     private String petName;
 
     // 반려견 생년월일
-    private Date birthDate;
+    private LocalDate birthDate;
 
     // 반려견 성별
     private String gender;
