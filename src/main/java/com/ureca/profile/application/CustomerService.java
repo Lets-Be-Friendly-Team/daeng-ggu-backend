@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class CustomerService {
@@ -180,20 +181,17 @@ public class CustomerService {
      * @return status 업데이트 성공 여부
      */
     @Transactional
-    public void updateCustomerProfile(CustomerUpdate data) {
+    public void updateCustomerProfile(CustomerUpdate data, MultipartFile newCustomerImgFile) {
 
         // 신규 등록
         if (data.getCustomerId() == null || data.getCustomerId() == 0) {
 
             String imageUrl = "", fileName = "";
             // 새로운 이미지 등록
-            if (data.getNewCustomerImgFile() != null
-                    && !data.getNewCustomerImgFile().getOriginalFilename().isEmpty()) {
+            if (newCustomerImgFile != null && !newCustomerImgFile.getOriginalFilename().isEmpty()) {
                 imageUrl =
                         s3Service.uploadFileImage(
-                                data.getNewCustomerImgFile(),
-                                "profile",
-                                "profile"); // TODO 파일명 짓는 양식 정하기
+                                newCustomerImgFile, "profile", "profile"); // TODO 파일명 짓는 양식 정하기
                 fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
             }
             logger.info(">>>>>> Service Start !!! ");
@@ -229,11 +227,9 @@ public class CustomerService {
             String imageUrl = customer.getCustomerImgUrl();
             String fileName = customer.getCustomerImgName();
             // 이미지 수정 - 같은 파일명으로 덮어쓰기
-            if (data.getNewCustomerImgFile() != null
-                    && !data.getNewCustomerImgFile().getOriginalFilename().isEmpty()) {
+            if (newCustomerImgFile != null && !newCustomerImgFile.getOriginalFilename().isEmpty()) {
                 imageUrl =
-                        s3Service.updateFileImage(
-                                data.getPreCustomerImgUrl(), data.getNewCustomerImgFile());
+                        s3Service.updateFileImage(data.getPreCustomerImgUrl(), newCustomerImgFile);
                 fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
             }
 
