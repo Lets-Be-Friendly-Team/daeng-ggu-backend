@@ -45,4 +45,28 @@ public class AlarmDto {
                     .build();
         }
     }
+    //    @JsonInclude(JsonInclude.Include.NON_NULL)
+    //    @Builder(toBuilder = true)
+    //    @Getter
+    //    @AllArgsConstructor
+    //    @NoArgsConstructor
+    //    @Schema(name = "AlarmService")
+    //    public static class Service {
+    //        private Long objectId; //요청서,견적서,예약,리뷰 id
+    //        private String alarmName;//견적요청,견적,예약,리뷰
+    //        private String senderName;//개 이름, 미용실 이름 등
+    //        private String senderUrl;//개 사진, 미용실 사진  등
+    //        private String serviceName; // 미용/전체미용 등
+    //
+    //        public static Service fromEntity(Alarm alarm) {
+    //            return Service.builder()
+    //                    .objectId(alarm.getObjectId())
+    //                    .alarmName(alarm.getAlarmMessage())
+    //                    .senderName(alarm.getSenderName())
+    //                    .senderUrl(alarm.getSenderUrl())
+    //                    .serviceName(alarm.getServiceName())
+    //                    .build();
+    //        }
+    //    }
+
 }

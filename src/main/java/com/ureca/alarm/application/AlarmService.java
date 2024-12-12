@@ -6,6 +6,7 @@ import com.ureca.alarm.presentation.dto.AlarmDto;
 import com.ureca.estimate.infrastructure.EstimateRepository;
 import com.ureca.profile.infrastructure.CustomerRepository;
 import com.ureca.profile.infrastructure.DesignerRepository;
+import com.ureca.profile.infrastructure.PetRepository;
 import com.ureca.request.infrastructure.RequestRepository;
 import com.ureca.reservation.infrastructure.ReservationRepository;
 import com.ureca.review.domain.Enum.AuthorType;
@@ -35,6 +36,7 @@ public class AlarmService {
 
     // 사용자별 SseEmitter 객체를 저장하는 맵
     private final Map<String, SseEmitter> emitterMap = new ConcurrentHashMap<>();
+    private final PetRepository petRepository;
 
     // 여러 사용자에게 알림을 보내는 메서드
     public void sendNotificationsToUsers(List<AlarmDto.Request> requests) {
@@ -44,7 +46,7 @@ public class AlarmService {
     }
 
     // 개별 사용자에게 알림을 보내는 메서드
-    private void sendNotification(AlarmDto.Request request) {
+    public void sendNotification(AlarmDto.Request request) {
         SseEmitter emitter =
                 emitterMap.get(request.getReceiverType().name() + request.getReceiverId());
 
@@ -52,12 +54,19 @@ public class AlarmService {
         switch (request.getAlarmType()) {
             case "A1":
                 alarmMessage =
-                        customerRepository
-                                .findById(request.getSenderId())
-                                .map(
-                                        customer ->
-                                                customer.getCustomerName() + "님에게서 견적 요청서가 도착했습니다.")
-                                .orElse("알림 메시지 오류");
+                        requestRepository
+                                        .findById(request.getObjectId())
+                                        .get()
+                                        .getPet()
+                                        .getPetName()
+                                + "님에게서 견적 요청서가 도착했습니다.";
+                //                        customerRepository
+                //                                .findById(request.getSenderId())
+                //                                .map(
+                //                                        customer ->
+                //                                                customer.getCustomerName() + "님에게서
+                // 견적 요청서가 도착했습니다.")
+                //                                .orElse("알림 메시지 오류");
                 break;
             case "A2":
                 alarmMessage =
@@ -68,10 +77,17 @@ public class AlarmService {
                 break;
             case "A3":
                 alarmMessage =
-                        customerRepository
-                                .findById(request.getSenderId())
-                                .map(customer -> customer.getCustomerName() + "님에게서 예약 요청이 도착했습니다.")
-                                .orElse("알림 메시지 오류");
+                        reservationRepository
+                                        .findById(request.getObjectId())
+                                        .get()
+                                        .getPet()
+                                        .getPetName()
+                                + "님에게서 예약 요청이 도착했습니다.";
+                //                customerRepository
+                //                                .findById(request.getSenderId())
+                //                                .map(customer -> customer.getCustomerName() +
+                // "님에게서 예약 요청이 도착했습니다.")
+                //                                .orElse("알림 메시지 오류");
                 break;
             case "A4":
                 alarmMessage =
@@ -108,6 +124,7 @@ public class AlarmService {
                         .senderType(request.getSenderType())
                         .receiverId(request.getReceiverId())
                         .receiverType(request.getReceiverType())
+                        .objectId(request.getObjectId())
                         .alarmMessage(alarmMessage)
                         .alarmType(request.getAlarmType()) // 알림 유형 예시
                         .alarmStatus(false) // 기본 상태는 '읽지 않음'
@@ -148,6 +165,10 @@ public class AlarmService {
         return unreadAlarms.stream()
                 .map(AlarmDto.Response::fromEntity) // Alarm 엔티티 -> Response DTO 변환
                 .collect(Collectors.toList());
+
+        //        return unreadAlarms.stream()
+        //                .map(AlarmDto.Service::fromEntity) // Alarm 엔티티 -> Response DTO 변환
+        //                .collect(Collectors.toList());
     }
 
     // SseEmitter에 접근하는 메서드

@@ -12,7 +12,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new LocationWebSocketHandler(), "/ws/location")
+        registry.addHandler(new LocationWebSocketHandler(), "/daengggu/websocket")
                 .setAllowedOrigins("*"); // CORS 설정: 모든 도메인에서 접근 허용
     }
 }
