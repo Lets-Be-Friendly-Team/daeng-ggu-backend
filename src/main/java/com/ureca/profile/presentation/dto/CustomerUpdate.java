@@ -1,7 +1,6 @@
 package com.ureca.profile.presentation.dto;
 
 import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
 
 // 보호자 프로필 등록/수정
 @Builder
@@ -12,8 +11,6 @@ public class CustomerUpdate {
     private Long customerId;
     // 보호자명
     private String customerName;
-    // 신규 보호자 이미지 파일
-    private MultipartFile newCustomerImgFile;
     // 변경전 이미지 URL
     private String preCustomerImgUrl;
     // 생년월일
