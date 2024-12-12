@@ -1,5 +1,7 @@
 package com.ureca.review.application;
 
+import com.ureca.alarm.application.AlarmService;
+import com.ureca.alarm.presentation.dto.AlarmDto;
 import com.ureca.common.application.S3Service;
 import com.ureca.common.exception.ApiException;
 import com.ureca.common.exception.ErrorCode;
@@ -37,6 +39,7 @@ public class ReviewService {
     private final ReviewLikeRepository reviewLikeRepository;
     private final S3Service s3Service;
     private final RedisLockUtil redisLockUtil;
+    private final AlarmService alarmService;
 
     private static final String LOCK_KEY_PREFIX = "review:like:";
 
@@ -200,6 +203,23 @@ public class ReviewService {
 
         reviewRepository.save(review);
         reviewImageRepository.saveAll(reviewImages);
+        categoryAndAlarm(review);
+    }
+
+    private void categoryAndAlarm(Review review) {
+
+        Designer designer = review.getDesigner();
+        AlarmDto.Request alarmlist =
+                AlarmDto.Request.builder()
+                        .senderId(review.getCustomer().getCustomerId())
+                        .senderType(AuthorType.CUSTOMER)
+                        .receiverId(designer.getDesignerId())
+                        .receiverType(AuthorType.DESIGNER)
+                        .objectId(review.getReviewId())
+                        .alarmType("A4")
+                        .build();
+
+        alarmService.sendNotification(alarmlist);
     }
 
     @Transactional
