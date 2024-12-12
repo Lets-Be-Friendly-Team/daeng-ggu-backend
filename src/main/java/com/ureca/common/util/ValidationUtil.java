@@ -20,17 +20,21 @@ public class ValidationUtil {
         }
     }
 
-    // String YYYYMMDD -> Date
-    public static Date stringToDate(String dateString) {
+    // String YYYYMMDD -> LocalDate
+    public static LocalDate stringToDate(String dateString) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         try {
-            LocalDate localDate = LocalDate.parse(dateString, formatter);
-            LocalDateTime localDateTime = localDate.atStartOfDay();
-            return Date.from(localDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant());
+            return LocalDate.parse(dateString, formatter);
         } catch (Exception e) {
             // 4. 예외 발생 시 ApiException 던지기
             throw new ApiException(ErrorCode.ACCOUNT_DATA_ERROR);
         }
+    }
+
+    // LocalDate -> String (YYYYMMDD 형식)
+    public static String dateToString(LocalDate date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        return date.format(formatter);
     }
 
     public static void validateAfterCurrentDateTime(

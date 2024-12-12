@@ -11,7 +11,6 @@ import com.ureca.profile.infrastructure.CustomerRepository;
 import com.ureca.profile.infrastructure.PetRepository;
 import com.ureca.profile.presentation.dto.PetDetail;
 import com.ureca.profile.presentation.dto.PetUpdate;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,8 +58,7 @@ public class PetService {
         petDetail.setWeight(pet.getWeight());
         petDetail.setSpecialNotes(pet.getSpecialNotes());
         if (pet.getBirthDate() != null) {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-            String formattedDate = sdf.format(pet.getBirthDate());
+            String formattedDate = ValidationUtil.dateToString(pet.getBirthDate());
             petDetail.setBirthDate(formattedDate);
         }
 
