@@ -1,5 +1,7 @@
 package com.ureca.common.websocket;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -55,28 +57,28 @@ public class LocationWebSocketHandler extends TextWebSocketHandler {
 
         if (reservationId != null) {
             // 메시지를 받아오는 부분
-            String payload =
-                    message.getPayload(); // 예를 들어, "latitude=37.7749&longitude=-122.4194" 이런 형식일 수
-            // 있음
+            String payload = message.getPayload(); // JSON 형식의 메시지가 전달됨
+
+            // JSON 파싱
             ObjectMapper objectMapper = new ObjectMapper();
-            Map<String, String> receivedData = objectMapper.readValue(payload, Map.class);
-
-            // 클라이언트에서 보내는 메시지 형태가 latitude와 longitude를 포함한 경우 처리
-            String latitude = null;
-            String longitude = null;
-
-            // 예시: 받은 메시지가 위치 데이터 (위도, 경도) 포함했다고 가정
-            String[] paramsArray = payload.split("&");
-            for (String param : paramsArray) {
-                String[] keyValue = param.split("=");
-                if (keyValue.length == 2) {
-                    if ("latitude".equals(keyValue[0])) {
-                        latitude = keyValue[1];
-                    } else if ("longitude".equals(keyValue[0])) {
-                        longitude = keyValue[1];
-                    }
-                }
+            Map<String, Object> receivedData;
+            try {
+                receivedData = objectMapper.readValue(payload, Map.class);
+            } catch (JsonParseException | JsonMappingException e) {
+                // 잘못된 JSON 형식 처리
+                session.sendMessage(new TextMessage("Invalid JSON format"));
+                return;
             }
+
+            // 위도와 경도 추출
+            String latitude =
+                    receivedData.get("latitude") != null
+                            ? receivedData.get("latitude").toString()
+                            : null;
+            String longitude =
+                    receivedData.get("longitude") != null
+                            ? receivedData.get("longitude").toString()
+                            : null;
 
             if (latitude != null && longitude != null) {
                 // 위치 정보가 유효한 경우, 이 정보를 사용자에게 전송
@@ -98,7 +100,13 @@ public class LocationWebSocketHandler extends TextWebSocketHandler {
                 if (userSession != null && userSession.isOpen()) {
                     userSession.sendMessage(new TextMessage(locationMessage));
                 }
+            } else {
+                // 위도 또는 경도가 없을 경우 처리
+                session.sendMessage(new TextMessage("Missing latitude or longitude"));
             }
+        } else {
+            // reservationId가 없을 경우 처리
+            session.sendMessage(new TextMessage("Missing reservationId"));
         }
     }
 
