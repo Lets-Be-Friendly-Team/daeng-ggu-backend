@@ -1,5 +1,7 @@
 package com.ureca.estimate.application;
 
+import com.ureca.alarm.application.AlarmService;
+import com.ureca.alarm.presentation.dto.AlarmDto;
 import com.ureca.common.application.S3Service;
 import com.ureca.common.exception.ApiException;
 import com.ureca.common.exception.ErrorCode;
@@ -10,11 +12,15 @@ import com.ureca.estimate.infrastructure.EstimateImageRepository;
 import com.ureca.estimate.infrastructure.EstimateRepository;
 import com.ureca.estimate.presentation.dto.EstimateDto;
 import com.ureca.estimate.presentation.dto.EstimateDtoDetail;
+import com.ureca.profile.domain.Designer;
 import com.ureca.profile.domain.Pet;
+import com.ureca.profile.infrastructure.BreedsRepository;
 import com.ureca.profile.infrastructure.DesignerRepository;
 import com.ureca.profile.infrastructure.PetRepository;
+import com.ureca.profile.infrastructure.ServicesRepository;
 import com.ureca.request.domain.Request;
 import com.ureca.request.infrastructure.RequestRepository;
+import com.ureca.review.domain.Enum.AuthorType;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,10 +35,13 @@ import org.springframework.web.multipart.MultipartFile;
 public class EstimateService {
 
     private final S3Service s3Service;
+    private final AlarmService alarmService;
     private final EstimateRepository estimateRepository;
     private final EstimateImageRepository estimateImageRepository;
     private final RequestRepository requestRepository;
     private final DesignerRepository designerRepository;
+    private final BreedsRepository breedsRepository;
+    private final ServicesRepository servicesRepository;
     private final PetRepository petRepository;
     private final RedisLockUtil redisLockUtil;
 
@@ -98,7 +107,7 @@ public class EstimateService {
             estimate.toBuilder().estimateImages(estimateImages).build();
 
             estimateRepository.save(estimate);
-
+            categoryAndAlarm(estimate);
             request1.setRequestCnt(request1.getRequestCnt() + 1);
             requestRepository.save(request1);
             redisLockUtil.unlock(lockKey);
@@ -106,6 +115,22 @@ public class EstimateService {
             redisLockUtil.unlock(lockKey);
             throw new ApiException(ErrorCode.REQUEST_FULL_ESTIMATE);
         }
+    }
+
+    private void categoryAndAlarm(Estimate estimate) {
+
+        Designer designer = estimate.getDesigner();
+        AlarmDto.Request alarmlist =
+                AlarmDto.Request.builder()
+                        .senderId(designer.getDesignerId())
+                        .senderType(AuthorType.DESIGNER)
+                        .receiverId(estimate.getRequest().getCustomer().getCustomerId())
+                        .receiverType(AuthorType.CUSTOMER)
+                        .objectId(estimate.getEstimateId())
+                        .alarmType("A2")
+                        .build();
+
+        alarmService.sendNotification(alarmlist);
     }
 
     public List<EstimateDto.Response> selectCustomerEstimate(Long customerId) {
