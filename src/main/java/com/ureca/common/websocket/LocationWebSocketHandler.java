@@ -1,8 +1,11 @@
 package com.ureca.common.websocket;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -56,6 +59,8 @@ public class LocationWebSocketHandler extends TextWebSocketHandler {
             String payload =
                     message.getPayload(); // 예를 들어, "latitude=37.7749&longitude=-122.4194" 이런 형식일 수
             // 있음
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, String> receivedData = objectMapper.readValue(payload, Map.class);
 
             // 클라이언트에서 보내는 메시지 형태가 latitude와 longitude를 포함한 경우 처리
             String latitude = null;
@@ -80,13 +85,12 @@ public class LocationWebSocketHandler extends TextWebSocketHandler {
                         SessionManager.getSession(reservationId, "GUARDIAN");
                 WebSocketSession userSession = SessionManager.getSession(reservationId, "CUSTOMER");
 
-                String locationMessage =
-                        "Location update for reservation "
-                                + reservationId
-                                + ": Latitude = "
-                                + latitude
-                                + ", Longitude = "
-                                + longitude;
+                Map<String, String> locationData = new HashMap<>();
+                locationData.put("latitude", latitude);
+                locationData.put("longitude", longitude);
+
+                // JSON 문자열로 변환
+                String locationMessage = objectMapper.writeValueAsString(locationData);
                 //
                 //                if (guardianSession != null && guardianSession.isOpen()) {
                 //                    guardianSession.sendMessage(new TextMessage(locationMessage));
