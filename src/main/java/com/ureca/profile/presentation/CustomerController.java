@@ -46,7 +46,7 @@ public class CustomerController {
     }
 
     @PostMapping(
-            value = "/customer/profile/update",
+            path = "/customer/profile/update",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "보호자 프로필 수정", description = "[MYP2000] 보호자 프로필 수정 API")
