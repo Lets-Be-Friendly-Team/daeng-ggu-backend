@@ -44,8 +44,8 @@ public class RequestController {
      */
     @PostMapping("/bid/request")
     @Operation(summary = "요청서 세부조회", description = "[REQ1300] 디자이너,보호자가 요청서 정보 세부 조회 API.")
-    ResponseDto<RequestDto.Response> selectRequest(@RequestBody Long requestId) {
-        RequestDto.Response response = requestService.selectRequest(requestId);
+    ResponseDto<RequestDto.Response> selectRequest(@RequestBody RequestDto.ID requestId) {
+        RequestDto.Response response = requestService.selectRequest(requestId.getRequestId());
         return ResponseUtil.SUCCESS("견적 요청서 조회가 완료되었습니다.", response);
     }
 

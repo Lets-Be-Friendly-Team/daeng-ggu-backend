@@ -51,4 +51,13 @@ public class EstimateDto {
         private LocalDateTime createdAt;
         private List<EstimateDtoDetail> estimateList;
     }
+
+    @Builder(toBuilder = true)
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Schema(name = "EstimateID")
+    public static class ID {
+        private Long estimateId;
+    }
 }

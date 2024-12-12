@@ -59,4 +59,22 @@ public class ReviewDto {
         private String feedUrl;
         private List<String> FeedImgList;
     }
+
+    @Builder(toBuilder = true)
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Schema(name = "ReviewID")
+    public static class ID {
+        private Long reviewId;
+    }
+
+    @Builder(toBuilder = true)
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Schema(name = "ReviewFeed")
+    public static class Feed {
+        private Integer page;
+    }
 }

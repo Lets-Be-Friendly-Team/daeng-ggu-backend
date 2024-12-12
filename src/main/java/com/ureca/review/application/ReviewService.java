@@ -16,13 +16,11 @@ import com.ureca.review.infrastructure.ReviewImageRepository;
 import com.ureca.review.infrastructure.ReviewLikeRepository;
 import com.ureca.review.infrastructure.ReviewRepository;
 import com.ureca.review.presentation.dto.ReviewDto;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -260,24 +258,12 @@ public class ReviewService {
         reviewRepository.delete(review);
     }
 
-    public List<ReviewDto.Response> getFeeds(
-            LocalDateTime lastCreatedAt, int size, Long userId, AuthorType userType) {
+    public List<ReviewDto.Response> getFeeds(int page, int size, Long userId, AuthorType userType) {
         List<Review> reviews = new ArrayList<>();
-        if (lastCreatedAt == null) {
-            // 첫 요청 시, 페이지당 size개의 리뷰 반환
-            Page<Review> reviewPage =
-                    reviewRepository.findByCreatedAtBeforeAndIsFeedAddTrue(
-                            LocalDateTime.now(),
-                            PageRequest.of(0, size, Sort.by("createdAt").descending()));
-            reviews = reviewPage.getContent();
-        } else {
-            // 이후 요청 시, lastCreatedAt 기준으로 이전 리뷰 조회
-            Pageable pageable = PageRequest.of(0, size, Sort.by("createdAt").descending());
-            Page<Review> reviewPage =
-                    reviewRepository.findByCreatedAtBeforeAndIsFeedAddTrue(lastCreatedAt, pageable);
-            reviews = reviewPage.getContent();
-        }
-
+        Page<Review> reviewPage =
+                reviewRepository.findByIsFeedAddOrderByCreatedAtDesc(
+                        true, PageRequest.of(page, size, Sort.by("createdAt").descending()));
+        reviews = reviewPage.getContent();
         List<ReviewDto.Response> reviewList = new ArrayList<>();
         for (Review review : reviews) {
             // review를 기반으로 ReviewImage 리스트 생성

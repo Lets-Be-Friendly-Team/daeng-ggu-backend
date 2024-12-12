@@ -5,8 +5,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 public class RequestDto {
     @Builder(toBuilder = true)
@@ -73,5 +75,14 @@ public class RequestDto {
         private LocalDateTime createdAt;
 
         private String codeName;
+    }
+
+    @Builder(toBuilder = true)
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Schema(name = "RequestID")
+    public static class ID {
+        private Long requestId;
     }
 }
