@@ -1,11 +1,10 @@
 package com.ureca.common.websocket;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -103,7 +102,7 @@ public class LocationWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    // 쿼리 문자열 파싱 유틸리티
+    // 쿼리 문자열 파싱 유틸리티임
     private Map<String, String> getQueryParams(String query) {
         return Arrays.stream(query.split("&"))
                 .map(param -> param.split("="))
