@@ -33,6 +33,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     Page<Review> findByCreatedAtBeforeAndIsFeedAddTrue(LocalDateTime createdAt, Pageable pageable);
 
+    Page<Review> findByIsFeedAddOrderByCreatedAtDesc(Boolean isFeedAdd, Pageable pageable);
+
     @Query("SELECT r FROM Review r ORDER BY r.createdAt DESC")
     List<Review> findTopN(@Param("size") int size);
 }
