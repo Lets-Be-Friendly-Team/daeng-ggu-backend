@@ -100,14 +100,13 @@ public class ReviewController {
     }
 
     // 피드탭 피드 세부 조회
-    @PostMapping("/feed")
+    @GetMapping("/feed")
     @Operation(summary = "피드탭 피드 조회", description = "[FED1000] 피드 탭에서 전체 피드 10개씩 조회")
-    public ResponseDto<List<ReviewDto.Response>> getFeed(@RequestBody ReviewDto.Feed reviewFeed) {
+    public ResponseDto<ReviewDto.Like> getFeed(@RequestParam int page) {
         int size = 20;
         // request.getLastCreatedAt()을 사용하여 피드 조회
-        List<ReviewDto.Response> feeds =
-                reviewService.getFeeds(
-                        reviewFeed.getPage(), size, 2L, AuthorType.valueOf("CUSTOMER"));
+        ReviewDto.Like feeds =
+                reviewService.getFeeds(page, size, 2L, AuthorType.valueOf("CUSTOMER"));
         return ResponseUtil.SUCCESS("완료되었습니다.", feeds);
     }
 
