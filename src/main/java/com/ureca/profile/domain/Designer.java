@@ -119,4 +119,8 @@ public class Designer {
     // 수정시간
     @Column(nullable = true)
     private LocalDateTime updatedAt;
+
+    public void updateBillingCode(String billingCode) {
+        this.billingCode = billingCode;
+    }
 }
