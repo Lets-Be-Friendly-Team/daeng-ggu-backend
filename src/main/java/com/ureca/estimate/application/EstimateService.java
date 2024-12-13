@@ -276,6 +276,7 @@ public class EstimateService {
                 .groomingFee(estimate.getGroomingFee())
                 .monitoringFee(estimate.getRequest().getMonitoringFee())
                 .deliveryFee(estimate.getRequest().getDeliveryFee())
+                .estimatePrice(estimate.getEstimatePayment())
                 .estimateImgList(estimateImgList)
                 .build();
     }
