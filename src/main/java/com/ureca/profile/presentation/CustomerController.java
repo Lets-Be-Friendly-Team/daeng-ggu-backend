@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -85,5 +84,19 @@ public class CustomerController {
         return ResponseUtil.SUCCESS(
                 "처리가 완료되었습니다.",
                 customerService.getCustomerViewDesignerProfile(customerId, designerId));
+    }
+
+    // TODO IMG TEST
+    @PostMapping(
+            value = "/customer/img/test1",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "보호자 프로필 수정", description = "[MYP2000] 보호자 프로필 수정 API")
+    public ResponseDto<Void> customerUpdateTest1(
+            @RequestPart(value = "newCustomerImgFile", required = false)
+                    MultipartFile newCustomerImgFile) {
+        // service - 보호자 프로필 수정
+        logger.info("Test 1 ) newCustomerImgFile>>>" + newCustomerImgFile);
+        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
     }
 }
