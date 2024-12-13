@@ -340,7 +340,7 @@ public class CustomerService {
             throw new ApiException(ErrorCode.ACCOUNT_DATA_ERROR);
         }
         return result;
-    } // updateBookmark
+    } // insertCustomer
 
     /**
      * @title 보호자가 보는 디자이너 프로필
