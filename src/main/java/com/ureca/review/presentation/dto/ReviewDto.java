@@ -41,9 +41,7 @@ public class ReviewDto {
     @Schema(name = "ReviewResponse")
     public static class Response {
         private Long reviewId;
-        private String reviewImgUrl1;
-        private String reviewImgUrl2;
-        private String reviewImgUrl3;
+        private List<String> reviewImgList;
         private LocalDateTime lastCreatedAt;
         private Long designerId;
         private String designerImgUrl;
