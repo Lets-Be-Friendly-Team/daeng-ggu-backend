@@ -54,7 +54,7 @@ public class CustomerController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "보호자 프로필 수정", description = "[MYP2000] 보호자 프로필 수정 API")
     public ResponseDto<Void> customerUpdate(
-            @RequestBody @Valid CustomerUpdate data,
+            @RequestPart @Valid CustomerUpdate data,
             @RequestPart(value = "newCustomerImgFile", required = false)
                     MultipartFile newCustomerImgFile)
             throws IOException {
