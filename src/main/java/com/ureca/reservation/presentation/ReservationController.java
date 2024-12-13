@@ -83,7 +83,7 @@ public class ReservationController {
      * @param orderKeysAndAmountDto 결제 정보
      * @return 처리 상태 메시지
      */
-    @PostMapping("reservation/payment/keys")
+    @PostMapping("reservation/payment/data")
     @Operation(summary = "결제 데이터 저장", description = "[결제 위젯] 결제 데이터를 저장합니다.")
     public ResponseDto<Void> savePaymentData(
             @RequestParam Long customerId,
@@ -132,9 +132,9 @@ public class ReservationController {
      * @param reservationId 예약 고유 ID
      * @return 환불 금액
      */
-    @GetMapping("/reservation/{reservationId}/cancel")
+    @PostMapping("/reservation/{reservationId}/cancel")
     @Operation(summary = "예약 취소", description = "[RSV1000] 예약 취소 상태로 변경합니다.")
-    public ResponseDto<Integer> cancelReservation(@PathVariable Long reservationId) {
+    public ResponseDto<Long> cancelReservation(@PathVariable Long reservationId) {
         return ResponseUtil.SUCCESS(
                 "예약 취소 성공", reservationService.cancelReservation(reservationId));
     }

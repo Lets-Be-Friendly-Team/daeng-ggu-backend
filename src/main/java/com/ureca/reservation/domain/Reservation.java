@@ -46,6 +46,9 @@ public class Reservation extends BaseEntity {
     @JoinColumn(nullable = false)
     private Designer designer;
 
+    @Column(nullable = false)
+    private String orderId;
+
     @Column(nullable = false, length = 20)
     private String reservationType; // 예약 유형 (commonCode -> "R1"(DIRECT), "R2"(AUCTION))
 
@@ -88,4 +91,8 @@ public class Reservation extends BaseEntity {
 
     @Column(length = 100)
     private String additionalRequest; // 추가 요청 사항 (NULL 가능)
+
+    public void updateCancelInfo(Boolean isCanceled) {
+        this.isCanceled = isCanceled;
+    }
 }

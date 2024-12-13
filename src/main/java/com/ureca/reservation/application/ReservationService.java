@@ -18,8 +18,10 @@ import com.ureca.reservation.presentation.dto.DesignerAvailableDatesResponseDto;
 import com.ureca.reservation.presentation.dto.DesignerInfoDto;
 import com.ureca.reservation.presentation.dto.DirectReservationRequestDto;
 import com.ureca.reservation.presentation.dto.EstimateReservationRequestDto;
+import com.ureca.reservation.presentation.dto.OrderIdWithCancelReasonDto;
 import com.ureca.reservation.presentation.dto.OrderKeysAndAmountDto;
 import com.ureca.reservation.presentation.dto.OrderKeysDto;
+import com.ureca.reservation.presentation.dto.PaymentCancelResponseDto;
 import com.ureca.reservation.presentation.dto.PaymentRequestDto;
 import com.ureca.reservation.presentation.dto.PaymentResponseDto;
 import com.ureca.reservation.presentation.dto.RequestDetailDto;
@@ -507,6 +509,7 @@ public class ReservationService {
             Estimate estimate, EstimateReservationRequestDto reservationRequestDto) {
         Reservation reservation =
                 Reservation.builder()
+                        .orderId(reservationRequestDto.getOrderId())
                         .request(estimate.getRequest())
                         .estimate(estimate)
                         .pet(estimate.getRequest().getPet())
@@ -593,6 +596,7 @@ public class ReservationService {
                         .reservationType("R1") // Direct 예약
                         .isFinished(false)
                         .isCanceled(false)
+                        .orderId(directReservationRequestDto.getOrderId())
                         .reservationDate(directReservationRequestDto.getReservationDate())
                         .startTime(directReservationRequestDto.getStartTime())
                         .endTime(directReservationRequestDto.getEndTime())
@@ -624,9 +628,65 @@ public class ReservationService {
             }
             return response;
 
-        } catch (Exception e) {
+        } catch (ApiException e) {
             // 결제 서버 예외 처리
+            throw e;
+        } catch (Exception e) {
             throw new ApiException(ErrorCode.PAYMENT_PROCESS_FAILED);
+        }
+    }
+
+    // 요청이 들어온 예약 결제 취소처리
+    // 예약의 isCancel true로 바꿔주기
+    //
+
+    public Long cancelReservation(Long reservationId) {
+        // 1. 예약 데이터 조회
+        Reservation reservation =
+                reservationRepository
+                        .findById(reservationId)
+                        .orElseThrow(() -> new ApiException(ErrorCode.RESERVATION_NOT_EXIST));
+
+        // 2. 결제 서버 취소 API 호출을 위한 orderId 가져오기
+        String orderId = reservation.getOrderId();
+        if (orderId == null) {
+            throw new ApiException(ErrorCode.ORDER_ID_NOT_EXIST);
+        }
+
+        try {
+            // 4. 결제 서버 호출
+            PaymentCancelResponseDto response = processPaymentCancellation(orderId, "사용자의 요청 취소");
+
+            // 5. 예약 데이터 업데이트
+            reservation.updateCancelInfo(true);
+            reservationRepository.save(reservation);
+
+            return response.getCancels().get(0).getCancelAmount().longValue(); // 취소 성공
+
+        } catch (ApiException e) {
+            // 6. 결제 취소 실패 처리
+            throw e;
+        } catch (Exception e) {
+            throw new ApiException(ErrorCode.PAYMENT_PROCESS_FAILED);
+        }
+    }
+
+    private PaymentCancelResponseDto processPaymentCancellation(
+            String orderId, String cancelReason) {
+        String paymentCancelUrl =
+                paymentServerConfig.getLocalPaymentServerUrl() + "/v1/toss/cancel";
+
+        OrderIdWithCancelReasonDto cancelRequest =
+                OrderIdWithCancelReasonDto.builder()
+                        .orderId(orderId)
+                        .cancelReason(cancelReason)
+                        .build();
+
+        try {
+            return restTemplate.postForObject(
+                    paymentCancelUrl, cancelRequest, PaymentCancelResponseDto.class);
+        } catch (Exception e) {
+            throw new ApiException(ErrorCode.PAYMENT_SERVER_ERROR);
         }
     }
 }

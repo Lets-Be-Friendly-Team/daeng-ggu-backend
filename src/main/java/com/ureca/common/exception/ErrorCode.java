@@ -24,6 +24,7 @@ public enum ErrorCode {
     INVALID_BREED(500, "잘못된 견종 코드입니다.", 2080),
     INVALID_DAY_OF_WEEK(500, "유효하지 않은 요일 값입니다.", 2090),
     INVALID_CUSTOMER_KEY(500, "잘못된 customer key 입니다.", 2100),
+    RESERVATION_NOT_EXIST(500, "예약 데이터가 없습니다.", 2110),
 
     // 3000번대: 권한 관련 오류
     ACCESS_DENIED(403, "데이터 접근 권한이 없습니다.", 3000),
@@ -41,6 +42,7 @@ public enum ErrorCode {
     PAYMENT_SERVER_ERROR(500, "결제 서버 오류가 발생했습니다.", 6000),
     PAYMENT_VALIDATION_FAILED(400, "결제 요청 데이터가 유효하지 않습니다.", 6010),
     PAYMENT_PROCESS_FAILED(500, "결제 처리 중 오류가 발생했습니다.", 6020),
+    ORDER_ID_NOT_EXIST(400, "예약 데이터에 Order ID가 없습니다.", 6030),
 
     // 7000 : 견적 관련 오류
     REQUEST_FULL_ESTIMATE(500, "모든 견적서가 전송되었습니다", 7000),
