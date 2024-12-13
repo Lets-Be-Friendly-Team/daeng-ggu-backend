@@ -13,13 +13,13 @@ import com.ureca.profile.presentation.dto.CustomerViewDesignerProfile;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.io.IOException;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -64,6 +64,22 @@ public class CustomerController {
         logger.info("data>>>" + data);
         logger.info("newCustomerImgFile>>>" + newCustomerImgFile);
         customerService.updateCustomerProfile(data, newCustomerImgFile);
+        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
+    }
+
+    @PostMapping(
+            value = "/customer/img/test9",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "test9", description = "Post 객체와 파일을 함께 받음")
+    public ResponseDto<String> customerUpdateTest9(
+            @RequestBody @Valid CustomerUpdate customerUpdate, // DTO 객체 (JSON으로 받음)
+            @RequestPart("newCustomerImgFile") MultipartFile newCustomerImgFile // 파일
+            ) {
+        logger.info("Customer Update: " + customerUpdate);
+        logger.info("New Customer Image File: " + newCustomerImgFile);
+
+        // 파일 처리 및 DTO 처리 로직
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
     }
 
@@ -146,7 +162,7 @@ public class CustomerController {
     @Operation(summary = "Post 객체 String으로, 파일", description = "Post 객체 String으로, 파일")
     public ResponseDto<String> customerUpdateTest5(
             @RequestPart("data") String customerUpdateJson, // JSON 데이터를 String으로 받음
-            @RequestPart("newCustomerImgFile") List<MultipartFile> newCustomerImgFile)
+            @RequestPart("newCustomerImgFile") MultipartFile newCustomerImgFile)
             throws JsonProcessingException {
 
         // reviewRequestJson을 객체로 변환
@@ -155,5 +171,51 @@ public class CustomerController {
         logger.info("Test 5 ) customerUpdate>>>" + customerUpdate);
         logger.info("Test 5 ) newCustomerImgFile>>>" + newCustomerImgFile);
         return ResponseUtil.SUCCESS("완료되었습니다.", null);
+    }
+
+    @PostMapping(value = "/customer/img/test6", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Post 객체 String으로, 파일", description = "Post 객체 String으로, 파일")
+    public ResponseDto<String> customerUpdateTest6(
+            @RequestPart("data") String customerUpdateJson, // JSON 데이터를 String으로 받음
+            @RequestPart("newCustomerImgFile") MultipartFile newCustomerImgFile)
+            throws JsonProcessingException {
+
+        // reviewRequestJson을 객체로 변환
+        CustomerUpdate customerUpdate =
+                new ObjectMapper().readValue(customerUpdateJson, CustomerUpdate.class);
+        logger.info("Test 6 ) customerUpdate>>>" + customerUpdate);
+        logger.info("Test 6 ) newCustomerImgFile>>>" + newCustomerImgFile);
+        return ResponseUtil.SUCCESS("완료되었습니다.", null);
+    }
+
+    @GetMapping("/customer/img/test7")
+    @Operation(summary = "Get 객체 String으로, 파일", description = "Get 객체 String으로, 파일")
+    public ResponseDto<String> customerUpdateTest7(
+            @RequestPart("data") String customerUpdateJson, // JSON 데이터를 String으로 받음
+            @RequestPart("newCustomerImgFile") MultipartFile newCustomerImgFile)
+            throws JsonProcessingException {
+
+        // reviewRequestJson을 객체로 변환
+        CustomerUpdate customerUpdate =
+                new ObjectMapper().readValue(customerUpdateJson, CustomerUpdate.class);
+        logger.info("Test 7 ) customerUpdate>>>" + customerUpdate);
+        logger.info("Test 7 ) newCustomerImgFile>>>" + newCustomerImgFile);
+        return ResponseUtil.SUCCESS("완료되었습니다.", null);
+    }
+
+    @PostMapping(
+            value = "/customer/img/test8",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "test8", description = "Post 객체와 파일을 함께 받음")
+    public ResponseDto<String> customerUpdateTest8(
+            @RequestPart("data") @Valid CustomerUpdate customerUpdate, // DTO 객체
+            @RequestPart("newCustomerImgFile") MultipartFile newCustomerImgFile // 파일
+            ) {
+        logger.info("Customer Update: " + customerUpdate);
+        logger.info("New Customer Image File: " + newCustomerImgFile);
+
+        // 파일 처리 및 DTO 처리 로직
+        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
     }
 }
