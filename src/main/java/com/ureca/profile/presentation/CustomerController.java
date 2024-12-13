@@ -1,5 +1,7 @@
 package com.ureca.profile.presentation;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ureca.common.response.ResponseDto;
 import com.ureca.common.response.ResponseUtil;
 import com.ureca.profile.application.CustomerService;
@@ -11,6 +13,7 @@ import com.ureca.profile.presentation.dto.CustomerViewDesignerProfile;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.io.IOException;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,15 +128,32 @@ public class CustomerController {
     }
 
     @PostMapping(
-        value = "/customer/img/test4",
-        consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+            value = "/customer/img/test4",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Post 객체, 단순 파일", description = "Post 객체, 단순 파일")
     public ResponseDto<Void> customerUpdateTest4(
-        @RequestPart @Valid CustomerUpdate data,
-        MultipartFile newCustomerImgFile) {
+            @RequestPart @Valid CustomerUpdate data, MultipartFile newCustomerImgFile) {
         // service - 보호자 프로필 수정
-        logger.info("Test 1 ) newCustomerImgFile>>>" + newCustomerImgFile);
+        logger.info("Test 4 ) newCustomerImgFile>>>" + newCustomerImgFile);
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
+    }
+
+    @PostMapping(
+            value = "/customer/img/test5",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Post 객체 String으로, 파일", description = "Post 객체 String으로, 파일")
+    public ResponseDto<String> customerUpdateTest5(
+            @RequestPart("data") String customerUpdateJson, // JSON 데이터를 String으로 받음
+            @RequestPart("newCustomerImgFile") List<MultipartFile> newCustomerImgFile)
+            throws JsonProcessingException {
+
+        // reviewRequestJson을 객체로 변환
+        CustomerUpdate customerUpdate =
+                new ObjectMapper().readValue(customerUpdateJson, CustomerUpdate.class);
+        logger.info("Test 5 ) customerUpdate>>>" + customerUpdate);
+        logger.info("Test 5 ) newCustomerImgFile>>>" + newCustomerImgFile);
+        return ResponseUtil.SUCCESS("완료되었습니다.", null);
     }
 }
