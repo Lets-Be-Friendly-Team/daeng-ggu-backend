@@ -84,7 +84,7 @@ public class ReviewDto {
     @NoArgsConstructor
     @Schema(name = "ReviewLike")
     public static class Like {
-        private int totalReview;
+        private Integer totalReview;
         private List<Response> reviewList;
     }
 }
