@@ -8,10 +8,15 @@ import com.ureca.profile.domain.Bookmark;
 import com.ureca.profile.domain.Customer;
 import com.ureca.profile.domain.Designer;
 import com.ureca.profile.domain.Pet;
+import com.ureca.profile.domain.Portfolio;
 import com.ureca.profile.infrastructure.BookmarkRepository;
+import com.ureca.profile.infrastructure.CertificateRepository;
 import com.ureca.profile.infrastructure.CustomerRepository;
 import com.ureca.profile.infrastructure.DesignerRepository;
 import com.ureca.profile.infrastructure.PetRepository;
+import com.ureca.profile.infrastructure.PortfolioImgRepository;
+import com.ureca.profile.infrastructure.PortfolioRepository;
+import com.ureca.profile.infrastructure.ServicesRepository;
 import com.ureca.profile.presentation.dto.BookmarkInfo;
 import com.ureca.profile.presentation.dto.BookmarkYn;
 import com.ureca.profile.presentation.dto.BreedSub;
@@ -19,10 +24,11 @@ import com.ureca.profile.presentation.dto.CustomerDetail;
 import com.ureca.profile.presentation.dto.CustomerProfile;
 import com.ureca.profile.presentation.dto.CustomerSignup;
 import com.ureca.profile.presentation.dto.CustomerUpdate;
+import com.ureca.profile.presentation.dto.CustomerViewDesignerProfile;
+import com.ureca.profile.presentation.dto.DesignerProfile;
 import com.ureca.profile.presentation.dto.PetInfo;
-import com.ureca.profile.presentation.dto.ReviewInfo;
+import com.ureca.profile.presentation.dto.PortfolioInfo;
 import com.ureca.review.domain.Review;
-import com.ureca.review.domain.ReviewImage;
 import com.ureca.review.infrastructure.ReviewRepository;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -41,9 +47,14 @@ public class CustomerService {
 
     @Autowired private CustomerRepository customerRepository;
     @Autowired private DesignerRepository designerRepository;
+    @Autowired private CertificateRepository certificateRepository;
+    @Autowired private PortfolioRepository portfolioRepository;
+    @Autowired private PortfolioImgRepository imgRepository;
+    @Autowired private ServicesRepository servicesRepository;
     @Autowired private PetRepository petRepository;
     @Autowired private ReviewRepository reviewRepository;
     @Autowired private BookmarkRepository bookmarkRepository;
+    @Autowired private ProfileService profileService;
     @Autowired private S3Service s3Service;
 
     /**
@@ -85,26 +96,7 @@ public class CustomerService {
 
         // 리뷰 목록
         List<Review> reviews = reviewRepository.findByCustomerCustomerId(customerId);
-        List<ReviewInfo> reviewList =
-                reviews.stream()
-                        .map(
-                                review -> {
-                                    ReviewInfo reviewInfo = new ReviewInfo();
-                                    reviewInfo.setReviewId(review.getReviewId());
-                                    /// 리뷰 이미지 처리: 이미지가 없는 경우 null로 처리
-                                    List<ReviewImage> reviewImages = review.getReviewImages();
-                                    if (reviewImages != null
-                                            && !reviewImages.isEmpty()) { // 이미지가 있다면 최대 3개까지 가져오기
-                                        if (reviewImages.size() > 0)
-                                            reviewInfo.setReviewImgUrl(
-                                                    reviewImages.get(0).getReviewImageUrl());
-                                    } else { // 이미지가 없는 경우 기본값 설정 (null 처리)
-                                        reviewInfo.setReviewImgUrl(null);
-                                    }
-                                    return reviewInfo;
-                                })
-                        .collect(Collectors.toList());
-        customerProfile.setReviewList(reviewList);
+        customerProfile.setReviewList(profileService.reviewToReviewInfo(reviews));
 
         // 찜한 디자이너 정보
         List<Bookmark> bookmarks = bookmarkRepository.findByCustomerCustomerId(customerId);
@@ -349,4 +341,97 @@ public class CustomerService {
         }
         return result;
     } // updateBookmark
+
+    /**
+     * @title 보호자가 보는 디자이너 프로필
+     * @param customerId 보호자 아이디
+     * @param designerId 디자이너 아이디
+     * @description 디자이너정보, 제공서비스, 가능견종, 포트폴리오목록, 리뷰목록 조회, 찜 유무
+     * @return CustomerViewDesignerProfile 디자이너 프로필 정보
+     */
+    public CustomerViewDesignerProfile getCustomerViewDesignerProfile(
+            Long customerId, Long designerId) {
+
+        // 디자이너 정보
+        DesignerProfile designerProfile =
+                designerRepository.findDesignerProfileByDesignerId(designerId);
+        if (designerProfile == null) throw new ApiException(ErrorCode.DESIGNER_NOT_EXIST);
+        // 별점 평균
+        designerProfile.setReviewStarAvg(
+                designerRepository.findAverageReviewStarByDesignerId(designerId));
+        // 리뷰 전체 좋아요 수
+        designerProfile.setReviewLikeCntAll(
+                designerRepository.findTotalReviewLikeCountByDesignerId(designerId));
+        // 제공 서비스
+        designerProfile.setProvidedServices(
+                designerRepository.findDesignerProvidedServices(designerId));
+        // 미용 가능 견종
+        designerProfile.setPossibleBreeds(designerRepository.findDesignerMajorBreeds(designerId));
+        // 자격증 이미지 URL
+        List<String> imgUrls = certificateRepository.findImgUrlsByDesignerId(designerId);
+        designerProfile.setCertifications(imgUrls.toArray(new String[0]));
+        // 포트폴리오 목록
+        List<Portfolio> portfolios = portfolioRepository.findByDesignerDesignerId(designerId);
+        List<PortfolioInfo> portfolioInfos =
+                portfolios.stream()
+                        .map(
+                                portfolio -> {
+                                    // 포트폴리오 기본 정보 설정
+                                    PortfolioInfo portfolioInfo =
+                                            new PortfolioInfo(
+                                                    portfolio.getPortfolioId(),
+                                                    portfolio.getTitle(),
+                                                    portfolio.getVideoUrl(),
+                                                    portfolio.getContents());
+                                    // 포트폴리오 이미지 URL 목록 조회
+                                    List<String> portfolioImgUrls =
+                                            imgRepository.findImgUrlByPortfolioPortfolioId(
+                                                    portfolio.getPortfolioId());
+                                    // 빈 리스트 처리: 이미지 URL이 없을 경우 빈 배열 설정
+                                    if (portfolioImgUrls == null || portfolioImgUrls.isEmpty()) {
+                                        portfolioInfo.setImgUrlList(
+                                                new String[0]); // 이미지가 없으면 빈 배열 설정
+                                    } else {
+                                        portfolioInfo.setImgUrlList(
+                                                portfolioImgUrls.toArray(
+                                                        new String[0])); // 이미지가 있으면 배열로 변환하여 설정
+                                    }
+                                    return portfolioInfo;
+                                })
+                        .collect(Collectors.toList()); // List<PortfolioInfo>로 반환
+        designerProfile.setPortfolioList(portfolioInfos);
+        // 리뷰 목록
+        List<Review> reviews =
+                reviewRepository.findByDesignerDesignerId(designerId); // 디자이너 아이디로 리뷰 조회
+        designerProfile.setReviewList(profileService.reviewToReviewInfo(reviews));
+
+        // 찜 여부
+        Boolean isBookmarked =
+                bookmarkRepository.existsByCustomerCustomerIdAndDesignerDesignerId(
+                        customerId, designerId);
+
+        CustomerViewDesignerProfile customerDesignerProfile =
+                CustomerViewDesignerProfile.builder()
+                        .designerId(designerProfile.getDesignerId())
+                        .designerName(designerProfile.getDesignerName())
+                        .nickname(designerProfile.getNickname())
+                        .designerImgUrl(designerProfile.getDesignerImgUrl())
+                        .designerImgName(designerProfile.getDesignerImgName())
+                        .address1(designerProfile.getAddress1())
+                        .address2(designerProfile.getAddress2())
+                        .detailAddress(designerProfile.getDetailAddress())
+                        .introduction(designerProfile.getIntroduction())
+                        .workExperience(designerProfile.getWorkExperience())
+                        .isBookmarked(isBookmarked) // 찜 여부를 설정
+                        .reviewStarAvg(designerProfile.getReviewStarAvg()) // 별점 평균
+                        .reviewLikeCntAll(designerProfile.getReviewLikeCntAll()) // 리뷰 좋아요 수
+                        .providedServices(designerProfile.getProvidedServices()) // 제공 서비스
+                        .possibleBreeds(designerProfile.getPossibleBreeds()) // 미용 가능 견종
+                        .certifications(designerProfile.getCertifications()) // 자격증 이미지 URL
+                        .portfolioList(designerProfile.getPortfolioList()) // 포트폴리오 목록
+                        .reviewList(designerProfile.getReviewList()) // 리뷰 목록
+                        .build();
+
+        return customerDesignerProfile;
+    } // getCustomerViewDesignerProfile
 }
