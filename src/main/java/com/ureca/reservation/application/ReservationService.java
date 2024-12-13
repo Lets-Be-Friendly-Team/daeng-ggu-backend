@@ -636,10 +636,6 @@ public class ReservationService {
         }
     }
 
-    // 요청이 들어온 예약 결제 취소처리
-    // 예약의 isCancel true로 바꿔주기
-    //
-
     public Long cancelReservation(Long reservationId) {
         // 1. 예약 데이터 조회
         Reservation reservation =
