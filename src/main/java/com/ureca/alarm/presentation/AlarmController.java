@@ -45,7 +45,7 @@ public class AlarmController {
         // 알림 상태를 읽음으로 업데이트
         alarmService.markAlarmsAsRead(1L, AuthorType.CUSTOMER);
 
-        return ResponseUtil.SUCCESS("알림 연결을 완료하였습니다", emitter);
+        return ResponseUtil.SUCCESS("알림 연결을 완료하였습니다.", emitter);
     }
 
     @PostMapping("/alarm/read")
