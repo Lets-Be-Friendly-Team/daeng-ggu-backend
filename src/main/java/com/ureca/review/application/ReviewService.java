@@ -90,24 +90,17 @@ public class ReviewService {
         Long customerId = customer.getCustomerId();
 
         List<ReviewImage> reviewImages = reviewImageRepository.findByReview(review);
+        List<String> reviewImglist = new ArrayList<>();
+        for (ReviewImage reviewImage : reviewImages) {
+            reviewImglist.add(reviewImage.getReviewImageUrl());
+        }
         ReviewLike reviewLike =
                 reviewLikeRepository.findByReviewAndUserIdAndUserType(
                         review, customerId, AuthorType.CUSTOMER);
         ReviewDto.Response response =
                 ReviewDto.Response.builder()
                         .reviewId(review.getReviewId())
-                        .reviewImgUrl1(
-                                reviewImages.size() > 0
-                                        ? reviewImages.get(0).getReviewImageUrl()
-                                        : null)
-                        .reviewImgUrl2(
-                                reviewImages.size() > 1
-                                        ? reviewImages.get(1).getReviewImageUrl()
-                                        : null)
-                        .reviewImgUrl3(
-                                reviewImages.size() > 2
-                                        ? reviewImages.get(2).getReviewImageUrl()
-                                        : null)
+                        .reviewImgList(reviewImglist)
                         .designerId(review.getDesigner().getDesignerId())
                         .designerImgUrl(review.getDesigner().getDesignerImgUrl())
                         .designerName(review.getDesigner().getDesignerName())
@@ -132,24 +125,17 @@ public class ReviewService {
         Long designerId = designer.getDesignerId();
 
         List<ReviewImage> reviewImages = reviewImageRepository.findByReview(review);
+        List<String> reviewImglist = new ArrayList<>();
+        for (ReviewImage reviewImage : reviewImages) {
+            reviewImglist.add(reviewImage.getReviewImageUrl());
+        }
         ReviewLike reviewLike =
                 reviewLikeRepository.findByReviewAndUserIdAndUserType(
                         review, designerId, AuthorType.DESIGNER);
         ReviewDto.Response response =
                 ReviewDto.Response.builder()
                         .reviewId(review.getReviewId())
-                        .reviewImgUrl1(
-                                reviewImages.size() > 0
-                                        ? reviewImages.get(0).getReviewImageUrl()
-                                        : null)
-                        .reviewImgUrl2(
-                                reviewImages.size() > 1
-                                        ? reviewImages.get(1).getReviewImageUrl()
-                                        : null)
-                        .reviewImgUrl3(
-                                reviewImages.size() > 2
-                                        ? reviewImages.get(2).getReviewImageUrl()
-                                        : null)
+                        .reviewImgList(reviewImglist)
                         .customerId(review.getCustomer().getCustomerId())
                         .customerImgUrl(review.getCustomer().getCustomerImgUrl())
                         .customerName(review.getCustomer().getCustomerName())
@@ -290,6 +276,10 @@ public class ReviewService {
         List<ReviewDto.Response> reviewlist = new ArrayList<>();
         for (Review review : reviews) {
             List<ReviewImage> reviewImages = reviewImageRepository.findByReview(review);
+            List<String> reviewImglist = new ArrayList<>();
+            for (ReviewImage reviewImage : reviewImages) {
+                reviewImglist.add(reviewImage.getReviewImageUrl());
+            }
             List<String> feedImgList = new ArrayList<>();
             for (ReviewImage reviewImage : reviewImages) {
                 feedImgList.add(reviewImage.getReviewImageUrl());
@@ -301,9 +291,7 @@ public class ReviewService {
             ReviewDto.Response response =
                     ReviewDto.Response.builder()
                             .reviewId(review.getReviewId())
-                            .reviewImgUrl1(reviewImages.size() > 0 ? feedImgList.get(0) : null)
-                            .reviewImgUrl2(reviewImages.size() > 1 ? feedImgList.get(1) : null)
-                            .reviewImgUrl3(reviewImages.size() > 2 ? feedImgList.get(2) : null)
+                            .reviewImgList(reviewImglist)
                             .lastCreatedAt(review.getCreatedAt())
                             .designerId(review.getDesigner().getDesignerId())
                             .designerImgUrl(review.getDesigner().getDesignerImgUrl())
