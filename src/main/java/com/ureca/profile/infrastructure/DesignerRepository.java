@@ -206,4 +206,10 @@ public interface DesignerRepository extends JpaRepository<Designer, Long> {
                     + "FROM Designer d "
                     + "WHERE d.designerName LIKE %:searchWord% OR d.officialName LIKE %:searchWord%")
     List<MapDesignerInfo> findByDesignerNameOrOfficialName(@Param("searchWord") String searchWord);
+
+    // email로만 찾는 메서드 추가
+    Optional<Designer> findByEmail(String email);
+
+    // Test CNT
+    long count();
 }

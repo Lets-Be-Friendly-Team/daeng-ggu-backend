@@ -6,14 +6,11 @@ import com.ureca.profile.application.CustomerService;
 import com.ureca.profile.presentation.dto.BookmarkYn;
 import com.ureca.profile.presentation.dto.CustomerDetail;
 import com.ureca.profile.presentation.dto.CustomerProfile;
-import com.ureca.profile.presentation.dto.CustomerSignup;
 import com.ureca.profile.presentation.dto.CustomerUpdate;
 import com.ureca.profile.presentation.dto.CustomerViewDesignerProfile;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.io.IOException;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,29 +74,6 @@ public class CustomerController {
         // service - 북마크 테이블 업데이트
         return ResponseUtil.SUCCESS(
                 "처리가 완료되었습니다.", customerService.updateBookmark(customerId, designerId, bookmarkYn));
-    }
-
-    @PostMapping("/customer/signup")
-    @Operation(summary = "보호자 회원가입 정보 입력", description = "[LOG2000] 보호자 회원가입 정보 입력 API")
-    public ResponseDto<Map<String, Long>> customerSignup(
-            HttpServletRequest request, @RequestBody @Valid CustomerSignup data) {
-
-        /* TODO 공통 필터로 빼기
-        Cookie cookie = CookieUtil.getJwtFromCookies(request); // util - 쿠키에서 jwt 꺼내기
-        if (cookie == null) throw new ApiException(ErrorCode.JWT_NOT_EXIST);
-        boolean isValid = TokenUtils.isValidToken(cookie.getValue()); // util - 유효한 토큰인지 확인
-        KakaoDTO kakaoDTO = null;
-        if (!isValid) throw new ApiException(ErrorCode.INVALID_TOKEN);
-        kakaoDTO = TokenUtils.parseTokenToUserInfo(cookie.getValue()); // util - jwt 기반 사용자 정보 꺼내기
-        String email = kakaoDTO.getEmail();
-        String role = kakaoDTO.getRole();
-        */
-        // TODO TEST
-        String email = "";
-        String role = "C";
-        // service - 보호자 회원가입
-        return ResponseUtil.SUCCESS(
-                "처리가 완료되었습니다.", customerService.insertCustomer(data, email, role));
     }
 
     @GetMapping("/customer/designer/profile")
