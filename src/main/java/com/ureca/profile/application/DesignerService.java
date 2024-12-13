@@ -3,6 +3,7 @@ package com.ureca.profile.application;
 import com.ureca.common.application.S3Service;
 import com.ureca.common.exception.ApiException;
 import com.ureca.common.exception.ErrorCode;
+import com.ureca.common.util.ValidationUtil;
 import com.ureca.profile.domain.Breeds;
 import com.ureca.profile.domain.Certificate;
 import com.ureca.profile.domain.Designer;
@@ -17,6 +18,7 @@ import com.ureca.profile.infrastructure.ServicesRepository;
 import com.ureca.profile.presentation.dto.BreedCode;
 import com.ureca.profile.presentation.dto.DesignerDetail;
 import com.ureca.profile.presentation.dto.DesignerProfile;
+import com.ureca.profile.presentation.dto.DesignerSignup;
 import com.ureca.profile.presentation.dto.DesignerUpdate;
 import com.ureca.profile.presentation.dto.PortfolioDetail;
 import com.ureca.profile.presentation.dto.PortfolioInfo;
@@ -25,7 +27,9 @@ import com.ureca.review.domain.Review;
 import com.ureca.review.infrastructure.ReviewRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -567,4 +571,58 @@ public class DesignerService {
             portfolioRepository.delete(portfolio);
         }
     } // deleteDesignerPortfolio
+
+    /**
+     * @title 디자이너 - 회원가입
+     * @param designerSignupInfo 입력 내용
+     * @param email 카카오 이메일
+     * @param role 회원가입 경로
+     * @description 디자이너 회원가입 처리 후 생성된 아이디를 반환한다.
+     * @return Long 생성된 디자이너 아이디
+     */
+    @Transactional
+    public Map<String, Long> insertDesigner(
+            DesignerSignup designerSignupInfo, String email, String role) {
+        // TODO TEST email 생성
+        long count = designerRepository.count(); // long 타입
+        int cnt = (int) count + 1;
+        email = "designerTest" + cnt + "@naver.com";
+        String loginId = email + cnt;
+
+        Map<String, Long> result = new HashMap<>();
+        Long designerId = 0L;
+        if (designerSignupInfo != null) {
+            // 중복 email 확인
+            Optional<Designer> isExistDesigner = designerRepository.findByEmail(email);
+            if (!isExistDesigner.isPresent()) {
+                Designer newDesigner =
+                        Designer.builder()
+                                .role("designer")
+                                .password("1234")
+                                .designerLoginId(loginId)
+                                .email(email)
+                                .designerName(designerSignupInfo.getDesignerName())
+                                .birthDate(
+                                        ValidationUtil.stringToDate(
+                                                designerSignupInfo.getBirthDate()))
+                                .gender(designerSignupInfo.getGender())
+                                .phone(designerSignupInfo.getPhone())
+                                .officialName(designerSignupInfo.getNickname())
+                                .xPosition(127.05) // TODO 좌표 변환 API 연동
+                                .yPosition(37.5029)
+                                .createdAt(LocalDateTime.now())
+                                .updatedAt(null) // 신규 가입 시에는 null
+                                .build();
+                Designer savedDesigner = designerRepository.save(newDesigner);
+                designerId = savedDesigner.getDesignerId(); // 생성된 designerId 반환
+                result.put("designerId", designerId);
+            } else {
+                throw new ApiException(ErrorCode.DATA_ALREADY_EXISTS);
+            }
+        } else {
+            // 입력된 값이 null 예외
+            throw new ApiException(ErrorCode.ACCOUNT_DATA_ERROR);
+        }
+        return result;
+    } // insertDesigner
 }

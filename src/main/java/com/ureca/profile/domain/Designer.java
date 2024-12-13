@@ -1,6 +1,7 @@
 package com.ureca.profile.domain;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import lombok.*;
@@ -55,6 +56,12 @@ public class Designer {
 
     // 디자이너 이미지명
     private String designerImgName;
+
+    // 생년월일
+    private LocalDate birthDate;
+
+    // 성별
+    private String gender;
 
     // 주소1
     private String address1;
