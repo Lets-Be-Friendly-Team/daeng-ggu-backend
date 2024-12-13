@@ -57,6 +57,12 @@ public class Customer {
     // 상세 주소
     private String detailAddress;
 
+    // x좌표 (경도)
+    private double xPosition;
+
+    // y좌표 (위도)
+    private double yPosition;
+
     // 정보 제공 동의 여부
     private String infoAgree;
 
