@@ -36,7 +36,7 @@ public class AlarmController {
                 alarmService.getUnreadAlarms(1L, AuthorType.DESIGNER);
         for (AlarmDto.Response alarm : unreadAlarms) {
             try {
-                emitter.send(alarm); // 알림 전송
+                emitter.send(SseEmitter.event().name("alarm").data(alarm)); // 알림 전송 // 알림 전송
             } catch (IOException e) {
                 e.printStackTrace(); // 전송 실패 시 로그
             }
