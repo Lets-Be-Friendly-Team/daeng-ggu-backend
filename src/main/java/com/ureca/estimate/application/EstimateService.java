@@ -51,7 +51,8 @@ public class EstimateService {
     public void makeEstimate(
             EstimateDto.Request request,
             List<MultipartFile> estimateImgList,
-            List<String> imgIdList) {
+            List<String> imgIdList,
+            Long designerId) {
         BigDecimal totalFee =
                 requestRepository
                         .findById(request.getRequestId())
@@ -74,10 +75,7 @@ public class EstimateService {
         if (request1.getRequestCnt() < 10) {
             Estimate estimate =
                     Estimate.builder()
-                            .designer(
-                                    designerRepository
-                                            .findByDesignerId(request.getDesignerId())
-                                            .get())
+                            .designer(designerRepository.findByDesignerId(designerId).get())
                             .request(request1)
                             .estimateDetail(request.getRequestDetail())
                             .desiredDate(request.getRequestDate())
@@ -276,6 +274,9 @@ public class EstimateService {
                 .phone(estimate.getRequest().getCustomer().getPhone())
                 .address(estimate.getRequest().getCustomer().getAddress1())
                 .groomingFee(estimate.getGroomingFee())
+                .monitoringFee(estimate.getRequest().getMonitoringFee())
+                .deliveryFee(estimate.getRequest().getDeliveryFee())
+                .estimatePrice(estimate.getEstimatePayment())
                 .estimateImgList(estimateImgList)
                 .build();
     }

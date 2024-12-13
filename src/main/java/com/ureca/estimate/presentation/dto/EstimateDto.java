@@ -20,7 +20,6 @@ public class EstimateDto {
     @Schema(name = "EstimateRequest")
     public static class Request {
         private Long requestId;
-        private Long designerId;
         private String requestDetail;
 
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")

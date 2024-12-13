@@ -16,6 +16,7 @@ import com.ureca.review.domain.Enum.AuthorType;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -168,7 +169,7 @@ public class RequestService {
                         .desiredDate3(requestDto.getDesiredDate3())
                         //                        .desired_region(requestDto.getDesiredRegion())//
                         // 주소 입력 받기
-                        .desiredRegion(region) // 내 주소로 생성
+                        .desiredRegion(requestDto.getDesiredRegion()) // 내 주소로 생성
                         .isDelivery(requestDto.getIsVisitRequired())
                         .isMonitoringIncluded(requestDto.getIsMonitoringIncluded())
                         .additionalRequest(requestDto.getAdditionalRequest())
@@ -323,40 +324,33 @@ public class RequestService {
         List<Long> requestIdList =
                 alarmRepository.findObjectIdByReceiverIdAndAlarmType(designerId, "A1");
         List<RequestDto.Response> reqList = new ArrayList<>();
+
         for (Long requestId : requestIdList) {
+            // 요청 데이터를 가져옴
+            Request request =
+                    requestRepository
+                            .findById(requestId)
+                            .orElseThrow(
+                                    () ->
+                                            new NoSuchElementException(
+                                                    "Request not found with ID: " + requestId));
+
+            // 응답 DTO 빌드
             RequestDto.Response response =
                     RequestDto.Response.builder()
                             .requestId(requestId)
-                            .petId(requestRepository.findById(requestId).get().getPet().getPetId())
-                            .petName(
-                                    requestRepository
-                                            .findById(requestId)
-                                            .get()
-                                            .getPet()
-                                            .getPetName())
-                            .petImageUrl(
-                                    requestRepository
-                                            .findById(requestId)
-                                            .get()
-                                            .getPet()
-                                            .getPetImgUrl())
-                            .majorBreedCode(
-                                    requestRepository
-                                            .findById(requestId)
-                                            .get()
-                                            .getPet()
-                                            .getMajorBreedCode())
-                            .desiredServiceCode(
-                                    requestRepository
-                                            .findById(requestId)
-                                            .get()
-                                            .getDesiredServiceCode())
-                            .isVisitRequired(
-                                    requestRepository.findById(requestId).get().getIsDelivery())
-                            .createdAt(requestRepository.findById(requestId).get().getCreatedAt())
+                            .petId(request.getPet().getPetId())
+                            .petName(request.getPet().getPetName())
+                            .petImageUrl(request.getPet().getPetImgUrl())
+                            .majorBreedCode(request.getPet().getMajorBreedCode())
+                            .desiredServiceCode(request.getDesiredServiceCode())
+                            .isVisitRequired(request.getIsDelivery())
+                            .createdAt(request.getCreatedAt())
                             .build();
+
             reqList.add(response);
         }
+
         return reqList;
     }
 }
