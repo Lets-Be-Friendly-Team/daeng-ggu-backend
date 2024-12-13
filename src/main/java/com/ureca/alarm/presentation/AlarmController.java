@@ -19,7 +19,7 @@ public class AlarmController {
 
     private final AlarmService alarmService;
 
-    @GetMapping("/alarm/subscribe")
+    @GetMapping(value = "/alarm/subscribe", produces = "text/event-stream")
     @Operation(summary = "알람 포트 연결", description = "[HOM1000] 클라이언트가 알림 서버 연결 요청.")
     public ResponseDto<SseEmitter> subscribe() { // TODO : 토큰 수정
         SseEmitter emitter = new SseEmitter();
