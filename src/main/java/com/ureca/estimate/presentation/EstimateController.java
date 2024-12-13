@@ -35,7 +35,7 @@ public class EstimateController {
         JavaType listType =
                 objectMapper.getTypeFactory().constructCollectionType(List.class, String.class);
         List<String> estimateImgIdList = objectMapper.readValue(estimateImgIdListJson, listType);
-        estimateService.makeEstimate(request, estimateImgList, estimateImgIdList);
+        estimateService.makeEstimate(request, estimateImgList, estimateImgIdList, 1L);
         return ResponseUtil.SUCCESS("견적서 생성이 완료되었습니다.", null);
     }
 
