@@ -21,7 +21,7 @@ public class AlarmController {
 
     @GetMapping(value = "/alarm/subscribe", produces = "text/event-stream")
     @Operation(summary = "알람 포트 연결", description = "[HOM1000] 클라이언트가 알림 서버 연결 요청.")
-    public ResponseDto<SseEmitter> subscribe() { // TODO : 토큰 수정
+    public SseEmitter subscribe() { // TODO : 토큰 수정
         SseEmitter emitter = new SseEmitter();
         alarmService.getEmitterMap().put("DESIGNER" + String.valueOf(1L), emitter);
 
@@ -36,7 +36,7 @@ public class AlarmController {
                 alarmService.getUnreadAlarms(1L, AuthorType.DESIGNER);
         for (AlarmDto.Response alarm : unreadAlarms) {
             try {
-                emitter.send(SseEmitter.event().name("alarm").data(alarm)); // 알림 전송 // 알림 전송
+                emitter.send(SseEmitter.event().name("alarm").data(alarm)); // 알림 전송
             } catch (IOException e) {
                 e.printStackTrace(); // 전송 실패 시 로그
             }
@@ -45,7 +45,7 @@ public class AlarmController {
         // 알림 상태를 읽음으로 업데이트
         alarmService.markAlarmsAsRead(1L, AuthorType.CUSTOMER);
 
-        return ResponseUtil.SUCCESS("알림 연결을 완료하였습니다.", emitter);
+        return emitter; // ResponseDto 대신 SseEmitter를 직접 반환
     }
 
     @PostMapping("/alarm/read")
