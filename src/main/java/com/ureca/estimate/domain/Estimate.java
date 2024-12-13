@@ -32,7 +32,7 @@ public class Estimate extends BaseEntity {
     @JoinColumn(name = "request_id", nullable = false)
     private Request request;
 
-    @Column(length = 200, nullable = false)
+    @Column(length = 500, nullable = false)
     private String estimateDetail;
 
     @Column private LocalDateTime desiredDate;
