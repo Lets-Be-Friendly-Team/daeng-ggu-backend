@@ -10,4 +10,10 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     Optional<Customer> findByCustomerId(Long customerId);
 
     Optional<Customer> findByEmailAndCustomerLoginId(String email, String customerLoginId);
+
+    // email로만 찾는 메서드 추가
+    Optional<Customer> findByEmail(String email);
+
+    // Test CNT
+    long count();
 }

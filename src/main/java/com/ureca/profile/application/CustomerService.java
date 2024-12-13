@@ -17,6 +17,7 @@ import com.ureca.profile.presentation.dto.BookmarkYn;
 import com.ureca.profile.presentation.dto.BreedSub;
 import com.ureca.profile.presentation.dto.CustomerDetail;
 import com.ureca.profile.presentation.dto.CustomerProfile;
+import com.ureca.profile.presentation.dto.CustomerSignup;
 import com.ureca.profile.presentation.dto.CustomerUpdate;
 import com.ureca.profile.presentation.dto.PetInfo;
 import com.ureca.profile.presentation.dto.ReviewInfo;
@@ -289,5 +290,63 @@ public class CustomerService {
             }
         }
         return BookmarkYn.builder().bookmarkYn(!bookmarkYn).build();
+    } // updateBookmark
+
+    /**
+     * @title 보호자 - 회원가입
+     * @param customerSignupInfo 입력 내용
+     * @param email 카카오 이메일
+     * @param role 회원가입 경로
+     * @description 보호자 회원가입 처리 후 생성된 아이디를 반환한다.
+     * @return Long 생성된 보호자 아이디
+     */
+    @Transactional
+    public Map<String, Long> insertCustomer(
+            CustomerSignup customerSignupInfo, String email, String role) {
+        // TODO TEST email 생성
+        long count = customerRepository.count(); // long 타입
+        int cnt = (int) count + 1;
+        email = "test" + cnt + "@naver.com";
+        String loginId = email + cnt;
+
+        Map<String, Long> result = new HashMap<>();
+        Long customerId = 0L;
+        if (customerSignupInfo != null) {
+            // 중복 email 확인
+            Optional<Customer> isExistCustomer = customerRepository.findByEmail(email);
+            if (!isExistCustomer.isPresent()) {
+                Customer newCustomer =
+                        Customer.builder()
+                                .role("customer")
+                                .password("1234")
+                                .infoAgree("Y")
+                                .customerLoginId(loginId)
+                                .email(email)
+                                .customerName(customerSignupInfo.getCustomerName())
+                                .birthDate(
+                                        ValidationUtil.stringToDate(
+                                                customerSignupInfo.getBirthDate()))
+                                .gender(customerSignupInfo.getGender())
+                                .phone(customerSignupInfo.getPhone())
+                                .nickname(customerSignupInfo.getNickname())
+                                .address1(customerSignupInfo.getAddress1())
+                                .address2(customerSignupInfo.getAddress2())
+                                .detailAddress(customerSignupInfo.getDetailAddress())
+                                .xPosition(127.05) // TODO 좌표 변환 API 연동
+                                .yPosition(37.5029)
+                                .createdAt(LocalDateTime.now())
+                                .updatedAt(null) // 신규 가입 시에는 null
+                                .build();
+                Customer savedCustomer = customerRepository.save(newCustomer);
+                customerId = savedCustomer.getCustomerId(); // 생성된 customerId 반환
+                result.put("customerId", customerId);
+            } else {
+                // 이미 존재하는 사용자 예외
+                System.out.println("Customer not found.");
+            }
+        } else {
+            // 입력된 값이 null 예외
+        }
+        return result;
     } // updateBookmark
 }
