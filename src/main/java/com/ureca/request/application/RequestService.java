@@ -168,7 +168,7 @@ public class RequestService {
                         .desiredDate3(requestDto.getDesiredDate3())
                         //                        .desired_region(requestDto.getDesiredRegion())//
                         // 주소 입력 받기
-                        .desiredRegion(region) // 내 주소로 생성
+                        .desiredRegion(requestDto.getDesiredRegion()) // 내 주소로 생성
                         .isDelivery(requestDto.getIsVisitRequired())
                         .isMonitoringIncluded(requestDto.getIsMonitoringIncluded())
                         .additionalRequest(requestDto.getAdditionalRequest())
