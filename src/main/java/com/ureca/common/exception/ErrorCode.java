@@ -11,6 +11,7 @@ public enum ErrorCode {
     ACCOUNT_DATA_ERROR(400, "양식에 맞는 값을 입력해주세요.", 1000),
     DATA_VALIDATION_ERROR(400, "입력된 데이터가 유효하지 않습니다.", 1010),
     DATA_NOT_AFTER_CURRENT(400, "입력된 데이터가 현재 이전 데이터입니다.", 1020),
+    DATA_ALREADY_EXISTS(400, "이미 존재하는 사용자 데이터입니다.", 1030),
 
     // 2000번대: 데이터 조회 관련 오류
     DATA_NOT_EXIST(500, "조건에 맞는 데이터 정보가 없습니다.", 2000),

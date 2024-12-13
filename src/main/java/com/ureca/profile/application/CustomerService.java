@@ -341,11 +341,11 @@ public class CustomerService {
                 customerId = savedCustomer.getCustomerId(); // 생성된 customerId 반환
                 result.put("customerId", customerId);
             } else {
-                // 이미 존재하는 사용자 예외
-                System.out.println("Customer not found.");
+                throw new ApiException(ErrorCode.DATA_ALREADY_EXISTS);
             }
         } else {
             // 입력된 값이 null 예외
+            throw new ApiException(ErrorCode.ACCOUNT_DATA_ERROR);
         }
         return result;
     } // updateBookmark
