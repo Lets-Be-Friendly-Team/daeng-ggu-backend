@@ -123,4 +123,17 @@ public class CustomerController {
         logger.info("Test 3 ) newCustomerImgFile>>>" + newCustomerImgFile);
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
     }
+
+    @PostMapping(
+        value = "/customer/img/test4",
+        consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Post 객체, 단순 파일", description = "Post 객체, 단순 파일")
+    public ResponseDto<Void> customerUpdateTest4(
+        @RequestPart @Valid CustomerUpdate data,
+        MultipartFile newCustomerImgFile) {
+        // service - 보호자 프로필 수정
+        logger.info("Test 1 ) newCustomerImgFile>>>" + newCustomerImgFile);
+        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
+    }
 }
