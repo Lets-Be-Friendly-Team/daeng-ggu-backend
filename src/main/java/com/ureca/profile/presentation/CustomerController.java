@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -91,12 +92,36 @@ public class CustomerController {
             value = "/customer/img/test1",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "보호자 프로필 수정", description = "[MYP2000] 보호자 프로필 수정 API")
+    @Operation(summary = "Post 파일만", description = "Post 파일만")
     public ResponseDto<Void> customerUpdateTest1(
             @RequestPart(value = "newCustomerImgFile", required = false)
                     MultipartFile newCustomerImgFile) {
         // service - 보호자 프로필 수정
         logger.info("Test 1 ) newCustomerImgFile>>>" + newCustomerImgFile);
+        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
+    }
+
+    @GetMapping(
+        value = "/customer/img/test2",
+        consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Get 파일만", description = "Get 파일만")
+    public ResponseDto<Void> customerUpdateTest2(
+        @RequestPart(value = "newCustomerImgFile", required = false)
+        MultipartFile newCustomerImgFile) {
+        // service - 보호자 프로필 수정
+        logger.info("Test 2 ) newCustomerImgFile>>>" + newCustomerImgFile);
+        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
+    }
+
+    @PostMapping(
+        value = "/customer/img/test3",
+        consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Post 단순 파일만", description = "Post 단순 파일만")
+    public ResponseDto<Void> customerUpdateTest3(MultipartFile newCustomerImgFile) {
+        // service - 보호자 프로필 수정
+        logger.info("Test 3 ) newCustomerImgFile>>>" + newCustomerImgFile);
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
     }
 }
