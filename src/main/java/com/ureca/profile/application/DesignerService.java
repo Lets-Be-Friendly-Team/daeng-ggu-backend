@@ -21,9 +21,7 @@ import com.ureca.profile.presentation.dto.DesignerUpdate;
 import com.ureca.profile.presentation.dto.PortfolioDetail;
 import com.ureca.profile.presentation.dto.PortfolioInfo;
 import com.ureca.profile.presentation.dto.PortfolioUpdate;
-import com.ureca.profile.presentation.dto.ReviewInfo;
 import com.ureca.review.domain.Review;
-import com.ureca.review.domain.ReviewImage;
 import com.ureca.review.infrastructure.ReviewRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -48,6 +46,7 @@ public class DesignerService {
     @Autowired private ReviewRepository reviewRepository;
     @Autowired private PortfolioImgRepository imgRepository;
     @Autowired private ServicesRepository servicesRepository;
+    @Autowired private ProfileService profileService;
     @Autowired private S3Service s3Service;
 
     /**
@@ -111,25 +110,7 @@ public class DesignerService {
         // 리뷰 목록
         List<Review> reviews =
                 reviewRepository.findByDesignerDesignerId(designerId); // 디자이너 아이디로 리뷰 조회
-        List<ReviewInfo> reviewList =
-                reviews.stream()
-                        .map(
-                                review -> {
-                                    ReviewInfo reviewInfo = new ReviewInfo();
-                                    reviewInfo.setReviewId(review.getReviewId());
-                                    /// 리뷰 이미지 처리: 이미지가 없는 경우 null로 처리
-                                    List<ReviewImage> reviewImages = review.getReviewImages();
-                                    if (reviewImages != null && !reviewImages.isEmpty()) {
-                                        if (reviewImages.size() > 0)
-                                            reviewInfo.setReviewImgUrl(
-                                                    reviewImages.get(0).getReviewImageUrl());
-                                    } else { // 이미지가 없는 경우 기본값 설정 (null 처리)
-                                        reviewInfo.setReviewImgUrl(null);
-                                    }
-                                    return reviewInfo;
-                                })
-                        .collect(Collectors.toList());
-        designerProfile.setReviewList(reviewList);
+        designerProfile.setReviewList(profileService.reviewToReviewInfo(reviews));
 
         return designerProfile;
     } // getDesignerProfile

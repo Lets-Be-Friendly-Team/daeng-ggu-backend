@@ -8,6 +8,7 @@ import com.ureca.profile.presentation.dto.CustomerDetail;
 import com.ureca.profile.presentation.dto.CustomerProfile;
 import com.ureca.profile.presentation.dto.CustomerSignup;
 import com.ureca.profile.presentation.dto.CustomerUpdate;
+import com.ureca.profile.presentation.dto.CustomerViewDesignerProfile;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -99,5 +100,16 @@ public class CustomerController {
         // service - 보호자 회원가입
         return ResponseUtil.SUCCESS(
                 "처리가 완료되었습니다.", customerService.insertCustomer(data, email, role));
+    }
+
+    @GetMapping("/customer/designer/profile")
+    @Operation(summary = "보호자가 보는 디자이너 프로필", description = "[DMYP1000] 보호자가 보는 디자이너 프로필 API")
+    public ResponseDto<CustomerViewDesignerProfile> designerProfile(
+            @RequestParam(defaultValue = "") Long customerId,
+            @RequestParam(defaultValue = "") Long designerId) {
+        // service - 디자이너 프로필
+        return ResponseUtil.SUCCESS(
+                "처리가 완료되었습니다.",
+                customerService.getCustomerViewDesignerProfile(customerId, designerId));
     }
 }
