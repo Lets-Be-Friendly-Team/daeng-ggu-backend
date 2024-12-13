@@ -278,20 +278,23 @@ public class ReviewService {
         reviewRepository.delete(review);
     }
 
-    public List<ReviewDto.Response> getFeeds(int page, int size, Long userId, AuthorType userType) {
-        List<Review> reviews = new ArrayList<>();
+    @Transactional
+    public ReviewDto.Like getFeeds(int page, int size, Long userId, AuthorType userType) {
+        // 리뷰 데이터 가져오기
         Page<Review> reviewPage =
                 reviewRepository.findByIsFeedAddOrderByCreatedAtDesc(
                         true, PageRequest.of(page, size, Sort.by("createdAt").descending()));
-        reviews = reviewPage.getContent();
-        List<ReviewDto.Response> reviewList = new ArrayList<>();
+        List<Review> reviews = reviewPage.getContent();
+
+        // ReviewDto.Response 리스트 생성
+        List<ReviewDto.Response> reviewlist = new ArrayList<>();
         for (Review review : reviews) {
-            // review를 기반으로 ReviewImage 리스트 생성
             List<ReviewImage> reviewImages = reviewImageRepository.findByReview(review);
             List<String> feedImgList = new ArrayList<>();
             for (ReviewImage reviewImage : reviewImages) {
                 feedImgList.add(reviewImage.getReviewImageUrl());
             }
+
             ReviewLike reviewLike =
                     reviewLikeRepository.findByReviewAndUserIdAndUserType(review, userId, userType);
 
@@ -311,17 +314,21 @@ public class ReviewService {
                             .reviewContents(review.getReviewContents())
                             .reviewStar(review.getReviewStar())
                             .reviewLikeCnt(review.getReviewLikeCnt())
-                            .isReviewLike(
-                                    reviewLike != null
-                                            ? reviewLike.getIsReviewLike()
-                                            : false) // ReviewLike가 없으면 false
+                            .isReviewLike(reviewLike != null ? reviewLike.getIsReviewLike() : false)
                             .FeedImgList(feedImgList)
                             .build();
 
-            reviewList.add(response);
+            reviewlist.add(response);
         }
 
-        return reviewList;
+        // ReviewDto.Like 객체 생성
+        ReviewDto.Like reviewdtoLike =
+                ReviewDto.Like.builder()
+                        .totalReview(reviewlist.size())
+                        .reviewList(reviewlist)
+                        .build();
+
+        return reviewdtoLike;
     }
 
     @Transactional

@@ -77,4 +77,14 @@ public class ReviewDto {
     public static class Feed {
         private Integer page;
     }
+
+    @Builder(toBuilder = true)
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Schema(name = "ReviewLike")
+    public static class Like {
+        private Integer totalReview;
+        private List<Response> reviewList;
+    }
 }
