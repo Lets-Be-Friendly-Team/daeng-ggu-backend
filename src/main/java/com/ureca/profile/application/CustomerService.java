@@ -4,6 +4,7 @@ import com.ureca.common.application.S3Service;
 import com.ureca.common.exception.ApiException;
 import com.ureca.common.exception.ErrorCode;
 import com.ureca.common.util.ValidationUtil;
+import com.ureca.login.presentation.dto.KakaoDTO;
 import com.ureca.profile.domain.Bookmark;
 import com.ureca.profile.domain.Customer;
 import com.ureca.profile.domain.Designer;
@@ -287,19 +288,17 @@ public class CustomerService {
     /**
      * @title 보호자 - 회원가입
      * @param customerSignupInfo 입력 내용
-     * @param email 카카오 이메일
-     * @param role 회원가입 경로
+     * @param kakaoDTO 토큰 기준 사용자 정보
      * @description 보호자 회원가입 처리 후 생성된 아이디를 반환한다.
      * @return Long 생성된 보호자 아이디
      */
     @Transactional
-    public Map<String, Long> insertCustomer(
-            CustomerSignup customerSignupInfo, String email, String role) {
-        // TODO TEST email 생성
-        long count = customerRepository.count(); // long 타입
-        int cnt = (int) count + 1;
-        email = "test" + cnt + "@naver.com";
-        String loginId = email + cnt;
+    public Map<String, Long> insertCustomer(CustomerSignup customerSignupInfo, KakaoDTO kakaoDTO) {
+
+        String email = kakaoDTO.getEmail();
+        String loginId = email + "_" + kakaoDTO.getId();
+        String role = kakaoDTO.getRole();
+        if ("C".equals(role)) role = "customer";
 
         Map<String, Long> result = new HashMap<>();
         Long customerId = 0L;
@@ -309,8 +308,8 @@ public class CustomerService {
             if (!isExistCustomer.isPresent()) {
                 Customer newCustomer =
                         Customer.builder()
-                                .role("customer")
-                                .password("1234")
+                                .role(role)
+                                .password("kakaoLoginCustomerPassword")
                                 .infoAgree("Y")
                                 .customerLoginId(loginId)
                                 .email(email)
