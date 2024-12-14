@@ -76,7 +76,7 @@ public class KakaoService {
     }
 
     /**
-     * @title 토큰 발급 요청
+     * @title 카카오 토큰 발급 요청
      * @param code 인가 코드
      * @description 인가 코드를 사용해서 토큰 발급을 요청한다. 발급받은 토큰을 getUserInfoWithToken로 넘긴다.
      * @return KakaoDTO 유저 정보

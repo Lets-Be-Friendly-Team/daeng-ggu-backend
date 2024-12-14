@@ -4,6 +4,7 @@ import com.ureca.common.application.S3Service;
 import com.ureca.common.exception.ApiException;
 import com.ureca.common.exception.ErrorCode;
 import com.ureca.common.util.ValidationUtil;
+import com.ureca.login.presentation.dto.KakaoDTO;
 import com.ureca.profile.domain.Breeds;
 import com.ureca.profile.domain.Certificate;
 import com.ureca.profile.domain.Designer;
@@ -575,19 +576,17 @@ public class DesignerService {
     /**
      * @title 디자이너 - 회원가입
      * @param designerSignupInfo 입력 내용
-     * @param email 카카오 이메일
-     * @param role 회원가입 경로
+     * @param kakaoDTO 카카오 이메일, 가입 경로 포함 정보
      * @description 디자이너 회원가입 처리 후 생성된 아이디를 반환한다.
      * @return Long 생성된 디자이너 아이디
      */
     @Transactional
-    public Map<String, Long> insertDesigner(
-            DesignerSignup designerSignupInfo, String email, String role) {
-        // TODO TEST email 생성
-        long count = designerRepository.count(); // long 타입
-        int cnt = (int) count + 1;
-        email = "designerTest" + cnt + "@naver.com";
-        String loginId = email + cnt;
+    public Map<String, Long> insertDesigner(DesignerSignup designerSignupInfo, KakaoDTO kakaoDTO) {
+
+        String email = kakaoDTO.getEmail();
+        String loginId = email + "_" + kakaoDTO.getId();
+        String role = kakaoDTO.getRole();
+        if ("D".equals(role)) role = "designer";
 
         Map<String, Long> result = new HashMap<>();
         Long designerId = 0L;
@@ -597,8 +596,8 @@ public class DesignerService {
             if (!isExistDesigner.isPresent()) {
                 Designer newDesigner =
                         Designer.builder()
-                                .role("designer")
-                                .password("1234")
+                                .role(role)
+                                .password("kakaoLoginDesignerPassword")
                                 .designerLoginId(loginId)
                                 .email(email)
                                 .designerName(designerSignupInfo.getDesignerName())
