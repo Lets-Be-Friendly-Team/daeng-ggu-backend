@@ -212,4 +212,7 @@ public interface DesignerRepository extends JpaRepository<Designer, Long> {
 
     // Test CNT
     long count();
+
+    @Query("SELECT MAX(d.designerId) FROM Designer d")
+    Long findMaxDesignerId();
 }
