@@ -296,6 +296,9 @@ public class ReviewService {
                             .designerId(review.getDesigner().getDesignerId())
                             .designerImgUrl(review.getDesigner().getDesignerImgUrl())
                             .designerName(review.getDesigner().getDesignerName())
+                            .designerAddress(
+                                    review.getDesigner().getAddress1()
+                                            + review.getDesigner().getDetailAddress())
                             .customerId(review.getCustomer().getCustomerId())
                             .customerImgUrl(review.getCustomer().getCustomerImgUrl())
                             .customerName(review.getCustomer().getCustomerName())
@@ -303,7 +306,6 @@ public class ReviewService {
                             .reviewStar(review.getReviewStar())
                             .reviewLikeCnt(review.getReviewLikeCnt())
                             .isReviewLike(reviewLike != null ? reviewLike.getIsReviewLike() : false)
-                            .FeedImgList(feedImgList)
                             .build();
 
             reviewlist.add(response);
