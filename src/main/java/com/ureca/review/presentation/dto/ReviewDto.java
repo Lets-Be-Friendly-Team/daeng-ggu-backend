@@ -46,6 +46,7 @@ public class ReviewDto {
         private Long designerId;
         private String designerImgUrl;
         private String designerName;
+        private String designerAddress;
         private Long customerId;
         private String customerImgUrl;
         private String customerName;
@@ -55,7 +56,6 @@ public class ReviewDto {
         private Boolean isReviewLike;
         private Boolean feedExposure;
         private String feedUrl;
-        private List<String> FeedImgList;
     }
 
     @Builder(toBuilder = true)
