@@ -26,6 +26,7 @@ public enum ErrorCode {
     INVALID_DAY_OF_WEEK(500, "유효하지 않은 요일 값입니다.", 2090),
     INVALID_CUSTOMER_KEY(500, "잘못된 customer key 입니다.", 2100),
     RESERVATION_NOT_EXIST(500, "예약 데이터가 없습니다.", 2110),
+    USER_DATA_NOT_EXIST(500, "유저 고유 id가 없습니다.", 2120),
 
     // 3000번대: 권한 관련 오류
     ACCESS_DENIED(403, "데이터 접근 권한이 없습니다.", 3000),
