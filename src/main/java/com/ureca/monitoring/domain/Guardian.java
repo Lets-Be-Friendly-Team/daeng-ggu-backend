@@ -1,7 +1,6 @@
 package com.ureca.monitoring.domain;
 
 import com.ureca.common.entity.BaseEntity;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -21,16 +20,16 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Guardian extends BaseEntity {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long guardianId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long guardianId;
 
-	@Column(nullable = false, length = 100)
-	private String guardianName;
+    @Column(nullable = false, length = 100)
+    private String guardianName;
 
-	@Column(nullable = false, length = 100)
-	private String vehicle;
+    @Column(nullable = false, length = 100)
+    private String vehicle;
 
-	@Column(nullable = false, length = 100)
-	private String phone;
+    @Column(nullable = false, length = 100)
+    private String phone;
 }
