@@ -1,13 +1,10 @@
 package com.ureca.review.presentation.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.ureca.review.domain.Enum.AuthorType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
 
 // 피드 등록/관리 Dto
 
@@ -18,21 +15,25 @@ public class ReviewDto {
     @NoArgsConstructor
     @Schema(name = "ReviewRequest")
     public static class Request {
-        private Long customerId;
         private Long designerId;
-        private Long reviewId;
-        private Long userId;
-        private AuthorType userType;
-
-        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-        private LocalDateTime lastCreatedAt;
-
         private String reviewContents;
         private Double reviewStar;
         private Boolean isFeedAdd;
-        private Integer page;
-        private List<MultipartFile> FeedImgList;
+        //        private List<String> FeedImgList;
+    }
+
+    @Builder(toBuilder = true)
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Schema(name = "ReviewPatch")
+    public static class Patch {
+        private Long reviewId;
+        private String reviewContents;
+        private Double reviewStar;
+        private Boolean isFeedAdd;
         private List<String> existImgList;
+        //        private List<String> FeedImgList;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -45,8 +46,9 @@ public class ReviewDto {
         private LocalDateTime lastCreatedAt;
         private Long designerId;
         private String designerImgUrl;
-        private String designerName;
         private String designerAddress;
+        private String nickname;
+        private String designerName;
         private Long customerId;
         private String customerImgUrl;
         private String customerName;
@@ -55,7 +57,44 @@ public class ReviewDto {
         private Integer reviewLikeCnt;
         private Boolean isReviewLike;
         private Boolean feedExposure;
-        private String feedUrl;
+    }
+
+    @Builder(toBuilder = true)
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Schema(name = "ReviewCustomer")
+    public static class Customer {
+        private Long reviewId;
+        private List<String> reviewImgList;
+        private Long designerId;
+        private String designerImgUrl;
+        private String designerName;
+        private String designerAddress;
+        private String nickname;
+        private String reviewContents;
+        private Double reviewStar;
+        private Integer reviewLikeCnt;
+        private Boolean isReviewLike;
+        private Boolean feedExposure;
+    }
+
+    @Builder(toBuilder = true)
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Schema(name = "ReviewDesigner")
+    public static class Designer {
+        private Long reviewId;
+        private List<String> reviewImgList;
+        private Long customerId;
+        private String customerImgUrl;
+        private String customerName;
+        private String reviewContents;
+        private Double reviewStar;
+        private Integer reviewLikeCnt;
+        private Boolean isReviewLike;
+        private Boolean feedExposure;
     }
 
     @Builder(toBuilder = true)

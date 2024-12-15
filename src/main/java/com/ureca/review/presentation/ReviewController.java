@@ -25,8 +25,7 @@ public class ReviewController {
     @PostMapping("/customer/feed")
     public ResponseDto<List<ReviewDto.Response>> selectCustomerFeed(
             @RequestBody ReviewDto.Request request) {
-        List<ReviewDto.Response> reviewList =
-                reviewService.selectCustomerFeed(request.getCustomerId());
+        List<ReviewDto.Response> reviewList = reviewService.selectCustomerFeed(2L);
         return ResponseUtil.SUCCESS("피드 조회가 완료되었습니다.", reviewList);
     }
 
@@ -42,9 +41,9 @@ public class ReviewController {
     // 보호자 피드 세부 조회
     @PostMapping("/feed/customer")
     @Operation(summary = "보호자 피드 세부 조회", description = "[FED1100] 보호자 프로필 조회- 피드 세부 조회")
-    public ResponseDto<ReviewDto.Response> selectCustomerFeedDetail(
+    public ResponseDto<ReviewDto.Customer> selectCustomerFeedDetail(
             @RequestBody ReviewDto.ID reviewId) {
-        ReviewDto.Response reviewList =
+        ReviewDto.Customer reviewList =
                 reviewService.selectCustomerFeedDetail(reviewId.getReviewId());
         return ResponseUtil.SUCCESS("피드 조회가 완료되었습니다.", reviewList);
     }
@@ -52,9 +51,9 @@ public class ReviewController {
     // 디자이너 피드 세부 조회
     @PostMapping("/feed/designer")
     @Operation(summary = "디자이너 피드 세부 조회", description = "[FED1200] 디자이너 프로필 조회- 피드 세부 조회")
-    public ResponseDto<ReviewDto.Response> selectDesignerFeedDetail(
+    public ResponseDto<ReviewDto.Designer> selectDesignerFeedDetail(
             @RequestBody ReviewDto.ID reviewId) {
-        ReviewDto.Response review = reviewService.selectDesignerFeedDetail(reviewId.getReviewId());
+        ReviewDto.Designer review = reviewService.selectDesignerFeedDetail(reviewId.getReviewId());
         return ResponseUtil.SUCCESS("피드 조회가 완료되었습니다.", review);
     }
 
@@ -70,9 +69,7 @@ public class ReviewController {
         ReviewDto.Request reviewRequest =
                 new ObjectMapper().readValue(reviewRequestJson, ReviewDto.Request.class);
 
-        reviewRequest = reviewRequest.toBuilder().FeedImgList(feedImgList).build();
-
-        reviewService.createReview(reviewRequest);
+        reviewService.createReview(2L, reviewRequest, feedImgList);
         return ResponseUtil.SUCCESS("리뷰가 성공적으로 생성되었습니다.", null);
     }
 
@@ -85,9 +82,9 @@ public class ReviewController {
             throws JsonProcessingException {
 
         // reviewRequestJson을 객체로 변환
-        ReviewDto.Request reviewRequest =
-                new ObjectMapper().readValue(reviewRequestJson, ReviewDto.Request.class);
-        reviewService.updateReview(reviewRequest.getCustomerId(), reviewRequest, feedImgList);
+        ReviewDto.Patch reviewRequest =
+                new ObjectMapper().readValue(reviewRequestJson, ReviewDto.Patch.class);
+        reviewService.updateReview(reviewRequest, feedImgList);
         return ResponseUtil.SUCCESS("완료되었습니다.", null);
     }
 
@@ -113,9 +110,9 @@ public class ReviewController {
     // 피드 좋아요
     @PostMapping("feed/like")
     @Operation(summary = "리뷰 좋아요", description = "[FED1000] 리뷰 세부 조회 - 리뷰 좋아요")
-    public ResponseDto<ReviewDto.Response> getFeedLike(
+    public ResponseDto<ReviewLikeDto.Response> getFeedLike(
             @RequestBody ReviewLikeDto.Request reviewLikeRequest) {
-        ReviewDto.Response reviewResponse =
+        ReviewLikeDto.Response reviewResponse =
                 reviewService.likeReview(
                         reviewLikeRequest.getReviewId(),
                         reviewLikeRequest.getUserId(),
