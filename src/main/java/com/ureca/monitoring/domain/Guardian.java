@@ -24,12 +24,12 @@ public class Guardian extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long guardianId;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 50)
     private String guardianName;
 
     @Column(nullable = false, length = 100)
     private String vehicle;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 20)
     private String phone;
 }

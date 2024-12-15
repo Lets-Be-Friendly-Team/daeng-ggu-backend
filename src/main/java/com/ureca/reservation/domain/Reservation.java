@@ -2,6 +2,7 @@ package com.ureca.reservation.domain;
 
 import com.ureca.common.entity.BaseEntity;
 import com.ureca.estimate.domain.Estimate;
+import com.ureca.monitoring.domain.Process;
 import com.ureca.profile.domain.Designer;
 import com.ureca.profile.domain.Pet;
 import com.ureca.request.domain.Request;
@@ -25,6 +26,10 @@ public class Reservation extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reservationId; // 예약 ID
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "process_id", nullable = true)
+    private Process process;
 
     // 요청서 연관관계 (OneToOne, NULL 가능)
     @OneToOne(fetch = FetchType.LAZY)
