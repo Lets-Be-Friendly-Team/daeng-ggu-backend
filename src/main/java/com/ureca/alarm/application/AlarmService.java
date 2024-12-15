@@ -134,11 +134,15 @@ public class AlarmService {
     }
 
     // 읽음 처리 메소드
-    public Alarm getUnreadToRead(Long alarmId) {
+    @Transactional
+    public void getUnreadToRead(Long alarmId) {
         // UNREAD 상태의 알림을 조회
         Alarm alarm = alarmRepository.findById(alarmId).get();
-        alarm.toBuilder().alarmStatus(true).build();
-        return alarm;
+        // 알림 상태 변경
+        alarm = alarm.toBuilder().alarmStatus(true).build();
+
+        // 변경된 알림을 저장 -- 일단 테스팅을 위해 주석처리
+        //        alarmRepository.save(alarm);
     }
 
     public List<AlarmDto.Response> getAlarmsByReceiver(

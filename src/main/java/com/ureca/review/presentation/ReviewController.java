@@ -59,7 +59,7 @@ public class ReviewController {
     }
 
     // 피드 생성
-    @PutMapping("/feed")
+    @PostMapping("/feed")
     @Operation(summary = "리뷰 생성", description = "[RSV2100] 리뷰(피드) 생성 API")
     public ResponseDto<Void> createReview(
             @RequestPart("reviewRequest") String reviewRequestJson, // JSON 데이터를 String으로 받음
