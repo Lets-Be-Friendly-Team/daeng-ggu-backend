@@ -58,6 +58,9 @@ public class CustomerService {
     @Autowired private ProfileService profileService;
     @Autowired private S3Service s3Service;
 
+    private static final String CUSTOMER = "C";
+    private static final String ALL = "A";
+
     /**
      * @title 보호자 - 프로필
      * @description 보호자정보, 반려견목록, 리뷰목록, 찜한목록 조회
@@ -97,7 +100,7 @@ public class CustomerService {
 
         // 리뷰 목록
         List<Review> reviews = reviewRepository.findByCustomerCustomerId(customerId);
-        customerProfile.setReviewList(profileService.reviewToReviewInfo(reviews));
+        customerProfile.setReviewList(profileService.reviewToReviewInfo(reviews, CUSTOMER));
 
         // 찜한 디자이너 정보
         List<Bookmark> bookmarks = bookmarkRepository.findByCustomerCustomerId(customerId);
@@ -402,7 +405,7 @@ public class CustomerService {
         // 리뷰 목록
         List<Review> reviews =
                 reviewRepository.findByDesignerDesignerId(designerId); // 디자이너 아이디로 리뷰 조회
-        designerProfile.setReviewList(profileService.reviewToReviewInfo(reviews));
+        designerProfile.setReviewList(profileService.reviewToReviewInfo(reviews, ALL));
 
         // 찜 여부
         Boolean isBookmarked =

@@ -48,19 +48,23 @@ public class AlarmController {
         return emitter; // ResponseDto 대신 SseEmitter를 직접 반환
     }
 
-    @PostMapping("/alarm/read")
-    @Operation(summary = "알람 읽음 처리", description = "[HOM1000] 클라이언트가 특정 알람 읽음 처리.")
-    public ResponseDto<String> markNotificationAsRead(@RequestBody AlarmDto.Request request) {
-        alarmService.getUnreadToRead(request.getAlarmId());
-        return ResponseUtil.SUCCESS("알림 읽음 상태로 업데이트 완료", null);
-    }
+    //    @PostMapping("/alarm/read")
+    //    @Operation(summary = "알람 읽음 처리", description = "[HOM1000] 클라이언트가 특정 알람 읽음 처리.")
+    //    public ResponseDto<String> markNotificationAsRead(@RequestBody AlarmDto.Request request) {
+    //        alarmService.getUnreadToRead(request.getAlarmId());
+    //        return ResponseUtil.SUCCESS("알림 읽음 상태로 업데이트 완료", null);
+    //    }
 
-    @PostMapping("/alarm") // TODO : 토큰 수정
+    @GetMapping("/alarm") // TODO : 토큰 수정
     @Operation(summary = "알람 전체 조회", description = "[HOM1000] 알람 내역을 10개씩 끊어서 보여줌.")
-    public ResponseDto<List<AlarmDto.Response>> getAlarms(@RequestBody AlarmDto.Request request) {
+    public ResponseDto<List<AlarmDto.Response>> getAlarms(
+            @RequestParam(defaultValue = "0") int page) {
         List<AlarmDto.Response> alarmList =
-                alarmService.getAlarmsByReceiver(
-                        2L, AuthorType.valueOf("CUSTOMER"), request.getPage());
+                alarmService.getAlarmsByReceiver(2L, AuthorType.valueOf("CUSTOMER"), page);
+        for (AlarmDto.Response alarm : alarmList) {
+            Long alarms = alarm.getAlarmId();
+            alarmService.getUnreadToRead(alarms);
+        }
         return ResponseUtil.SUCCESS("알람 조회가 완료되었습니다.", alarmList);
     }
 }

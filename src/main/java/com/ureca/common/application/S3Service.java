@@ -5,11 +5,14 @@ import com.amazonaws.services.s3.model.*;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
@@ -23,17 +26,24 @@ public class S3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName; // static 제거
 
-    public String uploadFileImage(MultipartFile image, String file, String contentsType) {
+    public String uploadFileImage(MultipartFile image, String file, String filename) {
         try {
-            String fileName =
-                    file + "/" + createFileImageName(image.getOriginalFilename(), contentsType);
+            // 파일 이름 생성
+            String fileName = createFileImageName(image.getOriginalFilename(), filename);
 
+            // 최종 경로 (default/20241214201859image.jpg)
+            String filePath = file + "/" + fileName;
+
+            // 메타데이터 생성
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(image.getContentType());
             metadata.setContentLength(image.getSize());
 
-            s3Client.putObject(bucketName, fileName, image.getInputStream(), metadata);
-            return s3Client.getUrl(bucketName, fileName).toString();
+            // 파일 업로드
+            s3Client.putObject(bucketName, filePath, image.getInputStream(), metadata);
+
+            // 업로드된 파일의 URL 반환
+            return s3Client.getUrl(bucketName, filePath).toString();
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload file to S3.", e);
         }
@@ -55,7 +65,7 @@ public class S3Service {
         }
     }
 
-    private String createFileImageName(String fileName, String contentsType) {
+    private String createFileImageName(String fileName, String filename) {
         String fileExtension = "";
 
         if (fileName != null && fileName.contains(".")) {
@@ -63,7 +73,7 @@ public class S3Service {
         }
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-        return LocalDateTime.now().format(formatter) + contentsType + fileExtension;
+        return LocalDateTime.now().format(formatter) + filename /*+ fileExtension*/;
     }
 
     public void deleteFileImage(String imageFileUrl) {
@@ -73,5 +83,15 @@ public class S3Service {
         } catch (Exception e) {
             throw new RuntimeException("Failed to delete file from S3.", e);
         }
+    }
+
+    @Transactional
+    public List<String> stringUpload(List<MultipartFile> imgList) {
+        List<String> results = new ArrayList<>();
+        for (MultipartFile imglist : imgList) {
+            String result = uploadFileImage(imglist, "default", imglist.getOriginalFilename());
+            results.add(result);
+        }
+        return results;
     }
 }

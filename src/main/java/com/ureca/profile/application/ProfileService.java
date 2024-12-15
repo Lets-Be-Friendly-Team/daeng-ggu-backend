@@ -38,11 +38,11 @@ public class ProfileService {
 
     /**
      * @title List<Review> -> List<ReviewInfo>
-     * @description 조회한 리뷰 엔티티 DTO에 맞춰서 매핑
-     * @param List<Review> 엔티티 조회 결과 목록
-     * @return List<ReviewInfo> 매핑 완료된 사용자별 리뷰 조회 목록
+     * @description 조회한 리뷰 엔티티 내용 DTO에 맞춰서 매핑
+     * @param reviews 엔티티 조회 결과 목록
+     * @return List<ReviewInfo> 사용자별 매핑 완료된 리뷰 조회 목록
      */
-    public List<ReviewInfo> reviewToReviewInfo(List<Review> reviews) {
+    public List<ReviewInfo> reviewToReviewInfo(List<Review> reviews, String userType) {
         List<ReviewInfo> reviewList =
                 reviews.stream()
                         .map(
@@ -66,12 +66,51 @@ public class ProfileService {
                                         reviewInfo.setReviewImgUrl2(null);
                                         reviewInfo.setReviewImgUrl3(null);
                                     }
-                                    reviewInfo.setDesignerId(review.getDesigner().getDesignerId());
-                                    reviewInfo.setDesignerImgUrl(
-                                            review.getDesigner().getDesignerImgUrl());
-                                    reviewInfo.setDesignerAddress(
-                                            review.getDesigner().getAddress1());
-                                    reviewInfo.setNickname(review.getDesigner().getOfficialName());
+
+                                    switch (userType) {
+                                        case ("C"):
+                                            reviewInfo.setDesignerId(
+                                                    review.getDesigner().getDesignerId());
+                                            reviewInfo.setDesignerImgUrl(
+                                                    review.getDesigner().getDesignerImgUrl());
+                                            reviewInfo.setDesignerAddress(
+                                                    review.getDesigner().getAddress1());
+                                            reviewInfo.setDesignerName(
+                                                    review.getDesigner().getDesignerName());
+                                            reviewInfo.setOfficialName(
+                                                    review.getDesigner().getOfficialName());
+                                            break;
+                                        case ("D"):
+                                            reviewInfo.setCustomerId(
+                                                    review.getCustomer().getCustomerId());
+                                            reviewInfo.setCustomerImgUrl(
+                                                    review.getCustomer().getCustomerImgUrl());
+                                            reviewInfo.setCustomerName(
+                                                    review.getCustomer().getCustomerName());
+                                            reviewInfo.setNickname(
+                                                    review.getCustomer().getNickname());
+                                            break;
+                                        case ("A"):
+                                            reviewInfo.setDesignerId(
+                                                    review.getDesigner().getDesignerId());
+                                            reviewInfo.setDesignerImgUrl(
+                                                    review.getDesigner().getDesignerImgUrl());
+                                            reviewInfo.setDesignerAddress(
+                                                    review.getDesigner().getAddress1());
+                                            reviewInfo.setDesignerName(
+                                                    review.getDesigner().getDesignerName());
+                                            reviewInfo.setOfficialName(
+                                                    review.getDesigner().getOfficialName());
+                                            reviewInfo.setCustomerId(
+                                                    review.getCustomer().getCustomerId());
+                                            reviewInfo.setCustomerImgUrl(
+                                                    review.getCustomer().getCustomerImgUrl());
+                                            reviewInfo.setCustomerName(
+                                                    review.getCustomer().getCustomerName());
+                                            reviewInfo.setNickname(
+                                                    review.getCustomer().getNickname());
+                                            break;
+                                    }
                                     reviewInfo.setReviewContents(review.getReviewContents());
                                     reviewInfo.setReviewStar(review.getReviewStar());
                                     reviewInfo.setReviewLikeCnt(

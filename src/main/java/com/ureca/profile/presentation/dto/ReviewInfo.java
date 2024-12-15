@@ -20,7 +20,17 @@ public class ReviewInfo {
     private String designerImgUrl;
     // 디자이너 주소
     private String designerAddress;
-    // 닉네임(업체명)
+    // 디자이너명
+    private String designerName;
+    // 디자이너 닉네임(업체명)
+    private String officialName;
+    // 보호자 아이디
+    private Long customerId;
+    // 보호자 이미지 URL
+    private String customerImgUrl;
+    // 보호자명
+    private String customerName;
+    // 보호자 닉네임
     private String nickname;
     // 리뷰 내용
     private String reviewContents;

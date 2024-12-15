@@ -54,6 +54,8 @@ public class DesignerService {
     @Autowired private ProfileService profileService;
     @Autowired private S3Service s3Service;
 
+    private static final String DESIGNER = "D";
+
     /**
      * @title 디자이너 - 프로필
      * @description 디자이너정보, 제공서비스, 가능견종, 포트폴리오목록, 리뷰목록 조회
@@ -115,7 +117,7 @@ public class DesignerService {
         // 리뷰 목록
         List<Review> reviews =
                 reviewRepository.findByDesignerDesignerId(designerId); // 디자이너 아이디로 리뷰 조회
-        designerProfile.setReviewList(profileService.reviewToReviewInfo(reviews));
+        designerProfile.setReviewList(profileService.reviewToReviewInfo(reviews, DESIGNER));
 
         return designerProfile;
     } // getDesignerProfile
