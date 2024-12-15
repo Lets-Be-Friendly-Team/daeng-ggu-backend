@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/daengggu")
 @RequiredArgsConstructor
-@Tag(name = "Monitoring Status API", description = "모니터링에서 프로세스 상태 관련 api")
+@Tag(name = "Status API In Monitoring", description = "모니터링에서 프로세스 상태 관련 api")
 public class MonitoringController {
 
     @GetMapping("/process/{reservationId}/status")
