@@ -55,7 +55,7 @@ public class ReviewService {
             ReviewDto.Response response =
                     ReviewDto.Response.builder()
                             .reviewId(review.getReviewId())
-                            .feedUrl(review.getFeedUrl())
+                            //                            .feedUrl(review.getFeedUrl())
                             .build();
 
             reviewList.add(response);
@@ -73,7 +73,7 @@ public class ReviewService {
             ReviewDto.Response response =
                     ReviewDto.Response.builder()
                             .reviewId(review.getReviewId())
-                            .feedUrl(review.getFeedUrl())
+                            //                            .feedUrl(review.getFeedUrl())
                             .build();
 
             reviewList.add(response);
