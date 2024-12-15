@@ -18,6 +18,7 @@ import com.ureca.review.infrastructure.ReviewImageRepository;
 import com.ureca.review.infrastructure.ReviewLikeRepository;
 import com.ureca.review.infrastructure.ReviewRepository;
 import com.ureca.review.presentation.dto.ReviewDto;
+import com.ureca.review.presentation.dto.ReviewLikeDto;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -81,7 +82,7 @@ public class ReviewService {
         return reviewList;
     }
 
-    public ReviewDto.Response selectCustomerFeedDetail(Long reviewId) {
+    public ReviewDto.Customer selectCustomerFeedDetail(Long reviewId) {
 
         Review review = reviewRepository.findById(reviewId).get();
 
@@ -97,13 +98,17 @@ public class ReviewService {
         ReviewLike reviewLike =
                 reviewLikeRepository.findByReviewAndUserIdAndUserType(
                         review, customerId, AuthorType.CUSTOMER);
-        ReviewDto.Response response =
-                ReviewDto.Response.builder()
+        ReviewDto.Customer response =
+                ReviewDto.Customer.builder()
                         .reviewId(review.getReviewId())
                         .reviewImgList(reviewImglist)
                         .designerId(review.getDesigner().getDesignerId())
                         .designerImgUrl(review.getDesigner().getDesignerImgUrl())
                         .designerName(review.getDesigner().getDesignerName())
+                        .designerAddress(
+                                review.getDesigner().getAddress1()
+                                        + review.getDesigner().getDetailAddress())
+                        .nickname(review.getDesigner().getOfficialName())
                         .reviewContents(review.getReviewContents())
                         .reviewStar(review.getReviewStar())
                         .reviewLikeCnt(review.getReviewLikeCnt())
@@ -117,7 +122,7 @@ public class ReviewService {
         return response;
     }
 
-    public ReviewDto.Response selectDesignerFeedDetail(Long reviewId) {
+    public ReviewDto.Designer selectDesignerFeedDetail(Long reviewId) {
         Review review = reviewRepository.findById(reviewId).get();
 
         Designer designer = review.getDesigner();
@@ -132,8 +137,8 @@ public class ReviewService {
         ReviewLike reviewLike =
                 reviewLikeRepository.findByReviewAndUserIdAndUserType(
                         review, designerId, AuthorType.DESIGNER);
-        ReviewDto.Response response =
-                ReviewDto.Response.builder()
+        ReviewDto.Designer response =
+                ReviewDto.Designer.builder()
                         .reviewId(review.getReviewId())
                         .reviewImgList(reviewImglist)
                         .customerId(review.getCustomer().getCustomerId())
@@ -152,12 +157,14 @@ public class ReviewService {
         return response;
     }
 
-    public void createReview(ReviewDto.Request reviewRequest) {
+    public void createReview(
+            Long customerId, ReviewDto.Request reviewRequest, List<MultipartFile> feedImgList) {
+        System.out.println("A1 : " + customerId);
+        System.out.println("A2 : " + reviewRequest.getDesignerId());
         Customer customer =
-                (Customer)
-                        customerRepository
-                                .findByCustomerId(reviewRequest.getCustomerId())
-                                .orElseThrow(() -> new ApiException(ErrorCode.CUSTOMER_NOT_EXIST));
+                customerRepository
+                        .findByCustomerId(customerId)
+                        .orElseThrow(() -> new ApiException(ErrorCode.CUSTOMER_NOT_EXIST));
         System.out.println("Designer ID: " + reviewRequest.getDesignerId());
         Designer designer =
                 designerRepository
@@ -167,8 +174,8 @@ public class ReviewService {
         Review review = new Review();
 
         List<ReviewImage> reviewImages = new ArrayList<>();
-        if (reviewRequest.getFeedImgList() != null) {
-            for (MultipartFile file : reviewRequest.getFeedImgList()) {
+        if (feedImgList != null) {
+            for (MultipartFile file : feedImgList) {
                 String imageUrl = s3Service.uploadFileImage(file, "review", "review");
 
                 review =
@@ -209,8 +216,7 @@ public class ReviewService {
     }
 
     @Transactional
-    public void updateReview(
-            Long customerId, ReviewDto.Request reviewRequest, List<MultipartFile> FeedImgList) {
+    public void updateReview(ReviewDto.Patch reviewRequest, List<MultipartFile> FeedImgList) {
         Review review =
                 reviewRepository
                         .findById(reviewRequest.getReviewId())
@@ -299,6 +305,7 @@ public class ReviewService {
                             .designerAddress(
                                     review.getDesigner().getAddress1()
                                             + review.getDesigner().getDetailAddress())
+                            .nickname(review.getDesigner().getOfficialName())
                             .customerId(review.getCustomer().getCustomerId())
                             .customerImgUrl(review.getCustomer().getCustomerImgUrl())
                             .customerName(review.getCustomer().getCustomerName())
@@ -322,7 +329,7 @@ public class ReviewService {
     }
 
     @Transactional
-    public ReviewDto.Response likeReview(Long reviewId, Long userId, AuthorType userType) {
+    public ReviewLikeDto.Response likeReview(Long reviewId, Long userId, AuthorType userType) {
         String lockKey = LOCK_KEY_PREFIX + reviewId;
 
         // 1. 락 시도 (유효 시간 5초)
@@ -383,8 +390,8 @@ public class ReviewService {
             // 9. 락 해제
             redisLockUtil.unlock(lockKey);
         }
-        ReviewDto.Response response =
-                ReviewDto.Response.builder()
+        ReviewLikeDto.Response response =
+                ReviewLikeDto.Response.builder()
                         .reviewLikeCnt(review.getReviewLikeCnt())
                         .isReviewLike(reviewLike.getIsReviewLike())
                         .build();
