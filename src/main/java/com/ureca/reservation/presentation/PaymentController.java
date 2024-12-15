@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,17 +24,16 @@ public class PaymentController {
     /**
      * 디자이너 결제 진행
      *
-     * @param designerId 디자이너의 고유 ID
-     * @param paymentKey
-     * @param amount
+     * @param paymentKey 결제 키
+     * @param amount 결제 금액
      * @return 결제 처리 결과
      */
-    @PostMapping("/designer/{designerId}/payment")
+    @PostMapping("/designer/payment")
     @Operation(summary = "디자이너 결제", description = "[DLOG2200] 디자이너 결제를 진행합니다.")
     public ResponseDto<PaymentResponseDto> processDesignerPayment(
-            @PathVariable Long designerId,
-            @RequestParam String paymentKey,
-            @RequestParam BigDecimal amount) {
+            @RequestParam String paymentKey, @RequestParam BigDecimal amount) {
+        // TODO: 소셜 로그인 ID 처리 필요
+        Long designerId = 4L; // 임시 더미값
         return ResponseUtil.SUCCESS(
                 "디자이너 결제 성공",
                 designerPaymentService.processDesignerPayment(designerId, paymentKey, amount));

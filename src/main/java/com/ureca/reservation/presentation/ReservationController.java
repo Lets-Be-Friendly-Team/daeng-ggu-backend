@@ -22,13 +22,15 @@ public class ReservationController {
     /**
      * 고객 ID를 기반으로 예약 목록 조회
      *
-     * @param customerId 고객의 고유 ID
      * @return 예약 내역 리스트
      */
-    @GetMapping("/reservations")
+    @GetMapping("customer/reservations")
     @Operation(summary = "예약 목록 조회", description = "[RSV1000] 고객의 예약 내역을 조회합니다.")
     public ResponseDto<List<ReservationHistoryResponseDto>> getReservationList(
-            @RequestParam Long customerId) {
+            // @RequestParam Long customerId
+            ) {
+        // TODO: 소셜로그인 id로 처리 필요
+        Long customerId = 2L;
         return ResponseUtil.SUCCESS(
                 "예약 목록 조회 성공", reservationService.getReservationsByCustomerId(customerId));
     }
@@ -36,13 +38,15 @@ public class ReservationController {
     /**
      * 디자이너 ID를 기반으로 예약 내역 조회
      *
-     * @param designerId 디자이너의 고유 ID
      * @return 예약 내역 리스트
      */
-    @GetMapping("designer/{designerId}/daengggu/reservations")
+    @GetMapping("designer/reservations")
     @Operation(summary = "디자이너 예약 내역 조회", description = "[DRSV1000] 디자이너의 예약 내역을 조회합니다.")
     public ResponseDto<List<ReservationHistoryResponseDto>> getReservationListByDesigner(
-            @PathVariable Long designerId) {
+            // @RequestParam Long designerId
+            ) {
+        // TODO: 소셜로그인 id로 처리 필요
+        Long designerId = 4L;
         return ResponseUtil.SUCCESS(
                 "예약 목록 조회 성공", reservationService.getReservationsByDesignerId(designerId));
     }
@@ -66,12 +70,15 @@ public class ReservationController {
     /**
      * customerKey, orderId 반환 API
      *
-     * @param customerId 고객의 고유 ID
      * @return customerKey, orderId 정보
      */
     @GetMapping("reservation/payment/keys")
     @Operation(summary = "결제 정보 반환", description = "[결제 위젯] customerKey와 orderId 반환 API")
-    public ResponseDto<OrderKeysDto> getCustomerKey(@RequestParam Long customerId) {
+    public ResponseDto<OrderKeysDto> getCustomerKey(
+            // @RequestParam Long customerId
+            ) {
+        // TODO: 소셜로그인 id로 처리 필요
+        Long customerId = 2L;
         return ResponseUtil.SUCCESS(
                 "결제 정보 반환 성공", reservationService.getCustomerKeyAndOrderId(customerId));
     }
@@ -79,15 +86,15 @@ public class ReservationController {
     /**
      * customerKey, orderId, amount 저장 API
      *
-     * @param customerId 고객의 고유 ID
-     * @param orderKeysAndAmountDto 결제 정보
      * @return 처리 상태 메시지
      */
     @PostMapping("reservation/payment/data")
     @Operation(summary = "결제 데이터 저장", description = "[결제 위젯] 결제 데이터를 저장합니다.")
     public ResponseDto<Void> savePaymentData(
-            @RequestParam Long customerId,
+            // @RequestParam Long customerId
             @RequestBody OrderKeysAndAmountDto orderKeysAndAmountDto) {
+        // TODO: 소셜로그인 id로 처리 필요
+        Long customerId = 2L;
         reservationService.saveOrderKeysAndAmount(customerId, orderKeysAndAmountDto);
         return ResponseUtil.SUCCESS("결제 데이터 저장 성공", null);
     }
@@ -95,15 +102,15 @@ public class ReservationController {
     /**
      * 입찰 예약 생성 API
      *
-     * @param customerId 고객의 고유 ID
-     * @param estimateReservationRequestDto 예약 세부 정보
      * @return 생성된 예약 ID
      */
     @PostMapping("reservation/estimate")
     @Operation(summary = "입찰 예약 생성", description = "[REQ2300] 견적서 기반 입찰 예약을 생성합니다.")
     public ResponseDto<Long> createEstimateReservation(
-            @RequestParam Long customerId,
+            // @RequestParam Long customerId
             @RequestBody EstimateReservationRequestDto estimateReservationRequestDto) {
+        // TODO: 소셜로그인 id로 처리 필요
+        Long customerId = 2L;
         return ResponseUtil.SUCCESS(
                 "예약 생성 성공",
                 reservationService.estimateReservation(customerId, estimateReservationRequestDto));
@@ -112,15 +119,15 @@ public class ReservationController {
     /**
      * 직접 예약 생성 API
      *
-     * @param customerId 고객의 고유 ID
-     * @param directReservationRequestDto 예약 세부 정보
      * @return 생성된 예약 ID
      */
     @PostMapping("reservation/direct")
     @Operation(summary = "직접 예약 생성", description = "[DMYP1000] 디자이너 프로필에서 직접 예약을 생성합니다.")
     public ResponseDto<Long> createDirectReservation(
-            @RequestParam Long customerId,
+            // @RequestParam Long customerId
             @RequestBody DirectReservationRequestDto directReservationRequestDto) {
+        // TODO: 소셜로그인 id로 처리 필요
+        Long customerId = 2L;
         return ResponseUtil.SUCCESS(
                 "예약 생성 성공",
                 reservationService.directReservation(customerId, directReservationRequestDto));
