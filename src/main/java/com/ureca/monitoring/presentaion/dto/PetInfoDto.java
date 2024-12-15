@@ -6,12 +6,12 @@ import lombok.Getter;
 @Getter
 @Builder
 public class PetInfoDto {
-	private String petName;
-	private String birthDate;
-	private String gender;
-	private double weight;
-	private String specialNotes;
-	private boolean isNeutered;
-	private String majorBreed;
-	private String subBreed;
+    private String petName;
+    private String birthDate;
+    private String gender;
+    private double weight;
+    private String specialNotes;
+    private boolean isNeutered;
+    private String majorBreed;
+    private String subBreed;
 }

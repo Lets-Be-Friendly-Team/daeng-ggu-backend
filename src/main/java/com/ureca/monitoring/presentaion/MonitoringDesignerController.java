@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Designer API In Monitoring", description = "모니터링에서 디자이너 관련 api")
 public class MonitoringDesignerController {
 
-
     /**
      * 미용실이 시작 전 고객 정보를 확인하는 API.
      *
@@ -31,35 +30,38 @@ public class MonitoringDesignerController {
     @GetMapping("/process/{reservationId}/info")
     @Operation(summary = "시작 전 고객 정보 조회", description = "미용 시작 전 고객과 반려견 정보를 조회합니다.")
     public ResponseDto<ReservationInfoForDesignerDto> getProcessInfo(
-        @PathVariable Long reservationId) {
+            @PathVariable Long reservationId) {
 
         // PetInfoDto 더미 데이터 생성
-        PetInfoDto petInfo = PetInfoDto.builder()
-            .petName("멍멍이")
-            .birthDate("2023-01-01")
-            .gender("Male")
-            .weight(5.5)
-            .specialNotes("특이사항 없음")
-            .isNeutered(true)
-            .majorBreed("골든 리트리버")
-            .subBreed("미니 리트리버")
-            .build();
+        PetInfoDto petInfo =
+                PetInfoDto.builder()
+                        .petName("멍멍이")
+                        .birthDate("2023-01-01")
+                        .gender("Male")
+                        .weight(5.5)
+                        .specialNotes("특이사항 없음")
+                        .isNeutered(true)
+                        .majorBreed("골든 리트리버")
+                        .subBreed("미니 리트리버")
+                        .build();
 
         // ProcessStatusDto 더미 데이터 생성
-        ProcessStatusDto status = ProcessStatusDto.builder()
-            .isDelivery(true)
-            .processNum(1)
-            .processStatus("PREPARING")
-            .processMessage("시작 전 서비스 준비 중.")
-            .build();
+        ProcessStatusDto status =
+                ProcessStatusDto.builder()
+                        .isDelivery(true)
+                        .processNum(1)
+                        .processStatus("PREPARING")
+                        .processMessage("시작 전 서비스 준비 중.")
+                        .build();
 
         // ReservationInfoForDesignerDto 더미 데이터 생성
-        ReservationInfoForDesignerDto info = ReservationInfoForDesignerDto.builder()
-            .customerPhone("010-1234-5678")
-            .customerName("김고객")
-            .petInfo(petInfo)
-            .status(status)
-            .build();
+        ReservationInfoForDesignerDto info =
+                ReservationInfoForDesignerDto.builder()
+                        .customerPhone("010-1234-5678")
+                        .customerName("김고객")
+                        .petInfo(petInfo)
+                        .status(status)
+                        .build();
 
         return ResponseUtil.SUCCESS("고객 정보 조회 성공", info);
     }

@@ -1,7 +1,6 @@
 package com.ureca.monitoring.presentaion.dto;
 
 import java.time.LocalDate;
-
 import lombok.Builder;
 import lombok.Getter;
 
