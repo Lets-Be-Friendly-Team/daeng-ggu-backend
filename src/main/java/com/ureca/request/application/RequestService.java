@@ -14,7 +14,6 @@ import com.ureca.request.infrastructure.RequestRepository;
 import com.ureca.request.presentation.dto.RequestDto;
 import com.ureca.review.domain.Enum.AuthorType;
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -134,7 +133,7 @@ public class RequestService {
         Customer customer = pet.getCustomer(); // Pet에 Customer 연관 관계가 있어야 합니다.
         String region = customer.getAddress1() + customer.getDetailAddress();
         BigDecimal deliveryFee = BigDecimal.ZERO;
-        Duration servicetime = Duration.ofHours(1);
+        Integer servicetime = 1;
         if (Boolean.TRUE.equals(requestDto.getIsVisitRequired())) {
             // 견종의 종류에 따라 가격을 설정
             switch (pet.getMajorBreedCode()) {
@@ -146,11 +145,9 @@ public class RequestService {
                     break;
                 case "P3":
                     deliveryFee = BigDecimal.valueOf(40000);
-                    servicetime = servicetime.plus(Duration.ofMinutes(30));
                     break;
                 case "P4":
                     deliveryFee = BigDecimal.valueOf(50000);
-                    servicetime = servicetime.plus(Duration.ofHours(1));
                     break;
                 default:
                     throw new ApiException(ErrorCode.INVALID_BREED);
@@ -162,21 +159,21 @@ public class RequestService {
             case "P2":
                 break;
             case "P3":
-                servicetime = servicetime.plus(Duration.ofMinutes(30));
+                servicetime += 1;
                 break;
             case "P4":
-                servicetime = servicetime.plus(Duration.ofHours(1));
+                servicetime += 1;
                 break;
         }
         switch (requestDto.getDesiredServiceCode()) {
             case "S2":
-                servicetime = servicetime.plus(Duration.ofMinutes(30));
+                servicetime += 1;
                 break;
             case "S3":
-                servicetime = servicetime.plus(Duration.ofHours(1));
+                servicetime += 1;
                 break;
             case "S4":
-                servicetime = servicetime.plus(Duration.ofMinutes(90));
+                servicetime += 1;
                 break;
         }
 

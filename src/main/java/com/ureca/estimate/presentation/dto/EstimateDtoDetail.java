@@ -21,6 +21,9 @@ public class EstimateDtoDetail {
     private BigDecimal deliveryFee;
     private BigDecimal monitoringFee;
     private BigDecimal estimatePrice;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+    private Integer takeTime;
     private Long petId;
     private String petName;
     private LocalDateTime createdAt;

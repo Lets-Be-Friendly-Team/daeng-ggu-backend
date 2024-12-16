@@ -1,6 +1,7 @@
 package com.ureca.review.presentation.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,6 +20,8 @@ public class ReviewDto {
         private String reviewContents;
         private Double reviewStar;
         private Boolean isFeedAdd;
+
+        @JsonProperty("FeedImgList")
         private List<String> FeedImgList;
     }
 
@@ -33,6 +36,8 @@ public class ReviewDto {
         private Double reviewStar;
         private Boolean isFeedAdd;
         private List<String> existImgList;
+
+        @JsonProperty("FeedImgList")
         private List<String> FeedImgList;
     }
 
