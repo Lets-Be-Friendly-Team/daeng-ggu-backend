@@ -27,7 +27,6 @@ public class EstimateDto {
 
         private BigDecimal requestPrice;
         private List<String> estimateImgList;
-        private List<String> estimateImgIdList;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

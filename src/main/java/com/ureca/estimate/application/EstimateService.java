@@ -81,11 +81,9 @@ public class EstimateService {
 
             List<EstimateImage> estimateImages = new ArrayList<>();
             List<String> estimateImgList = request.getEstimateImgList();
-            List<String> imgIdList = request.getEstimateImgIdList();
             for (Integer i = 0; i < estimateImgList.size(); i++) {
                 EstimateImage estimateImage =
                         EstimateImage.builder()
-                                .estimateTagId(imgIdList.get(i))
                                 .estimateImgUrl(estimateImgList.get(i))
                                 .estimate(estimate)
                                 .build();
