@@ -8,7 +8,12 @@
 반려견 보호자와 디자이너 사이의 미용 견적 요청, 예약, 결제, 모니터링까지의 전체 중계 서비스를 제공합니다. </br>
 </br></br>
 
-### 🛠프로젝트 디렉토리 구조
+### 🧩ERD
+<img src="https://github.com/user-attachments/assets/8562b4a5-0203-4d08-aa1a-2e66234cea03" alt="댕꾸 ERD" width="600"/></br>
+</br></br>
+
+
+### 🛠프로젝트 배포 설정 구조
 ```
 daeng-ggu-backend/
 ├── .github/
