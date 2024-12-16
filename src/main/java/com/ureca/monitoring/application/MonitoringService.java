@@ -82,6 +82,7 @@ public class MonitoringService {
      * @param reservationId 예약 ID
      * @return StreamingDto
      */
+    @Transactional
     public StreamingDto designerStartStreaming(Long reservationId) {
         // 1. Reservation 조회
         Reservation reservation =
@@ -102,8 +103,8 @@ public class MonitoringService {
                 ProcessStatus.GROOMING.getDescription() // 새로운 상태 메시지
                 );
         process.updateStreamValue(
-                generateStreamUrl(generateStreamKey()), // TODO: 스트리밍 URL 생성
-                generateStreamKey() // TODO: 스트림 키 설정
+                "스트리밍 URL", // TODO: 스트리밍 URL 생성
+                "스트리밍 KEY" // TODO: 스트림 키 설정
                 );
 
         // 업데이트된 Process 저장
@@ -137,5 +138,53 @@ public class MonitoringService {
 
     private String generateStreamUrl(String streamKey) {
         return null;
+    }
+
+    @Transactional
+    public ProcessStatusDto endStreaming(Long reservationId) {
+        // 1. Reservation 조회
+        Reservation reservation =
+                reservationRepository
+                        .findById(reservationId)
+                        .orElseThrow(() -> new ApiException(ErrorCode.RESERVATION_NOT_EXIST));
+
+        // 2. Process 조회
+        Process process = reservation.getProcess();
+        if (process == null) {
+            throw new ApiException(ErrorCode.PROCESS_NOT_STARTED);
+        }
+
+        // 3. isDelivery 여부에 따라 Process 상태 업데이트
+        if (Boolean.TRUE.equals(reservation.getIsDelivery())) {
+            // 배송이 필요한 경우
+            process.updateStatus(
+                    process.getProcessNum() + 1, // 기존 단계에 +1
+                    ProcessStatus.WAITING_FOR_DELIVERY, // 상태: 배송 대기 중
+                    ProcessStatus.WAITING_FOR_DELIVERY.getDescription() // 상태 메시지
+                    );
+        } else {
+            // 배송이 필요 없는 경우
+            process.updateStatus(
+                    process.getProcessNum() + 1, // 기존 단계에 +1
+                    ProcessStatus.COMPLETED, // 상태: 서비스 완료
+                    ProcessStatus.COMPLETED.getDescription() // 상태 메시지
+                    );
+        }
+        // 4. 스트리밍 관련 정보 제거
+        process.updateStreamValue(null, null);
+
+        // 5. Process 저장
+        processRepository.save(process);
+
+        // 6. ProcessStatusDto 생성 및 반환
+        return ProcessStatusDto.builder()
+                .isDelivery(
+                        reservation.getIsDelivery() != null
+                                ? reservation.getIsDelivery()
+                                : false) // 배송 여부
+                .processNum(process.getProcessNum())
+                .processStatus(process.getProcessStatus().name())
+                .processMessage(process.getProcessMessage())
+                .build();
     }
 }

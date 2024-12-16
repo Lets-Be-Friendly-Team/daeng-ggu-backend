@@ -60,13 +60,6 @@ public class MonitoringDesignerController {
     @PostMapping("/process/{reservationId}/end")
     @Operation(summary = "스트리밍 종료", description = "미용실이 스트리밍을 종료합니다.")
     public ResponseDto<ProcessStatusDto> endProcess(@PathVariable Long reservationId) {
-        return ResponseUtil.SUCCESS(
-                "스트리밍 종료",
-                ProcessStatusDto.builder()
-                        .isDelivery(true)
-                        .processNum(5)
-                        .processStatus("WAITING_FOR_DELIVERY")
-                        .processMessage("미용 종료 후 배송 대기")
-                        .build());
+        return ResponseUtil.SUCCESS("스트리밍 종료", monitoringService.endStreaming(reservationId));
     }
 }
