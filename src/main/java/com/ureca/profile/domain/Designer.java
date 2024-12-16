@@ -21,7 +21,7 @@ public class Designer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long designerId;
 
-    // 로그인 아이디 (이메일+고유값)
+    // 로그인 아이디 (이메일+"_"+고유값)
     private String designerLoginId;
 
     // 이메일
@@ -92,6 +92,9 @@ public class Designer {
 
     // 사업자 인증 여부
     private String businessIsVerified;
+
+    // 휴무일
+    private String dayOff;
 
     // 즐겨찾기 연관 관계 (1:N)
     @OneToMany(mappedBy = "designer")
