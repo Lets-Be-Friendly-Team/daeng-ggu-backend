@@ -26,6 +26,8 @@ public class EstimateDto {
         private LocalDateTime requestDate;
 
         private BigDecimal requestPrice;
+        //        List<String> estimateImgList;
+        //        List<String> estimateImgIdList;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

@@ -5,6 +5,7 @@ import com.ureca.profile.domain.Customer;
 import com.ureca.profile.domain.Pet;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,6 +34,9 @@ public class Request extends BaseEntity {
 
     @Column(length = 20, nullable = false)
     private String desiredServiceCode;
+
+    @Column(nullable = false)
+    private Duration serviceTime = Duration.ofHours(1);
 
     @Column(length = 20, nullable = false)
     private String lastGroomingDate;
