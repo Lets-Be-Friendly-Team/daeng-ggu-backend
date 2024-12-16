@@ -9,19 +9,15 @@ import com.ureca.profile.presentation.dto.CustomerProfile;
 import com.ureca.profile.presentation.dto.CustomerUpdate;
 import com.ureca.profile.presentation.dto.CustomerViewDesignerProfile;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
-import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @RequestMapping("/daengggu")
 @RestController
@@ -47,29 +43,11 @@ public class CustomerController {
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", customerService.getCustomerDetail(customerId));
     }
 
-    @PostMapping(
-            value = "/customer/profile/update",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping("/customer/profile/update")
     @Operation(summary = "보호자 프로필 수정", description = "[MYP2000] 보호자 프로필 수정 API")
-    public ResponseDto<Void> customerUpdate(
-            @RequestPart @Valid CustomerUpdate data,
-            @RequestPart(value = "newCustomerImgFile", required = false)
-                    MultipartFile newCustomerImgFile)
-            throws IOException {
+    public ResponseDto<Void> customerUpdate(@RequestBody CustomerUpdate data) {
         // service - 보호자 프로필 수정
-        logger.info("data>>>" + data);
-        logger.info("newCustomerImgFile>>>" + newCustomerImgFile);
-        if (newCustomerImgFile != null) {
-            // 각 정보를 한 줄씩 출력
-            logger.info("File Name: " + newCustomerImgFile.getOriginalFilename());
-            logger.info("File Size: " + newCustomerImgFile.getSize() + " bytes");
-            logger.info("Content Type: " + newCustomerImgFile.getContentType());
-            logger.info("Is File Empty: " + newCustomerImgFile.isEmpty());
-        } else {
-            logger.info("No file received.");
-        }
-        customerService.updateCustomerProfile(data, newCustomerImgFile);
+        customerService.updateCustomerProfile(data);
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
     }
 
