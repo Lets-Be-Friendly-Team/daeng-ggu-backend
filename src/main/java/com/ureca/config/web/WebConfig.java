@@ -12,6 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
         // 프론트엔드 도메인에 대해서 CORS를 허용
         registry.addMapping("/**") // 모든 경로에 대해
                 .allowedOrigins(
+                        "https://ds1c375x1a64n.cloudfront.net",
                         "http://localhost:5173",
                         "http://localhost:5174",
                         "http://localhost:5175",
