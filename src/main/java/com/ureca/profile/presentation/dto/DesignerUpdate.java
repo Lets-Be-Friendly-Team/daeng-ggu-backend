@@ -3,7 +3,6 @@ package com.ureca.profile.presentation.dto;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
-import org.springframework.web.multipart.MultipartFile;
 
 // 디자이너 프로필 수정
 @Builder
@@ -12,13 +11,11 @@ public class DesignerUpdate {
 
     // 디자이너 아이디
     private Long designerId;
-    // 디자이너 아이디
-    private String designerName;
     // 닉네임(업체명)
     private String nickname;
-    // 신규 디자이너 이미지 파일
-    private MultipartFile newImgFile;
-    // 변경전 이미지 URL
+    // 신규 디자이너 이미지 URL
+    private String newImgUrl;
+    // 기존 이미지 URL
     private String preImgUrl;
     // 기본주소1
     private String address1;
@@ -31,19 +28,17 @@ public class DesignerUpdate {
     // 연락처
     private String phone;
     // 제공 서비스 코드 목록
-    private String[] providedServices;
-    // 미용 가능 견종 코드
-    private List<BreedCode> possibleBreed;
-    // 본인인증 여부 (Y/N)
-    private String isVerified;
+    private List<String> providedServices;
+    // 미용 가능 견종 코드 목록 (대분류)
+    private List<String> possibleBreed;
     // 사업자번호
     private String businessNumber;
     // 사업자인증 여부 (Y/N)
     private String businessIsVerified;
-    // 자격증 이미지 URL 목록
-    private String[] certifications;
+    // 기존 자격증 이미지 URL 목록
+    private List<String> preCertifications;
     // 경력사항
     private String workExperience;
-    // 신규 자격증 이미지 파일 목록
-    private List<MultipartFile> certificationsFileList;
+    // 신규 자격증 이미지 URL 목록
+    private List<String> newCertifications;
 }

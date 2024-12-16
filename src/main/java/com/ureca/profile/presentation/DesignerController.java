@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -49,13 +50,10 @@ public class DesignerController {
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", designerService.getDesignerDetail(designerId));
     }
 
-    @RequestMapping(
-            method = RequestMethod.POST,
-            value = "/designer/profile/update",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping("/designer/profile/update")
     @Operation(summary = "디자이너 프로필 수정", description = "[DMYP2000] 디자이너 프로필 수정 API")
-    public ResponseDto<Void> designerUpdate(@ModelAttribute DesignerUpdate data) {
-        // service - 보호자 프로필 수정
+    public ResponseDto<Void> designerUpdate(@RequestBody DesignerUpdate data) {
+        // service - 디자이너 프로필 수정
         designerService.updateDesignerProfile(data);
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
     }
