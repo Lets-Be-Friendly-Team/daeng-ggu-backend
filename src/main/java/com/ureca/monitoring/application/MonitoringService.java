@@ -25,14 +25,12 @@ public class MonitoringService {
     private final ProcessRepository processRepository;
     private final CommonCodeRepository commonCodeRepository;
 
-    // 공통 메서드: 예약 조회
     private Reservation getReservation(Long reservationId) {
         return reservationRepository
                 .findById(reservationId)
                 .orElseThrow(() -> new ApiException(ErrorCode.RESERVATION_NOT_EXIST));
     }
 
-    // 공통 메서드: 프로세스 조회
     private Process getProcess(Reservation reservation) {
         Process process = reservation.getProcess();
         if (process == null) {
@@ -41,7 +39,6 @@ public class MonitoringService {
         return process;
     }
 
-    // 공통 메서드: 프로세스 상태 DTO 생성
     private ProcessStatusDto createProcessStatusDto(Process process, Boolean isDelivery) {
         return ProcessStatusDto.builder()
                 .isDelivery(isDelivery != null ? isDelivery : false)
@@ -51,7 +48,6 @@ public class MonitoringService {
                 .build();
     }
 
-    // 공통 메서드: 프로세스 상태 및 메시지 업데이트 후 저장
     private void updateProcessAndSave(Process process, ProcessStatus status, String description) {
         process.updateStatus(
                 process.getProcessNum() + 1, // 무조건 +1
@@ -60,13 +56,11 @@ public class MonitoringService {
         processRepository.save(process);
     }
 
-    // 공통 메서드: 스트리밍 값 업데이트 후 저장
     private void updateStreamAndSave(Process process, String streamUrl, String streamKey) {
         process.updateStreamValue(streamUrl, streamKey);
         processRepository.save(process);
     }
 
-    // 공통 메서드: PetInfoDto 생성
     private PetInfoDto createPetInfoDto(Pet pet) {
         // majorBreedCode 및 subBreedCode를 codeDesc로 변환
         String majorBreedDesc = getCodeDescription(pet.getMajorBreedCode());
@@ -86,7 +80,6 @@ public class MonitoringService {
                 .build();
     }
 
-    // 공통 메서드: 공통 코드 설명 조회
     private String getCodeDescription(String codeId) {
         return codeId != null ? commonCodeRepository.findCodeDescByCodeId(codeId) : null;
     }
@@ -101,42 +94,99 @@ public class MonitoringService {
         return null;
     }
 
-    // 디자이너 API
     /**
-     * 예약 정보를 조회하여 ReservationInfoForDesignerDto로 변환하는 메서드
+     * 예약 ID를 기반으로 새로운 프로세스를 생성하는 메서드.
      *
      * @param reservationId 예약 ID
-     * @return ReservationInfoForDesignerDto
+     * @return 생성된 프로세스 상태를 담은 DTO
+     */
+    @Transactional
+    public ProcessStatusDto createProcess(Long reservationId) {
+
+        Reservation reservation = getReservation(reservationId);
+
+        // 이미 프로세스가 있는 경우 예외 처리
+        if (reservation.getProcess() != null) {
+            throw new ApiException(ErrorCode.PROCESS_ALREADY_EXISTS);
+        }
+
+        // 새로운 프로세스 생성
+        Process newProcess =
+                Process.builder()
+                        .guardian(null) // TODO: 가디언 user 관리 기능 이후 추가 처리
+                        .customerId(reservation.getPet().getCustomer().getCustomerId())
+                        .processNum(1) // 초기 상태 번호
+                        .processStatus(ProcessStatus.PREPARING) // 초기 상태
+                        .processMessage(ProcessStatus.PREPARING.getDescription()) // 초기 상태 메시지
+                        .build();
+
+        newProcess = processRepository.save(newProcess);
+
+        // 예약에 생성된 프로세스 연관
+        reservation.updateProcess(newProcess);
+        reservationRepository.save(reservation);
+
+        return createProcessStatusDto(newProcess, reservation.getIsDelivery());
+    }
+
+    /**
+     * 예약 ID를 기반으로 프로세스 상태를 조회하는 메서드.
+     *
+     * @param reservationId 예약 ID
+     * @return 프로세스 상태를 담은 DTO
+     */
+    @Transactional(readOnly = true)
+    public ProcessStatusDto getProcessStatus(Long reservationId) {
+
+        Reservation reservation = getReservation(reservationId);
+        Process process = getProcess(reservation);
+
+        return createProcessStatusDto(process, reservation.getIsDelivery());
+    }
+
+    /**
+     * 예약 ID를 기반으로 스트리밍 정보를 조회하는 메서드.
+     *
+     * @param reservationId 예약 ID
+     * @return 스트리밍 정보를 담은 DTO
+     */
+    @Transactional(readOnly = true)
+    public StreamingInfoDto getStreamingInfo(Long reservationId) {
+
+        Reservation reservation = getReservation(reservationId);
+        Process process = getProcess(reservation);
+
+        return StreamingInfoDto.builder()
+                .reservationId(reservationId)
+                .streamUrl(process.getPlaybackUrl())
+                .streamKey(process.getStreamKey())
+                .build();
+    }
+
+    // 디자이너 API
+
+    /**
+     * 예약 정보를 조회하여 디자이너를 위한 예약 정보를 반환하는 메서드.
+     *
+     * @param reservationId 예약 ID
+     * @return 반려견 정보와 프로세스 상태 정보를 포함한 예약 정보 DTO
+     * @throws ApiException 예약이 존재하지 않는 경우 예외 발생
      */
     @Transactional(readOnly = true)
     public ReservationInfoForDesignerDto getReservationInfo(Long reservationId) {
-        // 예약 정보 조회
-        Reservation reservation =
-                reservationRepository
-                        .findById(reservationId)
-                        .orElseThrow(() -> new ApiException(ErrorCode.RESERVATION_NOT_EXIST));
 
-        // 반려견 정보 가져오기
+        Reservation reservation = getReservation(reservationId);
+
         Pet pet = reservation.getPet();
-
-        // Process 데이터 가져오기
         Process process = reservation.getProcess();
 
-        // PetInfoDto 생성 (공통 메서드 사용)
         PetInfoDto petInfo = createPetInfoDto(pet);
 
-        // ProcessStatusDto 생성
         ProcessStatusDto processStatus =
                 process != null
-                        ? ProcessStatusDto.builder()
-                                .isDelivery(reservation.getIsDelivery())
-                                .processNum(process.getProcessNum())
-                                .processStatus(process.getProcessStatus().name())
-                                .processMessage(process.getProcessMessage())
-                                .build()
+                        ? createProcessStatusDto(process, reservation.getIsDelivery())
                         : null;
 
-        // ReservationInfoForDesignerDto 생성
         return ReservationInfoForDesignerDto.builder()
                 .customerPhone(reservation.getPet().getCustomer().getPhone())
                 .customerName(reservation.getPet().getCustomer().getCustomerName())
@@ -146,18 +196,18 @@ public class MonitoringService {
     }
 
     /**
-     * 디자이너가 스트리밍을 시작하는 메서드
+     * 디자이너가 스트리밍을 시작하는 메서드.
      *
      * @param reservationId 예약 ID
-     * @return StreamingDto
+     * @return 스트리밍 정보와 프로세스 상태를 포함한 DTO
+     * @throws ApiException 예약이 존재하지 않거나 프로세스가 시작되지 않은 경우 예외 발생
      */
     @Transactional
     public StreamingDto designerStartStreaming(Long reservationId) {
-        // 예약 및 프로세스 조회
+
         Reservation reservation = getReservation(reservationId);
         Process process = getProcess(reservation);
 
-        // 프로세스 상태 업데이트
         updateProcessAndSave(
                 process, ProcessStatus.GROOMING, ProcessStatus.GROOMING.getDescription());
 
@@ -166,11 +216,9 @@ public class MonitoringService {
         String streamUrl = "스트리밍 URL"; // TODO: 스트리밍 URL 생성 로직
         updateStreamAndSave(process, streamUrl, streamKey);
 
-        // ProcessStatusDto 생성
         ProcessStatusDto processStatusDto =
                 createProcessStatusDto(process, reservation.getIsDelivery());
 
-        // StreamingDto 반환
         return StreamingDto.builder()
                 .reservationId(reservationId)
                 .streamKey(process.getStreamKey())
@@ -179,9 +227,16 @@ public class MonitoringService {
                 .build();
     }
 
+    /**
+     * 디자이너가 스트리밍을 종료하는 메서드.
+     *
+     * @param reservationId 예약 ID
+     * @return 업데이트된 프로세스 상태 정보
+     * @throws ApiException 예약이 존재하지 않거나 프로세스가 시작되지 않은 경우 예외 발생
+     */
     @Transactional
     public ProcessStatusDto designerEndStreaming(Long reservationId) {
-        // 예약 및 프로세스 조회
+
         Reservation reservation = getReservation(reservationId);
         Process process = getProcess(reservation);
 
@@ -199,25 +254,23 @@ public class MonitoringService {
         // 스트리밍 정보 제거
         updateStreamAndSave(process, null, null);
 
-        // ProcessStatusDto 생성
         return createProcessStatusDto(process, reservation.getIsDelivery());
     }
 
     // 가디언 API
 
     /**
-     * 배달기사가 예약 리스트를 조회하는 메서드
+     * 가디언에게 보이는 예약 리스트를 조회하는 메서드
      *
      * @return List<ReservationInfoForGuardianDto>
      */
     @Transactional(readOnly = true)
     public List<ReservationInfoForGuardianDto> getUpcomingDeliveryReservations() {
-        // 예약 조회
+        // 픽업이 필요한 예약 정보 조회
         List<Reservation> reservations =
                 reservationRepository
                         .findByIsDeliveryTrueAndIsFinishedFalseOrderByReservationDateAscStartTimeAsc();
 
-        // 변환
         return reservations.stream()
                 .map(
                         reservation -> {
@@ -242,15 +295,19 @@ public class MonitoringService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 예약 ID를 기반으로 가디언에게 예약 정보를 반환하는 메서드.
+     *
+     * @param reservationId 예약 ID
+     * @return 가디언 위한 예약 정보 DTO
+     */
     @Transactional(readOnly = true)
     public ReservationInfoForGuardianDto getGuardianReservationInfo(Long reservationId) {
-        // 예약 조회
+
         Reservation reservation = getReservation(reservationId);
 
-        // PetInfoDto 생성 (공통 메서드 사용)
         PetInfoDto petInfo = createPetInfoDto(reservation.getPet());
 
-        // ReservationInfoForGuardianDto 생성
         return ReservationInfoForGuardianDto.builder()
                 .reservationId(reservation.getReservationId())
                 .reservationDate(reservation.getReservationDate())
@@ -266,13 +323,18 @@ public class MonitoringService {
                 .build();
     }
 
+    /**
+     * 예약 ID를 기반으로 미용실로 배송을 시작하는 메서드.
+     *
+     * @param reservationId 예약 ID
+     * @return 스트리밍 정보와 상태를 포함한 DTO
+     */
     @Transactional
     public StreamingDto startDeliveryToShop(Long reservationId) {
-        // 예약 및 프로세스 조회
+
         Reservation reservation = getReservation(reservationId);
         Process process = getProcess(reservation);
 
-        // 프로세스 상태 업데이트
         updateProcessAndSave(
                 process,
                 ProcessStatus.DELIVERY_TO_SHOP,
@@ -283,11 +345,9 @@ public class MonitoringService {
         String streamUrl = "스트리밍 URL"; // TODO: 스트리밍 URL 생성 로직
         updateStreamAndSave(process, streamUrl, streamKey);
 
-        // ProcessStatusDto 생성
         ProcessStatusDto processStatusDto =
                 createProcessStatusDto(process, reservation.getIsDelivery());
 
-        // StreamingDto 반환
         return StreamingDto.builder()
                 .reservationId(reservationId)
                 .streamKey(process.getStreamKey())
@@ -296,13 +356,18 @@ public class MonitoringService {
                 .build();
     }
 
+    /**
+     * 예약 ID를 기반으로 고객 집으로 배송을 시작하는 메서드.
+     *
+     * @param reservationId 예약 ID
+     * @return 스트리밍 정보와 상태를 포함한 DTO
+     */
     @Transactional
     public StreamingDto startDeliveryToHome(Long reservationId) {
-        // 예약 및 프로세스 조회
+
         Reservation reservation = getReservation(reservationId);
         Process process = getProcess(reservation);
 
-        // 프로세스 상태 업데이트
         updateProcessAndSave(
                 process,
                 ProcessStatus.DELIVERY_TO_HOME,
@@ -313,11 +378,9 @@ public class MonitoringService {
         String streamUrl = "스트리밍 URL"; // TODO: 스트리밍 URL 생성 로직
         updateStreamAndSave(process, streamUrl, streamKey);
 
-        // ProcessStatusDto 생성
         ProcessStatusDto processStatusDto =
                 createProcessStatusDto(process, reservation.getIsDelivery());
 
-        // StreamingDto 반환
         return StreamingDto.builder()
                 .reservationId(reservationId)
                 .streamKey(process.getStreamKey())
@@ -326,76 +389,41 @@ public class MonitoringService {
                 .build();
     }
 
+    /**
+     * 예약 ID를 기반으로 고객 집에 도착한 프로세스 상태를 업데이트하는 메서드.
+     *
+     * @param reservationId 예약 ID
+     * @return 업데이트된 프로세스 상태 DTO
+     */
     @Transactional
     public ProcessStatusDto arriveAtHome(Long reservationId) {
-        // 예약 및 프로세스 조회
+
         Reservation reservation = getReservation(reservationId);
         Process process = getProcess(reservation);
 
-        // 프로세스 상태 업데이트: 서비스 완료
         updateProcessAndSave(
                 process, ProcessStatus.COMPLETED, ProcessStatus.COMPLETED.getDescription());
 
-        // ProcessStatusDto 반환
         return createProcessStatusDto(process, reservation.getIsDelivery());
     }
 
+    /**
+     * 예약 ID를 기반으로 미용실에 도착한 프로세스 상태를 업데이트하는 메서드.
+     *
+     * @param reservationId 예약 ID
+     * @return 업데이트된 프로세스 상태 DTO
+     */
     @Transactional
     public ProcessStatusDto arriveAtShop(Long reservationId) {
-        // 예약 및 프로세스 조회
+
         Reservation reservation = getReservation(reservationId);
         Process process = getProcess(reservation);
 
-        // 프로세스 상태 업데이트: 미용 시작 전 대기
         updateProcessAndSave(
                 process,
                 ProcessStatus.WAITING_FOR_GROOMING,
                 ProcessStatus.WAITING_FOR_GROOMING.getDescription());
 
-        // ProcessStatusDto 반환
-        return createProcessStatusDto(process, reservation.getIsDelivery());
-    }
-
-    @Transactional
-    public ProcessStatusDto createProcess(Long reservationId) {
-        // 1. 예약 조회
-        Reservation reservation = getReservation(reservationId);
-
-        // 2. 이미 프로세스가 있는 경우 예외 처리
-        if (reservation.getProcess() != null) {
-            throw new ApiException(ErrorCode.PROCESS_ALREADY_EXISTS);
-        }
-
-        // 3. 새로운 프로세스 생성
-        Process newProcess =
-                Process.builder()
-                        .guardian(null) // TODO: 가디언 user 관리 기능 이후 추가 처리
-                        .customerId(reservation.getPet().getCustomer().getCustomerId())
-                        .processNum(1) // 초기 상태 번호
-                        .processStatus(ProcessStatus.PREPARING) // 초기 상태
-                        .processMessage(ProcessStatus.PREPARING.getDescription()) // 초기 상태 메시지
-                        .build();
-
-        // 4. 프로세스 저장
-        newProcess = processRepository.save(newProcess);
-
-        // 5. 예약에 생성된 프로세스 연관
-        reservation.updateProcess(newProcess);
-        reservationRepository.save(reservation);
-
-        // 6. ProcessStatusDto 반환
-        return createProcessStatusDto(newProcess, reservation.getIsDelivery());
-    }
-
-    @Transactional(readOnly = true)
-    public ProcessStatusDto getProcessStatus(Long reservationId) {
-        // 1. 예약 정보 조회
-        Reservation reservation = getReservation(reservationId);
-
-        // 2. 프로세스 정보 조회
-        Process process = getProcess(reservation);
-
-        // 3. ProcessStatusDto 생성 및 반환
         return createProcessStatusDto(process, reservation.getIsDelivery());
     }
 }
