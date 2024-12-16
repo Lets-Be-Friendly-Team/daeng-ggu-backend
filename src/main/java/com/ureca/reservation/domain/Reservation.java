@@ -100,4 +100,8 @@ public class Reservation extends BaseEntity {
     public void updateCancelInfo(Boolean isCanceled) {
         this.isCanceled = isCanceled;
     }
+
+    public void updateProcess(Process process) {
+        this.process = process;
+    }
 }

@@ -37,26 +37,6 @@ public class MonitoringGuardianController {
     }
 
     /**
-     * 배달기사가 특정 예약을 선택하여 프로세스를 생성하는 API.
-     *
-     * @return 진행 상태 DTO
-     */
-    @PostMapping("/reservation/{reservationId}/process")
-    @Operation(
-            summary = "가디언이 버튼을 누르면 예약 프로세스 생성 (상태 변경)",
-            description = "배달기사가 특정 예약을 선택하여 프로세스를 생성하는 API.")
-    public ResponseDto<ProcessStatusDto> createProcess(@PathVariable Long reservationId) {
-        return ResponseUtil.SUCCESS(
-                "프로세스 생성 성공",
-                ProcessStatusDto.builder()
-                        .isDelivery(true)
-                        .processNum(1)
-                        .processStatus("PREPARING")
-                        .processMessage("시작 전 서비스 준비 중.")
-                        .build());
-    }
-
-    /**
      * 배달기사가 단일 예약 정보를 조회하는 API.
      *
      * @return 예약 정보

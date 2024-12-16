@@ -355,4 +355,47 @@ public class MonitoringService {
         // ProcessStatusDto 반환
         return createProcessStatusDto(process, reservation.getIsDelivery());
     }
+
+    @Transactional
+    public ProcessStatusDto createProcess(Long reservationId) {
+        // 1. 예약 조회
+        Reservation reservation = getReservation(reservationId);
+
+        // 2. 이미 프로세스가 있는 경우 예외 처리
+        if (reservation.getProcess() != null) {
+            throw new ApiException(ErrorCode.PROCESS_ALREADY_EXISTS);
+        }
+
+        // 3. 새로운 프로세스 생성
+        Process newProcess =
+                Process.builder()
+                        .guardian(null) // TODO: 가디언 user 관리 기능 이후 추가 처리
+                        .customerId(reservation.getPet().getCustomer().getCustomerId())
+                        .processNum(1) // 초기 상태 번호
+                        .processStatus(ProcessStatus.PREPARING) // 초기 상태
+                        .processMessage(ProcessStatus.PREPARING.getDescription()) // 초기 상태 메시지
+                        .build();
+
+        // 4. 프로세스 저장
+        newProcess = processRepository.save(newProcess);
+
+        // 5. 예약에 생성된 프로세스 연관
+        reservation.updateProcess(newProcess);
+        reservationRepository.save(reservation);
+
+        // 6. ProcessStatusDto 반환
+        return createProcessStatusDto(newProcess, reservation.getIsDelivery());
+    }
+
+    @Transactional(readOnly = true)
+    public ProcessStatusDto getProcessStatus(Long reservationId) {
+        // 1. 예약 정보 조회
+        Reservation reservation = getReservation(reservationId);
+
+        // 2. 프로세스 정보 조회
+        Process process = getProcess(reservation);
+
+        // 3. ProcessStatusDto 생성 및 반환
+        return createProcessStatusDto(process, reservation.getIsDelivery());
+    }
 }
