@@ -145,27 +145,6 @@ public class CustomerController {
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
     }
 
-    @GetMapping(
-            value = "/customer/img/test2",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Get 파일만", description = "Get 파일만")
-    public ResponseDto<Void> customerUpdateTest2(
-            @RequestPart(value = "newCustomerImgFile", required = false)
-                    MultipartFile newCustomerImgFile) {
-        logger.info("Test 2 ) newCustomerImgFile>>>" + newCustomerImgFile);
-        if (newCustomerImgFile != null) {
-            // 각 정보를 한 줄씩 출력
-            logger.info("File Name: " + newCustomerImgFile.getOriginalFilename());
-            logger.info("File Size: " + newCustomerImgFile.getSize() + " bytes");
-            logger.info("Content Type: " + newCustomerImgFile.getContentType());
-            logger.info("Is File Empty: " + newCustomerImgFile.isEmpty());
-        } else {
-            logger.info("No file received.");
-        }
-        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
-    }
-
     @PostMapping(
             value = "/customer/img/test3",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
@@ -245,30 +224,6 @@ public class CustomerController {
                 new ObjectMapper().readValue(customerUpdateJson, CustomerUpdate.class);
         logger.info("Test 6 ) customerUpdate>>>" + customerUpdate);
         logger.info("Test 6 ) newCustomerImgFile>>>" + newCustomerImgFile);
-        if (newCustomerImgFile != null) {
-            // 각 정보를 한 줄씩 출력
-            logger.info("File Name: " + newCustomerImgFile.getOriginalFilename());
-            logger.info("File Size: " + newCustomerImgFile.getSize() + " bytes");
-            logger.info("Content Type: " + newCustomerImgFile.getContentType());
-            logger.info("Is File Empty: " + newCustomerImgFile.isEmpty());
-        } else {
-            logger.info("No file received.");
-        }
-        return ResponseUtil.SUCCESS("완료되었습니다.", null);
-    }
-
-    @GetMapping("/customer/img/test7")
-    @Operation(summary = "Get 객체 String으로, 파일", description = "Get 객체 String으로, 파일")
-    public ResponseDto<String> customerUpdateTest7(
-            @RequestPart("data") String customerUpdateJson, // JSON 데이터를 String으로 받음
-            @RequestPart("newCustomerImgFile") MultipartFile newCustomerImgFile)
-            throws JsonProcessingException {
-
-        // reviewRequestJson을 객체로 변환
-        CustomerUpdate customerUpdate =
-                new ObjectMapper().readValue(customerUpdateJson, CustomerUpdate.class);
-        logger.info("Test 7 ) customerUpdate>>>" + customerUpdate);
-        logger.info("Test 7 ) newCustomerImgFile>>>" + newCustomerImgFile);
         if (newCustomerImgFile != null) {
             // 각 정보를 한 줄씩 출력
             logger.info("File Name: " + newCustomerImgFile.getOriginalFilename());
