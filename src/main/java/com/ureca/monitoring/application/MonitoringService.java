@@ -268,4 +268,55 @@ public class MonitoringService {
     private String getCodeDescription(String codeId) {
         return codeId != null ? commonCodeRepository.findCodeDescByCodeId(codeId) : null;
     }
+
+    @Transactional
+    public StreamingDto startDeliveryToShop(Long reservationId) {
+        // 1. 예약 정보 조회
+        Reservation reservation =
+                reservationRepository
+                        .findById(reservationId)
+                        .orElseThrow(() -> new ApiException(ErrorCode.RESERVATION_NOT_EXIST));
+
+        // 2. 프로세스 정보 조회
+        Process process = reservation.getProcess();
+        if (process == null) {
+            throw new ApiException(ErrorCode.PROCESS_NOT_STARTED);
+        }
+
+        // 3. 프로세스 상태 업데이트
+        process.updateStatus(
+                process.getProcessNum() + 1, // 기존 단계에 +1
+                ProcessStatus.DELIVERY_TO_SHOP, // 상태: 미용실로 배송 중
+                ProcessStatus.DELIVERY_TO_SHOP.getDescription() // 상태 메시지
+                );
+
+        // 4. 스트리밍 정보 생성
+        process.updateStreamValue(
+                "스트리밍 URL", // TODO: 스트리밍 URL 생성
+                "스트리밍 KEY" // TODO: 스트림 키 설정
+                );
+
+        // 5. 업데이트된 프로세스 저장
+        processRepository.save(process);
+
+        // 6. ProcessStatusDto 생성
+        ProcessStatusDto processStatusDto =
+                ProcessStatusDto.builder()
+                        .isDelivery(
+                                reservation.getIsDelivery() != null
+                                        ? reservation.getIsDelivery()
+                                        : false)
+                        .processNum(process.getProcessNum())
+                        .processStatus(process.getProcessStatus().name())
+                        .processMessage(process.getProcessMessage())
+                        .build();
+
+        // 7. StreamingDto 반환
+        return StreamingDto.builder()
+                .reservationId(reservationId)
+                .streamKey(process.getStreamKey())
+                .streamUrl(process.getPlaybackUrl())
+                .statusDto(processStatusDto)
+                .build();
+    }
 }
