@@ -73,34 +73,17 @@ public class PetService {
      */
     @Transactional
     public void updatePetProfile(PetUpdate data) {
-
         Customer customer =
                 customerRepository
                         .findById(data.getCustomerId())
                         .orElseThrow(() -> new ApiException(ErrorCode.CUSTOMER_NOT_EXIST));
-
         // 신규 등록
         if (data.getPetId() == null || data.getPetId() == 0) {
-
-            String imageUrl = "", fileName = "";
-            // 새로운 이미지 등록
-            if (data.getNewPetImgFile() != null
-                    && !data.getNewPetImgFile().getOriginalFilename().isEmpty()) {
-                imageUrl =
-                        s3Service.uploadFileImage(
-                                data.getNewPetImgFile(),
-                                "profile",
-                                "petprofile"); // TODO 파일명 짓는 양식 정하기
-                fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
-            }
-
-            // 입력 내용
             Pet newPet =
                     Pet.builder()
                             .customer(customer)
                             .petName(data.getPetName())
-                            .petImgUrl(imageUrl)
-                            .petImgName(fileName)
+                            .petImgUrl(data.getNewPetImgUrl())
                             .birthDate(ValidationUtil.stringToDate(data.getBirthDate()))
                             .gender(data.getGender())
                             .majorBreedCode(data.getMajorBreedCode())
@@ -110,9 +93,7 @@ public class PetService {
                             .isNeutered(data.getIsNeutered())
                             .createdAt(LocalDateTime.now())
                             .build();
-
-            // 등록
-            petRepository.save(newPet);
+            petRepository.save(newPet); // 등록
 
         } else {
             // 기존 정보 조회
@@ -123,22 +104,14 @@ public class PetService {
                 throw new ApiException(ErrorCode.DATA_NOT_EXIST);
             }
             String imageUrl = pet.getPetImgUrl();
-            String fileName = pet.getPetImgName();
-            // 이미지 수정 - 같은 파일명으로 덮어쓰기
-            if (data.getNewPetImgFile() != null
-                    && !data.getNewPetImgFile().getOriginalFilename().isEmpty()) {
-                imageUrl =
-                        s3Service.updateFileImage(data.getPrePetImgUrl(), data.getNewPetImgFile());
-                fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+            if (!data.getNewPetImgUrl().isEmpty()) { // 신규 이미지 업데이트
+                imageUrl = data.getNewPetImgUrl();
             }
-
-            // 입력 내용
             Pet updatedPet =
                     pet.toBuilder()
                             .customer(customer)
                             .petName(data.getPetName())
-                            .petImgUrl(imageUrl)
-                            .petImgName(fileName)
+                            .petImgUrl(data.getNewPetImgUrl())
                             .birthDate(ValidationUtil.stringToDate(data.getBirthDate()))
                             .gender(data.getGender())
                             .majorBreedCode(data.getMajorBreedCode())
@@ -148,9 +121,7 @@ public class PetService {
                             .isNeutered(data.getIsNeutered())
                             .updatedAt(LocalDateTime.now())
                             .build();
-
-            // 업데이트
-            petRepository.save(updatedPet);
+            petRepository.save(updatedPet); // 업데이트
         }
     } // updatePetProfile
 }
