@@ -22,6 +22,7 @@ import com.ureca.request.domain.Request;
 import com.ureca.request.infrastructure.RequestRepository;
 import com.ureca.review.domain.Enum.AuthorType;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -175,6 +176,19 @@ public class EstimateService {
                                                                         .estimatePrice(
                                                                                 estimate
                                                                                         .getEstimatePayment())
+                                                                        .startTime(
+                                                                                estimate
+                                                                                        .getDesiredDate())
+                                                                        .endTime(
+                                                                                estimate.getDesiredDate()
+                                                                                        .plus(
+                                                                                                Duration
+                                                                                                        .ofHours(
+                                                                                                                request
+                                                                                                                        .getServiceTime())))
+                                                                        .takeTime(
+                                                                                request
+                                                                                        .getServiceTime())
                                                                         .petId(
                                                                                 estimate.getRequest()
                                                                                         .getPet()
@@ -257,6 +271,11 @@ public class EstimateService {
                 .designerImageUrl(estimate.getDesigner().getDesignerImgUrl())
                 .createdAt(estimate.getCreatedAt())
                 .estimateDetail(estimate.getEstimateDetail())
+                .startTime(estimate.getDesiredDate())
+                .endTime(
+                        estimate.getDesiredDate()
+                                .plus(Duration.ofHours(estimate.getRequest().getServiceTime())))
+                .takeTime(estimate.getRequest().getServiceTime())
                 .customerId(estimate.getRequest().getCustomer().getCustomerId())
                 .customerName(estimate.getRequest().getCustomer().getCustomerName())
                 .phone(estimate.getRequest().getCustomer().getPhone())
