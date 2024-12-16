@@ -4,6 +4,8 @@ import com.ureca.common.application.S3Service;
 import com.ureca.common.exception.ApiException;
 import com.ureca.common.exception.ErrorCode;
 import com.ureca.common.util.ValidationUtil;
+import com.ureca.login.application.ExternalService;
+import com.ureca.login.application.dto.Coordinate;
 import com.ureca.login.presentation.dto.KakaoDTO;
 import com.ureca.profile.domain.Bookmark;
 import com.ureca.profile.domain.Customer;
@@ -17,7 +19,6 @@ import com.ureca.profile.infrastructure.DesignerRepository;
 import com.ureca.profile.infrastructure.PetRepository;
 import com.ureca.profile.infrastructure.PortfolioImgRepository;
 import com.ureca.profile.infrastructure.PortfolioRepository;
-import com.ureca.profile.infrastructure.ServicesRepository;
 import com.ureca.profile.presentation.dto.BookmarkInfo;
 import com.ureca.profile.presentation.dto.BookmarkYn;
 import com.ureca.profile.presentation.dto.BreedSub;
@@ -51,10 +52,10 @@ public class CustomerService {
     @Autowired private CertificateRepository certificateRepository;
     @Autowired private PortfolioRepository portfolioRepository;
     @Autowired private PortfolioImgRepository imgRepository;
-    @Autowired private ServicesRepository servicesRepository;
     @Autowired private PetRepository petRepository;
     @Autowired private ReviewRepository reviewRepository;
     @Autowired private BookmarkRepository bookmarkRepository;
+    @Autowired private ExternalService externalService;
     @Autowired private ProfileService profileService;
     @Autowired private S3Service s3Service;
 
@@ -309,6 +310,8 @@ public class CustomerService {
             // 중복 email 확인
             Optional<Customer> isExistCustomer = customerRepository.findByEmail(email);
             if (!isExistCustomer.isPresent()) {
+                Coordinate coordinate =
+                        externalService.addressToCoordinate(customerSignupInfo.getAddress2());
                 Customer newCustomer =
                         Customer.builder()
                                 .role(role)
@@ -326,8 +329,8 @@ public class CustomerService {
                                 .address1(customerSignupInfo.getAddress1())
                                 .address2(customerSignupInfo.getAddress2())
                                 .detailAddress(customerSignupInfo.getDetailAddress())
-                                .xPosition(127.05) // TODO 좌표 변환 API 연동
-                                .yPosition(37.5029)
+                                .xPosition(coordinate.getX())
+                                .yPosition(coordinate.getY())
                                 .createdAt(LocalDateTime.now())
                                 .updatedAt(null) // 신규 가입 시에는 null
                                 .build();

@@ -8,7 +8,9 @@ import com.ureca.common.response.ResponseUtil;
 import com.ureca.common.response.SuccessCode;
 import com.ureca.common.util.CookieUtil;
 import com.ureca.common.util.TokenUtils;
+import com.ureca.login.application.ExternalService;
 import com.ureca.login.application.TestService;
+import com.ureca.login.application.dto.Coordinate;
 import com.ureca.login.presentation.dto.AuthConstants;
 import com.ureca.login.presentation.dto.KakaoDTO;
 import com.ureca.login.presentation.dto.UserDTO;
@@ -39,6 +41,7 @@ public class TestController {
     @Autowired private TestService testService;
     @Autowired private CustomerService customerService;
     @Autowired private DesignerService designerService;
+    @Autowired private ExternalService externalService;
 
     // Test : 기존 Login Step 1~3 합침
     /**
@@ -135,5 +138,16 @@ public class TestController {
                         .build();
 
         return new ResponseEntity<>(ar, HttpStatus.OK);
+    }
+
+    /**
+     * @title 단순 주소 좌표 변환 확인 테스트 컨트롤러
+     * @description 주소를 입력하면 좌표값으로 반환된다.
+     * @return ResponseDto<Coordinate> : x, y 좌표
+     */
+    @GetMapping("/kakaoAddress")
+    @Operation(summary = "단순 좌표 변환 확인", description = "사용자 address2 정보를 입력하면 좌표로 반환하는 API")
+    public ResponseDto<Coordinate> selectKakaoAddress(String address2) {
+        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", externalService.addressToCoordinate(address2));
     }
 }
