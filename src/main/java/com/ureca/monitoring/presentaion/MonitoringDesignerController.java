@@ -3,7 +3,6 @@ package com.ureca.monitoring.presentaion;
 import com.ureca.common.response.ResponseDto;
 import com.ureca.common.response.ResponseUtil;
 import com.ureca.monitoring.application.MonitoringService;
-import com.ureca.monitoring.presentaion.dto.PetInfoDto;
 import com.ureca.monitoring.presentaion.dto.ProcessStatusDto;
 import com.ureca.monitoring.presentaion.dto.ReservationInfoForDesignerDto;
 import com.ureca.monitoring.presentaion.dto.StreamingDto;
@@ -47,19 +46,9 @@ public class MonitoringDesignerController {
     @PostMapping("/process/{reservationId}/start")
     @Operation(summary = "스트리밍 시작", description = "미용실이 스트리밍을 시작합니다.")
     public ResponseDto<StreamingDto> startStreaming(@PathVariable Long reservationId) {
+
         return ResponseUtil.SUCCESS(
-                "스트리밍 시작",
-                StreamingDto.builder()
-                        .streamUrl("http://streaming.example.com/live/1234")
-                        .streamKey("abcd-efgh-1234")
-                        .statusDto(
-                                ProcessStatusDto.builder()
-                                        .isDelivery(true)
-                                        .processNum(4)
-                                        .processStatus("GROOMING")
-                                        .processMessage("미용 진행 중.")
-                                        .build())
-                        .build());
+                "고객 정보 조회 성공", monitoringService.designerStartStreaming(reservationId));
     }
     ;
 
