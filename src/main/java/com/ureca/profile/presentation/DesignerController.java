@@ -5,6 +5,7 @@ import com.ureca.common.response.ResponseUtil;
 import com.ureca.profile.application.DesignerService;
 import com.ureca.profile.presentation.dto.DesignerDetail;
 import com.ureca.profile.presentation.dto.DesignerProfile;
+import com.ureca.profile.presentation.dto.DesignerRegister;
 import com.ureca.profile.presentation.dto.DesignerUpdate;
 import com.ureca.profile.presentation.dto.PortfolioDetail;
 import com.ureca.profile.presentation.dto.PortfolioUpdate;
@@ -15,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -84,6 +87,14 @@ public class DesignerController {
             @RequestParam(defaultValue = "") Long portfolioId) {
         // service - 디자이너 포트폴리오 삭제
         designerService.deleteDesignerPortfolio(designerId, portfolioId);
+        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
+    }
+
+    @PostMapping("/designer/register/profile")
+    @Operation(summary = "디자이너 프로필 등록", description = "[DLOG3100] 회원가입 시 디자이너 프로필 등록 API")
+    public ResponseDto<Void> designerRegisterProfile(@RequestBody DesignerRegister data) {
+        // service - 보호자 프로필 등록
+        designerService.registerDesignerProfile(data);
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
     }
 }

@@ -10,22 +10,30 @@ import com.ureca.profile.domain.Certificate;
 import com.ureca.profile.domain.Designer;
 import com.ureca.profile.domain.Portfolio;
 import com.ureca.profile.domain.PortfolioImg;
+import com.ureca.profile.domain.Price;
 import com.ureca.profile.domain.Services;
+import com.ureca.profile.infrastructure.BreedsRepository;
 import com.ureca.profile.infrastructure.CertificateRepository;
 import com.ureca.profile.infrastructure.DesignerRepository;
 import com.ureca.profile.infrastructure.PortfolioImgRepository;
 import com.ureca.profile.infrastructure.PortfolioRepository;
+import com.ureca.profile.infrastructure.PriceRepository;
 import com.ureca.profile.infrastructure.ServicesRepository;
 import com.ureca.profile.presentation.dto.BreedCode;
+import com.ureca.profile.presentation.dto.BreedPriceTime;
 import com.ureca.profile.presentation.dto.DesignerDetail;
 import com.ureca.profile.presentation.dto.DesignerProfile;
+import com.ureca.profile.presentation.dto.DesignerRegister;
 import com.ureca.profile.presentation.dto.DesignerSignup;
 import com.ureca.profile.presentation.dto.DesignerUpdate;
 import com.ureca.profile.presentation.dto.PortfolioDetail;
 import com.ureca.profile.presentation.dto.PortfolioInfo;
+import com.ureca.profile.presentation.dto.PortfolioInfoUrl;
 import com.ureca.profile.presentation.dto.PortfolioUpdate;
+import com.ureca.profile.presentation.dto.ProvidedServices;
 import com.ureca.review.domain.Review;
 import com.ureca.review.infrastructure.ReviewRepository;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,6 +59,9 @@ public class DesignerService {
     @Autowired private ReviewRepository reviewRepository;
     @Autowired private PortfolioImgRepository imgRepository;
     @Autowired private ServicesRepository servicesRepository;
+    @Autowired private BreedsRepository breedsRepository;
+    @Autowired private PriceRepository priceRepository;
+    @Autowired private PortfolioImgRepository portfolioImgRepository;
     @Autowired private ProfileService profileService;
     @Autowired private S3Service s3Service;
 
@@ -626,4 +637,143 @@ public class DesignerService {
         }
         return result;
     } // insertDesigner
+
+    /**
+     * @title 디자이너 - 프로필 등록
+     * @description 디자이너 회원가입 프로필 등록, 가능견종, 서비스, 인증서 등록
+     * @param data 입력 정보
+     */
+    @Transactional
+    public void registerDesignerProfile(DesignerRegister data) {
+        // 디자이너 회원가입 정보 조회
+        Designer designer =
+                designerRepository
+                        .findById(data.getDesignerId())
+                        .orElseThrow(() -> new ApiException(ErrorCode.DESIGNER_NOT_EXIST));
+
+        Designer updatedDesigner =
+                designer.toBuilder()
+                        .officialName(
+                                data.getNickname() != null
+                                        ? data.getNickname()
+                                        : designer.getOfficialName())
+                        .designerImgUrl(
+                                data.getNewImgUrl() != null
+                                        ? data.getNewImgUrl()
+                                        : designer.getDesignerImgUrl())
+                        .address1(
+                                data.getAddress1() != null
+                                        ? data.getAddress1()
+                                        : designer.getAddress1())
+                        .address2(
+                                data.getAddress2() != null
+                                        ? data.getAddress2()
+                                        : designer.getAddress2())
+                        .detailAddress(
+                                data.getDetailAddress() != null
+                                        ? data.getDetailAddress()
+                                        : designer.getDetailAddress())
+                        .introduction(
+                                data.getIntroduction() != null
+                                        ? data.getIntroduction()
+                                        : designer.getIntroduction())
+                        .phone(data.getPhone() != null ? data.getPhone() : designer.getPhone())
+                        .businessNumber(
+                                data.getBusinessNumber() != null
+                                        ? data.getBusinessNumber()
+                                        : designer.getBusinessNumber())
+                        .businessIsVerified(
+                                data.getBusinessIsVerified() != null
+                                        ? data.getBusinessIsVerified()
+                                        : designer.getBusinessIsVerified())
+                        .workExperience(
+                                data.getWorkExperience() != null
+                                        ? data.getWorkExperience()
+                                        : designer.getWorkExperience())
+                        .dayOff(
+                                data.getDayOff() != null
+                                        ? String.join(",", data.getDayOff())
+                                        : designer.getDayOff()) // ["월", "화"] -> 월,화
+                        .build(); // 빌더로 새로운 객체 생성
+        designerRepository.save(updatedDesigner);
+
+        // 서비스별 견종 가격 및 시간 목록
+        for (ProvidedServices providedServices : data.getProvidedServiceList()) {
+            Services newService =
+                    Services.builder()
+                            .designer(designer)
+                            .providedServicesCode(providedServices.getServiceCode()) // 제공 서비스 코드
+                            .build();
+            Services savedService = servicesRepository.save(newService);
+
+            for (BreedPriceTime breedPriceTime : providedServices.getBreedPriceTimeList()) {
+                Breeds newBreed =
+                        Breeds.builder()
+                                .designer(designer)
+                                .possibleMajorBreedCode(
+                                        breedPriceTime.getMajorBreedCode()) // 견종 대분류 코드
+                                .build();
+                Breeds savedBreed = breedsRepository.save(newBreed);
+
+                try {
+                    Price price =
+                            Price.builder()
+                                    .service(savedService)
+                                    .breed(savedBreed)
+                                    .price(
+                                            new BigDecimal(
+                                                    breedPriceTime
+                                                            .getPrice())) // 가격을 BigDecimal로 변환
+                                    .time(
+                                            Integer.parseInt(
+                                                    breedPriceTime.getTime())) // 시간을 Integer로 변환
+                                    .build();
+                    priceRepository.save(price);
+
+                } catch (NumberFormatException e) {
+                    throw new ApiException(ErrorCode.ACCOUNT_DATA_ERROR);
+                }
+            }
+        }
+
+        // 신규 자격증 이미지 URL 목록
+        for (String imgUrl : data.getCertificationsUrlList()) {
+            Certificate certificate =
+                    Certificate.builder().designer(designer).imgUrl(imgUrl).build();
+            certificateRepository.save(certificate);
+        }
+
+        // 포트폴리오 목록 처리
+        for (PortfolioInfoUrl portfolioInfo : data.getPortfolioList()) {
+            Portfolio portfolio =
+                    Portfolio.builder()
+                            .designer(designer)
+                            .videoUrl(portfolioInfo.getNewVideoUrl())
+                            .videoName(
+                                    portfolioInfo.getNewVideoUrl() != null
+                                            ? "Video " + portfolioInfo.getNewVideoUrl().hashCode()
+                                            : "")
+                            .title(portfolioInfo.getTitle())
+                            .contents(portfolioInfo.getContents())
+                            .createdAt(LocalDateTime.now())
+                            .updatedAt(null) // 신규 가입 시에는 null
+                            .build();
+            Portfolio savedPortfolio = portfolioRepository.save(portfolio);
+
+            // 이미지 URL 목록 처리
+            if (portfolioInfo.getNewImgUrlList() != null
+                    && !portfolioInfo.getNewImgUrlList().isEmpty()) {
+                for (String imgUrl : portfolioInfo.getNewImgUrlList()) {
+                    PortfolioImg portfolioImg =
+                            PortfolioImg.builder()
+                                    .portfolio(savedPortfolio)
+                                    .imgUrl(imgUrl)
+                                    .createdAt(LocalDateTime.now())
+                                    .updatedAt(null) // 신규 가입 시에는 null
+                                    .build();
+                    portfolioImgRepository.save(portfolioImg);
+                }
+            }
+        }
+    } // registerDesignerProfile
 }

@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.web.multipart.MultipartFile;
 
-// 디자이너 프로필 등록/수정
+// 디자이너 프로필 수정
 @Builder
 @Getter
 public class DesignerUpdate {
