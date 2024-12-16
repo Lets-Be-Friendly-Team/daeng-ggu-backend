@@ -229,7 +229,7 @@ public class ReviewService {
         // 4. 기존 이미지 삭제 (남길 이미지 제외)
         for (ReviewImage image : existingImages) {
             if (!keepImgUrls.contains(image.getReviewImageUrl())) {
-                s3Service.deleteFileImage(image.getReviewImageUrl()); // S3에서 삭제
+                //                s3Service.deleteFileImage(image.getReviewImageUrl()); // S3에서 삭제
                 reviewImageRepository.delete(image); // DB에서 삭제
             }
         }
