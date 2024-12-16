@@ -159,6 +159,7 @@ public class ReviewService {
     public void createReview(Long customerId, ReviewDto.Request reviewRequest) {
         System.out.println("A1 : " + customerId);
         System.out.println("A2 : " + reviewRequest.getDesignerId());
+        System.out.println("isFeedAdd: " + reviewRequest.getIsFeedAdd());
         List<String> feedImgList = reviewRequest.getFeedImgList();
         Customer customer =
                 customerRepository
