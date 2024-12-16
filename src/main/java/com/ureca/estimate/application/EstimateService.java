@@ -269,6 +269,9 @@ public class EstimateService {
                 .designerId(estimate.getDesigner().getDesignerId())
                 .designerName(estimate.getDesigner().getDesignerName())
                 .designerImageUrl(estimate.getDesigner().getDesignerImgUrl())
+                .designerAddress(
+                        estimate.getDesigner().getAddress1()
+                                + estimate.getDesigner().getDetailAddress())
                 .createdAt(estimate.getCreatedAt())
                 .estimateDetail(estimate.getEstimateDetail())
                 .startTime(estimate.getDesiredDate())
@@ -276,6 +279,8 @@ public class EstimateService {
                         estimate.getDesiredDate()
                                 .plus(Duration.ofHours(estimate.getRequest().getServiceTime())))
                 .takeTime(estimate.getRequest().getServiceTime())
+                .petId(estimate.getRequest().getPet().getPetId())
+                .petName(estimate.getRequest().getPet().getPetName())
                 .customerId(estimate.getRequest().getCustomer().getCustomerId())
                 .customerName(estimate.getRequest().getCustomer().getCustomerName())
                 .phone(estimate.getRequest().getCustomer().getPhone())
