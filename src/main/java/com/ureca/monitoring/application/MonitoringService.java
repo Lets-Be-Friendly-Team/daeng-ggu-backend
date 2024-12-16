@@ -398,4 +398,20 @@ public class MonitoringService {
         // 3. ProcessStatusDto 생성 및 반환
         return createProcessStatusDto(process, reservation.getIsDelivery());
     }
+
+    @Transactional(readOnly = true)
+    public StreamingInfoDto getStreamingInfo(Long reservationId) {
+        // 예약 조회
+        Reservation reservation = getReservation(reservationId);
+
+        // 프로세스 조회
+        Process process = getProcess(reservation);
+
+        // 스트리밍 정보 반환
+        return StreamingInfoDto.builder()
+                .reservationId(reservationId)
+                .streamUrl(process.getPlaybackUrl())
+                .streamKey(process.getStreamKey())
+                .build();
+    }
 }
