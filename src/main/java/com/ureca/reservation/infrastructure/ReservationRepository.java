@@ -33,4 +33,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
                     + "FROM Reservation r WHERE r.designer.designerId = :designerId "
                     + "AND YEAR(r.reservationDate) = :year AND MONTH(r.reservationDate) = :month")
     List<ReservationInfo> findReservationsByDesignerAndMonth(Long designerId, int year, int month);
+
+    // isDelivery가 true, isFinished가 false인 예약을 날짜와 시간 기준으로 정렬하여 조회
+    List<Reservation> findByIsDeliveryTrueAndIsFinishedFalseOrderByReservationDateAscStartTimeAsc();
 }

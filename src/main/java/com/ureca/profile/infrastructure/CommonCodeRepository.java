@@ -17,4 +17,8 @@ public interface CommonCodeRepository extends JpaRepository<CommonCode, String> 
     // 코드 아이디로 코드명 찾기
     @Query("SELECT c.codeNm FROM CommonCode c WHERE c.codeId = ?1")
     String findCodeNmByCodeId(String codeId);
+
+    // 코드 아이디로 코드 설명 찾기
+    @Query("SELECT c.codeDesc FROM CommonCode c WHERE c.codeId = ?1")
+    String findCodeDescByCodeId(String codeId);
 }

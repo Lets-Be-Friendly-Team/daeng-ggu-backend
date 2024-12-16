@@ -28,6 +28,7 @@ public enum ErrorCode {
     RESERVATION_NOT_EXIST(500, "예약 데이터가 없습니다.", 2110),
     USER_DATA_NOT_EXIST(500, "유저 고유 id가 없습니다.", 2120),
     PROCESS_NOT_STARTED(500, "프로세스가 시작되지 않은 미용입니다.", 2130),
+    PROCESS_ALREADY_EXISTS(500, "이미 예약에 대한 프로세스가 존재합니다.", 2140),
 
     // 3000번대: 권한 관련 오류
     ACCESS_DENIED(403, "데이터 접근 권한이 없습니다.", 3000),
