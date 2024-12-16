@@ -46,22 +46,8 @@ public class MonitoringService {
         // Process 데이터 가져오기
         Process process = reservation.getProcess();
 
-        // majorBreedCode 및 subBreedCode를 codeDesc로 변환
-        String majorBreedDesc = commonCodeRepository.findCodeDescByCodeId(pet.getMajorBreedCode());
-        String subBreedDesc = commonCodeRepository.findCodeDescByCodeId(pet.getSubBreedCode());
-
-        // PetInfoDto 생성
-        PetInfoDto petInfo =
-                PetInfoDto.builder()
-                        .petName(pet.getPetName())
-                        .birthDate(pet.getBirthDate().toString())
-                        .gender(pet.getGender())
-                        .weight(pet.getWeight())
-                        .specialNotes(pet.getSpecialNotes())
-                        .isNeutered("Y".equalsIgnoreCase(pet.getIsNeutered())) // N/Y 처리
-                        .majorBreed(majorBreedDesc)
-                        .subBreed(subBreedDesc)
-                        .build();
+        // PetInfoDto 생성 (공통 메서드 사용)
+        PetInfoDto petInfo = createPetInfoDto(pet);
 
         // ProcessStatusDto 생성
         ProcessStatusDto processStatus =
@@ -199,68 +185,87 @@ public class MonitoringService {
 
     @Transactional(readOnly = true)
     public List<ReservationInfoForGuardianDto> getUpcomingDeliveryReservations() {
-        // 1. isDelivery가 true, isFinished가 false인 예약을 조회하고 날짜와 시간 기준으로 정렬
+        // 예약 조회
         List<Reservation> reservations =
                 reservationRepository
                         .findByIsDeliveryTrueAndIsFinishedFalseOrderByReservationDateAscStartTimeAsc();
 
-        // 2. Reservation 리스트를 ReservationInfoForGuardianDto로 변환
+        // 변환
         return reservations.stream()
                 .map(
                         reservation -> {
-                            // 반려견 정보 생성
                             Pet pet = reservation.getPet();
+                            PetInfoDto petInfo = createPetInfoDto(pet);
 
-                            String majorBreedDesc =
-                                    commonCodeRepository.findCodeDescByCodeId(
-                                            pet.getMajorBreedCode());
-                            String subBreedDesc =
-                                    commonCodeRepository.findCodeDescByCodeId(
-                                            pet.getSubBreedCode());
-
-                            PetInfoDto petInfo =
-                                    PetInfoDto.builder()
-                                            .petName(pet.getPetName())
-                                            .petImgUrl(pet.getPetImgUrl())
-                                            .birthDate(
-                                                    pet.getBirthDate() != null
-                                                            ? pet.getBirthDate().toString()
-                                                            : null)
-                                            .gender(pet.getGender())
-                                            .weight(pet.getWeight())
-                                            .specialNotes(pet.getSpecialNotes())
-                                            .isNeutered(
-                                                    "Y"
-                                                            .equalsIgnoreCase(
-                                                                    pet
-                                                                            .getIsNeutered())) // N/Y 처리 // 결과: true // 중성화 여부
-                                            .majorBreed(majorBreedDesc)
-                                            .subBreed(subBreedDesc)
-                                            .build();
-
-                            // 예약 정보 DTO 생성
                             return ReservationInfoForGuardianDto.builder()
                                     .reservationId(reservation.getReservationId())
                                     .reservationDate(reservation.getReservationDate())
-                                    .startTime(
-                                            reservation
-                                                    .getStartTime()
-                                                    .getHour()) // LocalTime에서 시간 추출
+                                    .startTime(reservation.getStartTime().getHour())
                                     .isFinished(reservation.getIsFinished())
                                     .processId(
                                             reservation.getProcess() != null
                                                     ? reservation.getProcess().getProcessId()
                                                     : null)
                                     .customerAddress(
-                                            reservation
-                                                    .getPet()
-                                                    .getCustomer()
-                                                    .getAddress2()) // 보호자 주소
-                                    .shopAddress(
-                                            reservation.getDesigner().getAddress2()) // 디자이너의 샵 주소
+                                            reservation.getPet().getCustomer().getAddress2())
+                                    .shopAddress(reservation.getDesigner().getAddress2())
                                     .petInfo(petInfo)
                                     .build();
                         })
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public ReservationInfoForGuardianDto getGuardianReservationInfo(Long reservationId) {
+        // 예약 조회
+        Reservation reservation =
+                reservationRepository
+                        .findById(reservationId)
+                        .orElseThrow(() -> new ApiException(ErrorCode.RESERVATION_NOT_EXIST));
+
+        Pet pet = reservation.getPet();
+
+        // PetInfoDto 생성 (공통 메서드 사용)
+        PetInfoDto petInfo = createPetInfoDto(pet);
+
+        // ReservationInfoForGuardianDto 생성
+        return ReservationInfoForGuardianDto.builder()
+                .reservationId(reservation.getReservationId())
+                .reservationDate(reservation.getReservationDate())
+                .startTime(reservation.getStartTime().getHour())
+                .isFinished(reservation.getIsFinished())
+                .processId(
+                        reservation.getProcess() != null
+                                ? reservation.getProcess().getProcessId()
+                                : null)
+                .customerAddress(reservation.getPet().getCustomer().getAddress2())
+                .shopAddress(reservation.getDesigner().getAddress2())
+                .petInfo(petInfo)
+                .build();
+    }
+
+    // PetInfoDto 생성 공통 메서드
+    private PetInfoDto createPetInfoDto(Pet pet) {
+        // majorBreedCode 및 subBreedCode를 codeDesc로 변환
+        String majorBreedDesc = getCodeDescription(pet.getMajorBreedCode());
+        String subBreedDesc = getCodeDescription(pet.getSubBreedCode());
+
+        // PetInfoDto 생성
+        return PetInfoDto.builder()
+                .petName(pet.getPetName())
+                .petImgUrl(pet.getPetImgUrl())
+                .birthDate(pet.getBirthDate() != null ? pet.getBirthDate().toString() : null)
+                .gender(pet.getGender())
+                .weight(pet.getWeight())
+                .specialNotes(pet.getSpecialNotes())
+                .isNeutered("Y".equalsIgnoreCase(pet.getIsNeutered())) // N/Y 처리
+                .majorBreed(majorBreedDesc)
+                .subBreed(subBreedDesc)
+                .build();
+    }
+
+    // 공통 코드 설명 조회 메서드
+    private String getCodeDescription(String codeId) {
+        return codeId != null ? commonCodeRepository.findCodeDescByCodeId(codeId) : null;
     }
 }
