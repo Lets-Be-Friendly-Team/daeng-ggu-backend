@@ -7,6 +7,7 @@ import lombok.Getter;
 @Builder
 public class PetInfoDto {
     private String petName;
+    private String petImgUrl;
     private String birthDate;
     private String gender;
     private double weight;

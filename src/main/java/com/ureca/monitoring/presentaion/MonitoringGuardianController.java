@@ -35,6 +35,8 @@ public class MonitoringGuardianController {
         PetInfoDto petInfo1 =
                 PetInfoDto.builder()
                         .petName("초코")
+                        .petImgUrl(
+                                "https://letsbefriendly.s3.ap-northeast-2.amazonaws.com/janggun.jpg")
                         .birthDate("2022-05-10")
                         .gender("Female")
                         .weight(6.0)
@@ -57,6 +59,8 @@ public class MonitoringGuardianController {
         PetInfoDto petInfo2 =
                 PetInfoDto.builder()
                         .petName("몽이")
+                        .petImgUrl(
+                                "https://daeng-ggu-test.s3.ap-northeast-2.amazonaws.com/haneul.jpg")
                         .birthDate("2021-08-22")
                         .gender("Male")
                         .weight(10.0)
