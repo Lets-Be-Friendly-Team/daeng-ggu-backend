@@ -19,8 +19,8 @@ public class EstimateImage extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long estimateImgId;
 
-    @Column(length = 100, nullable = false)
-    private String estimateTagId; // 이미지 URL
+    @Column(length = 100, nullable = true)
+    private String estimateTagId; // 이미지 태그 ID
 
     @Column(length = 300, nullable = false)
     private String estimateImgUrl; // 이미지 URL

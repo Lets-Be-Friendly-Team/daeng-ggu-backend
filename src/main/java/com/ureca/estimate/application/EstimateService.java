@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -48,11 +47,7 @@ public class EstimateService {
     private static final String LOCK_KEY_PREFIX = "estimate:cnt:";
 
     @Transactional
-    public void makeEstimate(
-            EstimateDto.Request request,
-            List<MultipartFile> estimateImgList,
-            List<String> imgIdList,
-            Long designerId) {
+    public void makeEstimate(EstimateDto.Request request, Long designerId) {
         BigDecimal totalFee =
                 requestRepository
                         .findById(request.getRequestId())
@@ -85,18 +80,11 @@ public class EstimateService {
                             .build();
 
             List<EstimateImage> estimateImages = new ArrayList<>();
+            List<String> estimateImgList = request.getEstimateImgList();
             for (Integer i = 0; i < estimateImgList.size(); i++) {
-                String estimate_img_url =
-                        s3Service.uploadFileImage(
-                                estimateImgList.get(i),
-                                "estimate",
-                                imgIdList.get(i)
-                                        + "-"
-                                        + estimateImgList.get(i).getOriginalFilename());
                 EstimateImage estimateImage =
                         EstimateImage.builder()
-                                .estimateTagId(imgIdList.get(i))
-                                .estimateImgUrl(estimate_img_url)
+                                .estimateImgUrl(estimateImgList.get(i))
                                 .estimate(estimate)
                                 .build();
                 estimateImageRepository.save(estimateImage);
