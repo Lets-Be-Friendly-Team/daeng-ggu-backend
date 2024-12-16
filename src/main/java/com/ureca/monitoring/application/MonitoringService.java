@@ -95,19 +95,19 @@ public class MonitoringService {
             throw new ApiException(ErrorCode.PROCESS_NOT_STARTED);
         }
 
-        // 3. Process 업데이트
-        Process updateProcess =
-                Process.builder()
-                        .processNum(process.getProcessNum() + 1) // 기존 단계에 +1
-                        .customerId(process.getCustomerId())
-                        .processStatus(ProcessStatus.GROOMING) // 상태 변경
-                        .processMessage(ProcessStatus.GROOMING.getDescription()) // 새로운 상태 메시지
-                        .streamKey(generateStreamKey()) // 스트림 키 설정
-                        .playbackUrl(generateStreamUrl(generateStreamKey())) // 스트리밍 URL 생성
-                        .build();
+        // 3. Process 업데이트 (기존 객체를 수정)
+        process.updateStatus(
+                process.getProcessNum() + 1, // 기존 단계에 +1
+                ProcessStatus.GROOMING, // 상태 변경
+                ProcessStatus.GROOMING.getDescription() // 새로운 상태 메시지
+                );
+        process.updateStreamValue(
+                generateStreamUrl(generateStreamKey()), // 스트리밍 URL 생성
+                generateStreamKey() // 스트림 키 설정
+                );
 
-        // 업데이트된 Process를 저장
-        process = processRepository.save(updateProcess);
+        // 업데이트된 Process 저장
+        process = processRepository.save(process);
 
         // 4. ProcessStatusDto 생성
         ProcessStatusDto processStatusDto =

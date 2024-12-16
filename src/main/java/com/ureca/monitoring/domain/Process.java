@@ -39,4 +39,16 @@ public class Process extends BaseEntity {
 
     @Column(length = 255)
     private String streamKey; // 스트림 Key
+
+    public void updateStatus(
+            Integer processNum, ProcessStatus processStatus, String processMessage) {
+        this.processNum = processNum;
+        this.processStatus = processStatus;
+        this.processMessage = processMessage;
+    }
+
+    public void updateStreamValue(String playbackUrl, String streamKey) {
+        this.playbackUrl = playbackUrl;
+        this.streamKey = streamKey;
+    }
 }
