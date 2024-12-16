@@ -325,4 +325,34 @@ public class MonitoringService {
                 .statusDto(processStatusDto)
                 .build();
     }
+
+    @Transactional
+    public ProcessStatusDto arriveAtHome(Long reservationId) {
+        // 예약 및 프로세스 조회
+        Reservation reservation = getReservation(reservationId);
+        Process process = getProcess(reservation);
+
+        // 프로세스 상태 업데이트: 서비스 완료
+        updateProcessAndSave(
+                process, ProcessStatus.COMPLETED, ProcessStatus.COMPLETED.getDescription());
+
+        // ProcessStatusDto 반환
+        return createProcessStatusDto(process, reservation.getIsDelivery());
+    }
+
+    @Transactional
+    public ProcessStatusDto arriveAtShop(Long reservationId) {
+        // 예약 및 프로세스 조회
+        Reservation reservation = getReservation(reservationId);
+        Process process = getProcess(reservation);
+
+        // 프로세스 상태 업데이트: 미용 시작 전 대기
+        updateProcessAndSave(
+                process,
+                ProcessStatus.WAITING_FOR_GROOMING,
+                ProcessStatus.WAITING_FOR_GROOMING.getDescription());
+
+        // ProcessStatusDto 반환
+        return createProcessStatusDto(process, reservation.getIsDelivery());
+    }
 }

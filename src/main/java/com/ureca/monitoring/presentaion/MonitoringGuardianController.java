@@ -86,15 +86,9 @@ public class MonitoringGuardianController {
      * @return 진행 상태 DTO
      */
     @PostMapping("/process/{reservationId}/arrive-at-shop")
-    @Operation(summary = "도착 버튼을 눌러 미용실 도착", description = "배달기사가 미용실 도착 버튼을 누를 때 상태 변경 API")
+    @Operation(summary = "도착 버튼을 눌러 미용실 도착", description = "배달기사가 미용실 도착 버튼을 누를 때 상태 변경 API.")
     public ResponseDto<ProcessStatusDto> arriveAtShop(@PathVariable Long reservationId) {
-        return ResponseUtil.SUCCESS(
-                "미용실 도착",
-                ProcessStatusDto.builder()
-                        .processNum(3)
-                        .processStatus("WAITING_FOR_GROOMING")
-                        .processMessage("미용 시작 전 대기.")
-                        .build());
+        return ResponseUtil.SUCCESS("미용실 도착", monitoringService.arriveAtShop(reservationId));
     }
 
     /**
@@ -117,13 +111,6 @@ public class MonitoringGuardianController {
     @PostMapping("/process/{reservationId}/arrive-at-home")
     @Operation(summary = "배송완료를 눌러 집 도착", description = "배달기사가 집 도착 버튼을 누를 때 상태 변경 API.")
     public ResponseDto<ProcessStatusDto> arriveAtHome(@PathVariable Long reservationId) {
-        return ResponseUtil.SUCCESS(
-                "집 도착",
-                ProcessStatusDto.builder()
-                        .isDelivery(true)
-                        .processNum(7)
-                        .processStatus("COMPLETED")
-                        .processMessage("서비스 완료.")
-                        .build());
+        return ResponseUtil.SUCCESS("집 도착", monitoringService.arriveAtHome(reservationId));
     }
 }
