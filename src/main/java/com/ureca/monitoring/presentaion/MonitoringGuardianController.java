@@ -43,7 +43,7 @@ public class MonitoringGuardianController {
      */
     @PostMapping("/reservation/{reservationId}/process")
     @Operation(
-            summary = "가디언이 버튼을 누르면 예약 프로세스 생성",
+            summary = "가디언이 버튼을 누르면 예약 프로세스 생성 (상태 변경)",
             description = "배달기사가 특정 예약을 선택하여 프로세스를 생성하는 API.")
     public ResponseDto<ProcessStatusDto> createProcess(@PathVariable Long reservationId) {
         return ResponseUtil.SUCCESS(
@@ -75,7 +75,7 @@ public class MonitoringGuardianController {
      * @return 스트리밍 DTO
      */
     @PostMapping("/process/{reservationId}/start-delivery-to-shop")
-    @Operation(summary = "배송 시작을 눌러 미용실로 배송 시작", description = "배달기사가 미용실로 배송 시작을 위한 API.")
+    @Operation(summary = "배송 시작을 눌러 미용실로 배송 시작 (상태 변경)", description = "배달기사가 미용실로 배송 시작을 위한 API.")
     public ResponseDto<StreamingDto> startDeliveryToShop(@PathVariable Long reservationId) {
         return ResponseUtil.SUCCESS("배송 시작", monitoringService.startDeliveryToShop(reservationId));
     }
@@ -86,7 +86,9 @@ public class MonitoringGuardianController {
      * @return 진행 상태 DTO
      */
     @PostMapping("/process/{reservationId}/arrive-at-shop")
-    @Operation(summary = "도착 버튼을 눌러 미용실 도착", description = "배달기사가 미용실 도착 버튼을 누를 때 상태 변경 API.")
+    @Operation(
+            summary = "도착 버튼을 눌러 미용실 도착 (상태 변경)",
+            description = "배달기사가 미용실 도착 버튼을 누를 때 상태 변경 API.")
     public ResponseDto<ProcessStatusDto> arriveAtShop(@PathVariable Long reservationId) {
         return ResponseUtil.SUCCESS("미용실 도착", monitoringService.arriveAtShop(reservationId));
     }
@@ -97,7 +99,7 @@ public class MonitoringGuardianController {
      * @return 스트리밍 DTO
      */
     @PostMapping("/process/{reservationId}/start-delivery-to-home")
-    @Operation(summary = "배송 시작을 눌러 집으로 배송 시작", description = "배달기사가 집으로 배송 시작을 위한 API.")
+    @Operation(summary = "배송 시작을 눌러 집으로 배송 시작 (상태 변경)", description = "배달기사가 집으로 배송 시작을 위한 API.")
     public ResponseDto<StreamingDto> startDeliveryToHome(@PathVariable Long reservationId) {
         return ResponseUtil.SUCCESS(
                 "집으로 배송 시작", monitoringService.startDeliveryToHome(reservationId));
@@ -109,7 +111,7 @@ public class MonitoringGuardianController {
      * @return 진행 상태 DTO
      */
     @PostMapping("/process/{reservationId}/arrive-at-home")
-    @Operation(summary = "배송완료를 눌러 집 도착", description = "배달기사가 집 도착 버튼을 누를 때 상태 변경 API.")
+    @Operation(summary = "배송완료를 눌러 집 도착 (상태 변경)", description = "배달기사가 집 도착 버튼을 누를 때 상태 변경 API.")
     public ResponseDto<ProcessStatusDto> arriveAtHome(@PathVariable Long reservationId) {
         return ResponseUtil.SUCCESS("집 도착", monitoringService.arriveAtHome(reservationId));
     }

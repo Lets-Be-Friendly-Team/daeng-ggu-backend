@@ -44,7 +44,7 @@ public class MonitoringDesignerController {
      * @return 스트리밍 URL, 스트림 키 + 진행 상태 DTO
      */
     @PostMapping("/process/{reservationId}/start")
-    @Operation(summary = "스트리밍 시작", description = "미용실이 스트리밍을 시작합니다.")
+    @Operation(summary = "스트리밍 시작 (상태 변경)", description = "미용실이 스트리밍을 시작합니다.")
     public ResponseDto<StreamingDto> startStreaming(@PathVariable Long reservationId) {
 
         return ResponseUtil.SUCCESS(
@@ -58,7 +58,7 @@ public class MonitoringDesignerController {
      * @return 진행 상태 DTO
      */
     @PostMapping("/process/{reservationId}/end")
-    @Operation(summary = "스트리밍 종료", description = "미용실이 스트리밍을 종료합니다.")
+    @Operation(summary = "스트리밍 종료 (상태 변경)", description = "미용실이 스트리밍을 종료합니다.")
     public ResponseDto<ProcessStatusDto> endProcess(@PathVariable Long reservationId) {
         return ResponseUtil.SUCCESS(
                 "스트리밍 종료", monitoringService.designerEndStreaming(reservationId));
