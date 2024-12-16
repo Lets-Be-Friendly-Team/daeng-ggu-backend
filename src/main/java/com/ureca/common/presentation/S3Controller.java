@@ -36,6 +36,7 @@ public class S3Controller {
         return ResponseUtil.SUCCESS("조회에 성공했습니다.", result);
     }
 
+    // 태그 id를 통해 사진을 올리는 API
     //    @RequestMapping(
     //            method = RequestMethod.POST,
     //            value = "/image/tag",
