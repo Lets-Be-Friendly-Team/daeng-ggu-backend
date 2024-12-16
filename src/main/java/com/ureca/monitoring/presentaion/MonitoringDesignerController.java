@@ -50,7 +50,6 @@ public class MonitoringDesignerController {
         return ResponseUtil.SUCCESS(
                 "고객 정보 조회 성공", monitoringService.designerStartStreaming(reservationId));
     }
-    ;
 
     /**
      * 미용실이 스트리밍 종료를 위한 API.
