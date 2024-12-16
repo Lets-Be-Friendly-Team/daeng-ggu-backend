@@ -295,4 +295,34 @@ public class MonitoringService {
                 .statusDto(processStatusDto)
                 .build();
     }
+
+    @Transactional
+    public StreamingDto startDeliveryToHome(Long reservationId) {
+        // 예약 및 프로세스 조회
+        Reservation reservation = getReservation(reservationId);
+        Process process = getProcess(reservation);
+
+        // 프로세스 상태 업데이트
+        updateProcessAndSave(
+                process,
+                ProcessStatus.DELIVERY_TO_HOME,
+                ProcessStatus.DELIVERY_TO_HOME.getDescription());
+
+        // 스트리밍 정보 생성
+        String streamKey = "스트리밍 KEY"; // TODO: 스트리밍 키 생성 로직
+        String streamUrl = "스트리밍 URL"; // TODO: 스트리밍 URL 생성 로직
+        updateStreamAndSave(process, streamUrl, streamKey);
+
+        // ProcessStatusDto 생성
+        ProcessStatusDto processStatusDto =
+                createProcessStatusDto(process, reservation.getIsDelivery());
+
+        // StreamingDto 반환
+        return StreamingDto.builder()
+                .reservationId(reservationId)
+                .streamKey(process.getStreamKey())
+                .streamUrl(process.getPlaybackUrl())
+                .statusDto(processStatusDto)
+                .build();
+    }
 }

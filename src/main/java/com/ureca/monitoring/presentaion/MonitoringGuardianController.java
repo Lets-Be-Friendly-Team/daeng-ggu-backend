@@ -106,18 +106,7 @@ public class MonitoringGuardianController {
     @Operation(summary = "배송 시작을 눌러 집으로 배송 시작", description = "배달기사가 집으로 배송 시작을 위한 API.")
     public ResponseDto<StreamingDto> startDeliveryToHome(@PathVariable Long reservationId) {
         return ResponseUtil.SUCCESS(
-                "집으로 배송 시작",
-                StreamingDto.builder()
-                        .streamUrl("http://streaming.example.com/live/home123")
-                        .streamKey("key-9876-5432")
-                        .statusDto(
-                                ProcessStatusDto.builder()
-                                        .isDelivery(true)
-                                        .processNum(6)
-                                        .processStatus("DELIVERY_TO_HOME")
-                                        .processMessage("미용실에서 고객 집으로 배송 중.")
-                                        .build())
-                        .build());
+                "집으로 배송 시작", monitoringService.startDeliveryToHome(reservationId));
     }
 
     /**
