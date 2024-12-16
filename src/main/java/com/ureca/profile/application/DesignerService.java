@@ -46,7 +46,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class DesignerService {
@@ -61,7 +60,6 @@ public class DesignerService {
     @Autowired private ServicesRepository servicesRepository;
     @Autowired private BreedsRepository breedsRepository;
     @Autowired private PriceRepository priceRepository;
-    @Autowired private PortfolioImgRepository portfolioImgRepository;
     @Autowired private ExternalService externalService;
     @Autowired private ProfileService profileService;
     @Autowired private S3Service s3Service;
@@ -357,120 +355,79 @@ public class DesignerService {
      */
     @Transactional
     public void updateDesignerPortfolio(PortfolioUpdate data) {
-
         Designer designer =
                 designerRepository
                         .findById(data.getDesignerId())
                         .orElseThrow(() -> new ApiException(ErrorCode.DESIGNER_NOT_EXIST));
-
-        // 신규 등록
+        // 신규
         if (data.getPortfolioId() == null || data.getPortfolioId() == 0) {
-
-            // 신규 영상 등록
-            String videoUrl = "", videoFileName = "";
-            if (data.getNewVideoFile() != null
-                    && !data.getNewVideoFile().getOriginalFilename().isEmpty()) {
-                videoUrl =
-                        s3Service.uploadFileImage(
-                                data.getNewVideoFile(),
-                                "portfolio",
-                                "portfolio"); // TODO 파일명 짓는 양식 정하기
-                videoFileName = videoUrl.substring(videoUrl.lastIndexOf('/') + 1);
+            String videoUrl = "";
+            if (data.getNewVideoUrl() != null) {
+                videoUrl = data.getNewVideoUrl();
             }
-
-            // 입력 내용
             Portfolio newPortfolio =
                     Portfolio.builder()
                             .designer(designer)
                             .videoUrl(videoUrl)
-                            .videoName(videoFileName)
                             .title(data.getTitle())
                             .contents(data.getContents())
                             .createdAt(LocalDateTime.now())
                             .build();
-            // 등록
-            Portfolio savedPortfolio = portfolioRepository.save(newPortfolio);
+            Portfolio savedPortfolio = portfolioRepository.save(newPortfolio); // 등록
 
             // 신규 이미지 등록
-            if (data.getNewImgFileList() != null && !data.getNewImgFileList().isEmpty()) {
-                for (MultipartFile file : data.getNewImgFileList()) {
-                    try {
-                        String imgUrl =
-                                s3Service.uploadFileImage(
-                                        file, "portfolio", "portfolio"); // TODO 파일명 짓는 양식 정하기
-                        String imgFileName = imgUrl.substring(imgUrl.lastIndexOf('/') + 1);
-
-                        // 이미지 추가 내용
-                        PortfolioImg newPortfolioImg =
-                                PortfolioImg.builder()
-                                        .portfolio(savedPortfolio)
-                                        .imgUrl(imgUrl)
-                                        .createdAt(LocalDateTime.now())
-                                        .build();
-                        // 등록
-                        imgRepository.save(newPortfolioImg);
-
-                    } catch (Exception e) {
-                        new ApiException(ErrorCode.FILE_NOT_EXIST);
-                    }
-                }
+            for (String imgUrl : data.getNewImgUrlList()) {
+                PortfolioImg newPortfolioImg =
+                        PortfolioImg.builder()
+                                .portfolio(savedPortfolio)
+                                .imgUrl(imgUrl)
+                                .createdAt(LocalDateTime.now())
+                                .build();
+                imgRepository.save(newPortfolioImg); // 등록
             }
 
-        } else {
-            // 기존 정보 조회
+        } else { // 수정
             Portfolio portfolio =
                     portfolioRepository.findByDesignerDesignerIdAndPortfolioId(
                             data.getDesignerId(), data.getPortfolioId());
             if (portfolio == null) {
                 throw new ApiException(ErrorCode.DATA_NOT_EXIST);
             }
-            // 영상 등록
-            String videoUrl = portfolio.getVideoUrl(), videoFileName = portfolio.getVideoName();
-            if (data.getNewVideoFile() != null
-                    && !data.getNewVideoFile().getOriginalFilename().isEmpty()) {
-                videoUrl =
-                        s3Service.updateFileImage(
-                                data.getPreVideoUrl(),
-                                data.getNewVideoFile()); // TODO 파일명 짓는 양식 정하기
-                videoFileName = videoUrl.substring(videoUrl.lastIndexOf('/') + 1);
+
+            String videoUrl = portfolio.getVideoUrl();
+            if (data.getNewVideoUrl() != null && !data.getNewVideoUrl().isEmpty()) { // 신규 영상 업데이트
+                videoUrl = data.getNewVideoUrl();
             }
             // 사진 등록
-            if (data.getNewImgFileList() != null && !data.getNewImgFileList().isEmpty()) {
-                for (MultipartFile file : data.getNewImgFileList()) {
-                    try {
-                        String imgUrl =
-                                s3Service.uploadFileImage(
-                                        file, "portfolio", "portfolio"); // TODO 파일명 짓는 양식 정하기
-                        String imgFileName = imgUrl.substring(imgUrl.lastIndexOf('/') + 1);
-
-                        // 이미지 추가 내용
+            if (data.getNewImgUrlList() != null && !data.getNewImgUrlList().isEmpty()) {
+                List<PortfolioImg> preImgUrlList = imgRepository.findByPortfolio(portfolio);
+                for (PortfolioImg preImgUrl : preImgUrlList) { // 기존 사진 url (a b c)
+                    if (!data.getPreImgUrlList()
+                            .contains(preImgUrl.getImgUrl())) { // 남은 사진 url (a b)
+                        imgRepository.deleteByPortfolioAndImgUrl(
+                                portfolio, preImgUrl.getImgUrl()); // 삭제
+                    }
+                }
+                if (data.getNewImgUrlList() != null) {
+                    for (String newImgUrl : data.getNewImgUrlList()) { // 신규 사진 url (d)
                         PortfolioImg newPortfolioImg =
                                 PortfolioImg.builder()
                                         .portfolio(portfolio)
-                                        .imgUrl(imgUrl)
-                                        .createdAt(LocalDateTime.now())
+                                        .imgUrl(newImgUrl)
                                         .build();
-                        // 등록
-                        imgRepository.save(newPortfolioImg);
-
-                    } catch (Exception e) {
-                        new ApiException(ErrorCode.FILE_NOT_EXIST);
+                        imgRepository.save(newPortfolioImg); // 신규 이미지 등록
                     }
                 }
             }
-
-            // 입력 내용
-            Portfolio newPortfolio =
+            Portfolio updatePortfolio =
                     portfolio.toBuilder()
                             .designer(designer)
                             .videoUrl(videoUrl)
-                            .videoName(videoFileName)
                             .title(data.getTitle())
                             .contents(data.getContents())
-                            .createdAt(LocalDateTime.now())
+                            .updatedAt(LocalDateTime.now())
                             .build();
-            // 등록
-            portfolioRepository.save(newPortfolio);
+            portfolioRepository.save(updatePortfolio); // 수정
         }
     } // updateDesignerPortfolio
 
@@ -487,7 +444,7 @@ public class DesignerService {
         if (portfolio == null) {
             throw new ApiException(ErrorCode.DATA_NOT_EXIST);
         } else {
-            portfolioImgRepository.deleteAll(portfolio.getPortfolioImgs());
+            imgRepository.deleteAll(portfolio.getPortfolioImgs());
             portfolioRepository.delete(portfolio);
         }
     } // deleteDesignerPortfolio
@@ -687,7 +644,7 @@ public class DesignerService {
                                     .createdAt(LocalDateTime.now())
                                     .updatedAt(null) // 신규 가입 시에는 null
                                     .build();
-                    portfolioImgRepository.save(portfolioImg);
+                    imgRepository.save(portfolioImg);
                 }
             }
         }
