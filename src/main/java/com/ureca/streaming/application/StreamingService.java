@@ -1,5 +1,3 @@
 package com.ureca.streaming.application;
 
-public class StreamingService {
-
-}
+public class StreamingService {}

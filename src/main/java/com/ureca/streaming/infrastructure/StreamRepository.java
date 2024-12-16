@@ -1,4 +1,6 @@
 package com.ureca.streaming.infrastructure;
 
-public class StreamRepository {
-}
+import com.ureca.request.domain.Request;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface StreamRepository extends JpaRepository<Request, Long> {}
