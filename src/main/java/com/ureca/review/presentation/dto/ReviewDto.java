@@ -19,7 +19,7 @@ public class ReviewDto {
         private String reviewContents;
         private Double reviewStar;
         private Boolean isFeedAdd;
-        //        private List<String> FeedImgList;
+        private List<String> FeedImgList;
     }
 
     @Builder(toBuilder = true)
@@ -33,7 +33,7 @@ public class ReviewDto {
         private Double reviewStar;
         private Boolean isFeedAdd;
         private List<String> existImgList;
-        //        private List<String> FeedImgList;
+        private List<String> FeedImgList;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

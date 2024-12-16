@@ -1,7 +1,5 @@
 package com.ureca.review.presentation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ureca.common.response.ResponseDto;
 import com.ureca.common.response.ResponseUtil;
 import com.ureca.review.application.ReviewService;
@@ -12,7 +10,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -57,34 +54,21 @@ public class ReviewController {
         return ResponseUtil.SUCCESS("피드 조회가 완료되었습니다.", review);
     }
 
-    // 피드 생성
+    // 피드 생성 API
     @PostMapping("/feed")
     @Operation(summary = "리뷰 생성", description = "[RSV2100] 리뷰(피드) 생성 API")
-    public ResponseDto<Void> createReview(
-            @RequestPart("reviewRequest") String reviewRequestJson, // JSON 데이터를 String으로 받음
-            @RequestPart("FeedImgList") List<MultipartFile> feedImgList)
-            throws JsonProcessingException { // Multipart 파일 리스트를 받음
+    public ResponseDto<Void> createReview(@RequestBody ReviewDto.Request reviewRequest) {
 
-        // reviewRequestJson을 객체로 변환
-        ReviewDto.Request reviewRequest =
-                new ObjectMapper().readValue(reviewRequestJson, ReviewDto.Request.class);
-
-        reviewService.createReview(2L, reviewRequest, feedImgList);
+        reviewService.createReview(2L, reviewRequest);
         return ResponseUtil.SUCCESS("리뷰가 성공적으로 생성되었습니다.", null);
     }
 
     // 피드 수정
     @PatchMapping("/feed")
     @Operation(summary = "리뷰 수정", description = "[FED1110] 보호자 프로필 조회 - 리뷰 세부 조회 - 리뷰 수정 ")
-    public ResponseDto<String> updateReview(
-            @RequestPart("reviewRequest") String reviewRequestJson, // JSON 데이터를 String으로 받음
-            @RequestPart("FeedImgList") List<MultipartFile> feedImgList)
-            throws JsonProcessingException {
+    public ResponseDto<String> updateReview(@RequestBody ReviewDto.Patch reviewRequest) {
 
-        // reviewRequestJson을 객체로 변환
-        ReviewDto.Patch reviewRequest =
-                new ObjectMapper().readValue(reviewRequestJson, ReviewDto.Patch.class);
-        reviewService.updateReview(reviewRequest, feedImgList);
+        reviewService.updateReview(reviewRequest);
         return ResponseUtil.SUCCESS("완료되었습니다.", null);
     }
 
