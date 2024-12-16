@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/ivs")
 @RequiredArgsConstructor
-
 public class StreamController {
     private final IVSService ivsService;
 
@@ -24,6 +23,5 @@ public class StreamController {
         // ChannelInfo 객체 생성
         ChannelInfo channelInfo = new ChannelInfo(channelArn, playbackUrl, streamKey);
         return ResponseEntity.ok(channelInfo);
-
     }
 }

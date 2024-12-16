@@ -10,4 +10,3 @@ public class ChannelInfo {
     private String streamKey;
     private String rtmpEndpoint;
 }
-
