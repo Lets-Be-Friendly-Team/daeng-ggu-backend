@@ -102,8 +102,8 @@ public class MonitoringService {
                 ProcessStatus.GROOMING.getDescription() // 새로운 상태 메시지
                 );
         process.updateStreamValue(
-                generateStreamUrl(generateStreamKey()), // 스트리밍 URL 생성
-                generateStreamKey() // 스트림 키 설정
+                generateStreamUrl(generateStreamKey()), // TODO: 스트리밍 URL 생성
+                generateStreamKey() // TODO: 스트림 키 설정
                 );
 
         // 업데이트된 Process 저장
