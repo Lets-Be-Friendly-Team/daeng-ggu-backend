@@ -2,7 +2,6 @@ package com.ureca.profile.presentation.dto;
 
 import lombok.Builder;
 import lombok.Getter;
-import org.springframework.web.multipart.MultipartFile;
 
 // 반려견 프로필 등록/수정
 @Builder
@@ -15,8 +14,8 @@ public class PetUpdate {
     private Long petId;
     // 반려견명
     private String petName;
-    // 신규 반려견 이미지 파일
-    private MultipartFile newPetImgFile;
+    // 신규 반려견 이미지 URL
+    private String newPetImgUrl;
     // 변경전 이미지 Url
     private String prePetImgUrl;
     // 견종 대분류 코드

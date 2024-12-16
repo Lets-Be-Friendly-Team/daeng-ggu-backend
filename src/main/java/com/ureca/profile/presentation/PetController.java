@@ -9,11 +9,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,12 +33,9 @@ public class PetController {
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", petService.getPetDetail(customerId, petId));
     }
 
-    @RequestMapping(
-            method = RequestMethod.POST,
-            value = "/pet/profile/update",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping("/pet/profile/update")
     @Operation(summary = "반려견 프로필 수정", description = "[MYP3000] 반려견 프로필 수정 API")
-    public ResponseDto<Void> petUpdate(@ModelAttribute PetUpdate data) {
+    public ResponseDto<Void> petUpdate(@RequestBody PetUpdate data) {
         // service - 반려견 프로필 수정
         petService.updatePetProfile(data);
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
