@@ -175,16 +175,16 @@ public class ReviewService {
 
         List<ReviewImage> reviewImages = new ArrayList<>();
         if (FeedImgList != null) {
+            review =
+                    Review.builder()
+                            .customer(customer)
+                            .designer(designer)
+                            .reviewContents(reviewRequest.getReviewContents())
+                            .reviewStar(reviewRequest.getReviewStar())
+                            .isFeedAdd(reviewRequest.getIsFeedAdd())
+                            .feedUrl(FeedImgList.get(0))
+                            .build();
             for (String file : FeedImgList) {
-                review =
-                        Review.builder()
-                                .customer(customer)
-                                .designer(designer)
-                                .reviewContents(reviewRequest.getReviewContents())
-                                .reviewStar(reviewRequest.getReviewStar())
-                                .isFeedAdd(reviewRequest.getIsFeedAdd())
-                                .feedUrl(file)
-                                .build();
 
                 ReviewImage reviewImage =
                         ReviewImage.builder().reviewImageUrl(file).review(review).build();
