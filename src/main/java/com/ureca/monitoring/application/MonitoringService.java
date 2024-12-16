@@ -112,13 +112,13 @@ public class MonitoringService {
 
         // 새로운 프로세스 생성
         Process newProcess =
-            Process.builder()
-                .guardian(null) // TODO: 가디언 user 관리 기능 이후 추가 처리
-                .customerId(reservation.getPet().getCustomer().getCustomerId())
-                .processNum(1) // 초기 상태 번호
-                .processStatus(ProcessStatus.PREPARING) // 초기 상태
-                .processMessage(ProcessStatus.PREPARING.getDescription()) // 초기 상태 메시지
-                .build();
+                Process.builder()
+                        .guardian(null) // TODO: 가디언 user 관리 기능 이후 추가 처리
+                        .customerId(reservation.getPet().getCustomer().getCustomerId())
+                        .processNum(1) // 초기 상태 번호
+                        .processStatus(ProcessStatus.PREPARING) // 초기 상태
+                        .processMessage(ProcessStatus.PREPARING.getDescription()) // 초기 상태 메시지
+                        .build();
 
         newProcess = processRepository.save(newProcess);
 
@@ -157,10 +157,10 @@ public class MonitoringService {
         Process process = getProcess(reservation);
 
         return StreamingInfoDto.builder()
-            .reservationId(reservationId)
-            .streamUrl(process.getPlaybackUrl())
-            .streamKey(process.getStreamKey())
-            .build();
+                .reservationId(reservationId)
+                .streamUrl(process.getPlaybackUrl())
+                .streamKey(process.getStreamKey())
+                .build();
     }
 
     // 디자이너 API
@@ -388,7 +388,6 @@ public class MonitoringService {
                 .statusDto(processStatusDto)
                 .build();
     }
-
 
     /**
      * 예약 ID를 기반으로 고객 집에 도착한 프로세스 상태를 업데이트하는 메서드.
