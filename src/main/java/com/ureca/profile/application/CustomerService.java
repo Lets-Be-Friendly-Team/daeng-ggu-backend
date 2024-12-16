@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class CustomerService {
@@ -173,85 +172,40 @@ public class CustomerService {
     } // getCustomerDetail
 
     /**
-     * @title 보호자 - 프로필 등록/수정
-     * @description 보호자 프로필 등록/수정
+     * @title 보호자 - 프로필 수정
+     * @description 보호자 프로필 수정
      * @param data 입력 정보
      * @return status 업데이트 성공 여부
      */
     @Transactional
-    public void updateCustomerProfile(CustomerUpdate data, MultipartFile newCustomerImgFile) {
+    public void updateCustomerProfile(CustomerUpdate data) {
+        // 기존 정보 조회
+        Customer customer =
+                customerRepository
+                        .findById(data.getCustomerId())
+                        .orElseThrow(() -> new ApiException(ErrorCode.CUSTOMER_NOT_EXIST));
+        String imageUrl = customer.getCustomerImgUrl();
 
-        // 신규 등록
-        if (data.getCustomerId() == null || data.getCustomerId() == 0) {
-
-            String imageUrl = "", fileName = "";
-            // 새로운 이미지 등록
-            if (newCustomerImgFile != null && !newCustomerImgFile.getOriginalFilename().isEmpty()) {
-                imageUrl =
-                        s3Service.uploadFileImage(
-                                newCustomerImgFile, "profile", "profile"); // TODO 파일명 짓는 양식 정하기
-                fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
-            }
-            logger.info(">>>>>> Service Start !!! ");
-            // 입력 내용
-            Customer newCustomer =
-                    Customer.builder()
-                            .customerName(data.getCustomerName())
-                            .customerImgUrl(imageUrl)
-                            .customerImgName(fileName)
-                            .birthDate(ValidationUtil.stringToDate(data.getBirthDate()))
-                            .gender(data.getGender())
-                            .phone(data.getPhone())
-                            .nickname(data.getNickname())
-                            .address1(data.getAddress1())
-                            .address2(data.getAddress2())
-                            .detailAddress(data.getDetailAddress())
-                            .createdAt(LocalDateTime.now())
-                            .build();
-
-            // 등록
-            customerRepository.save(newCustomer);
-
-        } else {
-
-            logger.info(">>>>>> Service START !!! ");
-
-            // 기존 정보 조회
-            Customer customer =
-                    customerRepository
-                            .findById(data.getCustomerId())
-                            .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_EXIST));
-
-            String imageUrl = customer.getCustomerImgUrl();
-            String fileName = customer.getCustomerImgName();
-            // 이미지 수정 - 같은 파일명으로 덮어쓰기
-            if (newCustomerImgFile != null && !newCustomerImgFile.getOriginalFilename().isEmpty()) {
-                imageUrl =
-                        s3Service.updateFileImage(data.getPreCustomerImgUrl(), newCustomerImgFile);
-                fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
-            }
-
-            // 입력 내용
-            Customer updatedCustomer =
-                    customer.toBuilder()
-                            .customerName(data.getCustomerName())
-                            .customerImgUrl(imageUrl)
-                            .customerImgName(fileName)
-                            .birthDate(ValidationUtil.stringToDate(data.getBirthDate()))
-                            .gender(data.getGender())
-                            .phone(data.getPhone())
-                            .nickname(data.getNickname())
-                            .address1(data.getAddress1())
-                            .address2(data.getAddress2())
-                            .detailAddress(data.getDetailAddress())
-                            .updatedAt(LocalDateTime.now())
-                            .build();
-
-            logger.info(">>>>>> Service END !!! ");
-
-            // 업데이트
-            customerRepository.save(updatedCustomer);
+        if (!data.getNewCustomerImgUrl().isEmpty()) { // 신규 이미지 업데이트
+            imageUrl = data.getNewCustomerImgUrl();
         }
+        Coordinate coordinate = externalService.addressToCoordinate(data.getAddress2());
+        Customer updatedCustomer =
+                customer.toBuilder()
+                        .customerName(data.getCustomerName())
+                        .customerImgUrl(imageUrl)
+                        .birthDate(ValidationUtil.stringToDate(data.getBirthDate()))
+                        .gender(data.getGender())
+                        .phone(data.getPhone())
+                        .nickname(data.getNickname())
+                        .address1(data.getAddress1())
+                        .address2(data.getAddress2())
+                        .detailAddress(data.getDetailAddress())
+                        .xPosition(coordinate.getX())
+                        .yPosition(coordinate.getY())
+                        .updatedAt(LocalDateTime.now())
+                        .build();
+        customerRepository.save(updatedCustomer); // 업데이트
     } // updateCustomerProfile
 
     /**
