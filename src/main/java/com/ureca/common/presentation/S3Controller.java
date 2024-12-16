@@ -35,4 +35,16 @@ public class S3Controller {
         String result = s3Service.uploadFileImage(img, "default", img.getOriginalFilename());
         return ResponseUtil.SUCCESS("조회에 성공했습니다.", result);
     }
+
+    @RequestMapping(
+            method = RequestMethod.POST,
+            value = "/image/tag",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "사진업로드 API", description = "사진 1개를 s3에 업로드하는 API.")
+    ResponseDto<String> getImageTag(@RequestPart MultipartFile img, @RequestParam String tag) {
+        String result = s3Service.uploadFileImage(img, "default", img.getOriginalFilename() + tag);
+        return ResponseUtil.SUCCESS("조회에 성공했습니다.", result);
+    }
+
+
 }
