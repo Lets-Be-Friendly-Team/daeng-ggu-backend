@@ -2,6 +2,7 @@ package com.ureca.monitoring.presentaion;
 
 import com.ureca.common.response.ResponseDto;
 import com.ureca.common.response.ResponseUtil;
+import com.ureca.monitoring.application.MonitoringService;
 import com.ureca.monitoring.presentaion.dto.PetInfoDto;
 import com.ureca.monitoring.presentaion.dto.ProcessStatusDto;
 import com.ureca.monitoring.presentaion.dto.ReservationInfoForGuardianDto;
@@ -9,7 +10,6 @@ import com.ureca.monitoring.presentaion.dto.StreamingDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Guardian API In Monitoring", description = "모니터링에서 배달기사 관련 API")
 public class MonitoringGuardianController {
 
+    private final MonitoringService monitoringService;
+
     /**
      * 배달기사가 전체 예약 리스트를 조회하는 API.
      *
@@ -32,59 +34,8 @@ public class MonitoringGuardianController {
     @GetMapping("/reservations")
     @Operation(summary = "예약 리스트 조회", description = "배달기사가 전체 예약 리스트를 조회하는 API.")
     public ResponseDto<List<ReservationInfoForGuardianDto>> getReservationList() {
-        PetInfoDto petInfo1 =
-                PetInfoDto.builder()
-                        .petName("초코")
-                        .petImgUrl(
-                                "https://letsbefriendly.s3.ap-northeast-2.amazonaws.com/janggun.jpg")
-                        .birthDate("2022-05-10")
-                        .gender("Female")
-                        .weight(6.0)
-                        .specialNotes("알레르기 있음")
-                        .isNeutered(true)
-                        .majorBreed("포메라니안")
-                        .subBreed("스피츠계열")
-                        .build();
-
-        ReservationInfoForGuardianDto reservation1 =
-                ReservationInfoForGuardianDto.builder()
-                        .reservationId(1L)
-                        .reservationDate(LocalDate.of(2024, 12, 15))
-                        .startTime(10)
-                        .isFinished(false)
-                        .processId(null)
-                        .customerAddress("서울 강남구 테헤란로 123")
-                        .shopAddress("경기 성남시 분당구 판교로 456")
-                        .petInfo(petInfo1)
-                        .build();
-
-        PetInfoDto petInfo2 =
-                PetInfoDto.builder()
-                        .petName("몽이")
-                        .petImgUrl(
-                                "https://daeng-ggu-test.s3.ap-northeast-2.amazonaws.com/haneul.jpg")
-                        .birthDate("2021-08-22")
-                        .gender("Male")
-                        .weight(10.0)
-                        .specialNotes("목욕 시 털 많이 빠짐")
-                        .isNeutered(false)
-                        .majorBreed("말티즈")
-                        .subBreed("소형견")
-                        .build();
-
-        ReservationInfoForGuardianDto reservation2 =
-                ReservationInfoForGuardianDto.builder()
-                        .reservationId(2L)
-                        .reservationDate(LocalDate.of(2024, 12, 16))
-                        .startTime(14)
-                        .isFinished(false)
-                        .processId(1L)
-                        .customerAddress("서울 송파구 올림픽로 789")
-                        .shopAddress("경기 수원시 영통구 광교로 101")
-                        .petInfo(petInfo2)
-                        .build();
-
-        return ResponseUtil.SUCCESS("예약 리스트 조회 성공", Arrays.asList(reservation1, reservation2));
+        return ResponseUtil.SUCCESS(
+                "예약 리스트 조회 성공", monitoringService.getUpcomingDeliveryReservations());
     }
 
     /**

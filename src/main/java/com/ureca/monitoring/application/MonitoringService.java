@@ -8,8 +8,11 @@ import com.ureca.monitoring.infrastructure.ProcessRepository;
 import com.ureca.monitoring.presentaion.dto.*;
 import com.ureca.monitoring.presentaion.dto.ReservationInfoForDesignerDto;
 import com.ureca.profile.domain.Pet;
+import com.ureca.profile.infrastructure.CommonCodeRepository;
 import com.ureca.reservation.domain.Reservation;
 import com.ureca.reservation.infrastructure.ReservationRepository;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +23,9 @@ public class MonitoringService {
 
     private final ReservationRepository reservationRepository;
     private final ProcessRepository processRepository;
+    private final CommonCodeRepository commonCodeRepository;
 
+    // 보호자
     /**
      * 예약 정보를 조회하여 ReservationInfoForDesignerDto로 변환하는 메서드
      *
@@ -41,6 +46,10 @@ public class MonitoringService {
         // Process 데이터 가져오기
         Process process = reservation.getProcess();
 
+        // majorBreedCode 및 subBreedCode를 codeDesc로 변환
+        String majorBreedDesc = commonCodeRepository.findCodeDescByCodeId(pet.getMajorBreedCode());
+        String subBreedDesc = commonCodeRepository.findCodeDescByCodeId(pet.getSubBreedCode());
+
         // PetInfoDto 생성
         PetInfoDto petInfo =
                 PetInfoDto.builder()
@@ -49,18 +58,16 @@ public class MonitoringService {
                         .gender(pet.getGender())
                         .weight(pet.getWeight())
                         .specialNotes(pet.getSpecialNotes())
-                        .isNeutered(
-                                pet.getIsNeutered() != null
-                                        && pet.getIsNeutered().equalsIgnoreCase("true"))
-                        .majorBreed(pet.getMajorBreedCode())
-                        .subBreed(pet.getSubBreedCode())
+                        .isNeutered("Y".equalsIgnoreCase(pet.getIsNeutered())) // N/Y 처리
+                        .majorBreed(majorBreedDesc)
+                        .subBreed(subBreedDesc)
                         .build();
 
         // ProcessStatusDto 생성
         ProcessStatusDto processStatus =
                 process != null
                         ? ProcessStatusDto.builder()
-                                .isDelivery(false) // Process에서 필요시 추가 정보 설정 가능
+                                .isDelivery(reservation.getIsDelivery())
                                 .processNum(process.getProcessNum())
                                 .processStatus(process.getProcessStatus().name())
                                 .processMessage(process.getProcessMessage())
@@ -69,10 +76,10 @@ public class MonitoringService {
 
         // ReservationInfoForDesignerDto 생성
         return ReservationInfoForDesignerDto.builder()
-                .customerPhone(reservation.getPet().getCustomer().getPhone()) // 고객 전화번호
-                .customerName(reservation.getPet().getCustomer().getCustomerName()) // 고객 이름
-                .petInfo(petInfo) // 반려견 정보
-                .status(processStatus) // 진행 상태
+                .customerPhone(reservation.getPet().getCustomer().getPhone())
+                .customerName(reservation.getPet().getCustomer().getCustomerName())
+                .petInfo(petInfo)
+                .status(processStatus)
                 .build();
     }
 
@@ -186,5 +193,74 @@ public class MonitoringService {
                 .processStatus(process.getProcessStatus().name())
                 .processMessage(process.getProcessMessage())
                 .build();
+    }
+
+    // 가디언
+
+    @Transactional(readOnly = true)
+    public List<ReservationInfoForGuardianDto> getUpcomingDeliveryReservations() {
+        // 1. isDelivery가 true, isFinished가 false인 예약을 조회하고 날짜와 시간 기준으로 정렬
+        List<Reservation> reservations =
+                reservationRepository
+                        .findByIsDeliveryTrueAndIsFinishedFalseOrderByReservationDateAscStartTimeAsc();
+
+        // 2. Reservation 리스트를 ReservationInfoForGuardianDto로 변환
+        return reservations.stream()
+                .map(
+                        reservation -> {
+                            // 반려견 정보 생성
+                            Pet pet = reservation.getPet();
+
+                            String majorBreedDesc =
+                                    commonCodeRepository.findCodeDescByCodeId(
+                                            pet.getMajorBreedCode());
+                            String subBreedDesc =
+                                    commonCodeRepository.findCodeDescByCodeId(
+                                            pet.getSubBreedCode());
+
+                            PetInfoDto petInfo =
+                                    PetInfoDto.builder()
+                                            .petName(pet.getPetName())
+                                            .petImgUrl(pet.getPetImgUrl())
+                                            .birthDate(
+                                                    pet.getBirthDate() != null
+                                                            ? pet.getBirthDate().toString()
+                                                            : null)
+                                            .gender(pet.getGender())
+                                            .weight(pet.getWeight())
+                                            .specialNotes(pet.getSpecialNotes())
+                                            .isNeutered(
+                                                    "Y"
+                                                            .equalsIgnoreCase(
+                                                                    pet
+                                                                            .getIsNeutered())) // N/Y 처리 // 결과: true // 중성화 여부
+                                            .majorBreed(majorBreedDesc)
+                                            .subBreed(subBreedDesc)
+                                            .build();
+
+                            // 예약 정보 DTO 생성
+                            return ReservationInfoForGuardianDto.builder()
+                                    .reservationId(reservation.getReservationId())
+                                    .reservationDate(reservation.getReservationDate())
+                                    .startTime(
+                                            reservation
+                                                    .getStartTime()
+                                                    .getHour()) // LocalTime에서 시간 추출
+                                    .isFinished(reservation.getIsFinished())
+                                    .processId(
+                                            reservation.getProcess() != null
+                                                    ? reservation.getProcess().getProcessId()
+                                                    : null)
+                                    .customerAddress(
+                                            reservation
+                                                    .getPet()
+                                                    .getCustomer()
+                                                    .getAddress2()) // 보호자 주소
+                                    .shopAddress(
+                                            reservation.getDesigner().getAddress2()) // 디자이너의 샵 주소
+                                    .petInfo(petInfo)
+                                    .build();
+                        })
+                .collect(Collectors.toList());
     }
 }
