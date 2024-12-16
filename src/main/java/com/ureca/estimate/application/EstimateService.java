@@ -272,6 +272,7 @@ public class EstimateService {
                 .designerAddress(
                         estimate.getDesigner().getAddress1()
                                 + estimate.getDesigner().getDetailAddress())
+                .desiredServiceCode(estimate.getRequest().getDesiredServiceCode())
                 .createdAt(estimate.getCreatedAt())
                 .estimateDetail(estimate.getEstimateDetail())
                 .startTime(estimate.getDesiredDate())
