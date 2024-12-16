@@ -21,7 +21,6 @@ import com.ureca.profile.infrastructure.PortfolioImgRepository;
 import com.ureca.profile.infrastructure.PortfolioRepository;
 import com.ureca.profile.infrastructure.PriceRepository;
 import com.ureca.profile.infrastructure.ServicesRepository;
-import com.ureca.profile.presentation.dto.BreedCode;
 import com.ureca.profile.presentation.dto.BreedPriceTime;
 import com.ureca.profile.presentation.dto.DesignerDetail;
 import com.ureca.profile.presentation.dto.DesignerProfile;
@@ -37,7 +36,6 @@ import com.ureca.review.domain.Review;
 import com.ureca.review.infrastructure.ReviewRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +67,10 @@ public class DesignerService {
     @Autowired private S3Service s3Service;
 
     private static final String DESIGNER = "D";
+    private static final String REQUIRED_SERVICE = "S1";
+    private static final String OPTIONAL_SERVICE1 = "S2";
+    private static final String OPTIONAL_SERVICE2 = "S3";
+    private static final String OPTIONAL_SERVICE3 = "S4";
 
     /**
      * @title 디자이너 - 프로필
@@ -199,7 +201,7 @@ public class DesignerService {
 
     /**
      * @title 디자이너 - 프로필 수정
-     * @description 디자이너 프로필 등록/수정
+     * @description 디자이너 프로필 수정
      * @param data 입력 정보
      */
     @Transactional
@@ -209,54 +211,84 @@ public class DesignerService {
                 designerRepository
                         .findById(data.getDesignerId())
                         .orElseThrow(() -> new ApiException(ErrorCode.DESIGNER_NOT_EXIST));
-        // 이미지 등록
-        String imageUrl = data.getPreImgUrl();
-        String fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
-        if (data.getNewImgFile() != null && !data.getNewImgFile().getOriginalFilename().isEmpty()) {
-            imageUrl =
-                    s3Service.uploadFileImage(
-                            data.getNewImgFile(),
-                            "profile",
-                            "designerProfile"); // TODO 파일명 짓는 양식 정하기
-            fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+        String imageUrl = designer.getDesignerImgUrl();
+        if (!data.getNewImgUrl().isEmpty()) { // 신규 이미지 업데이트
+            imageUrl = data.getNewImgUrl();
         }
-        // 디자이너 등록
-        List<Services> services = new ArrayList<>();
-        for (String providedService : data.getProvidedServices()) { // 제공 서비스 코드 목록
-            Optional<Services> existingServiceOpt =
-                    servicesRepository.findByDesignerAndProvidedServicesCode(
-                            designer, providedService);
-            if (existingServiceOpt.isEmpty()) {
-                Services newServices =
-                        Services.builder()
-                                .designer(designer)
-                                .providedServicesCode(providedService)
-                                .build();
-                services.add(newServices);
-            } else {
-                Services existingService = existingServiceOpt.get();
-                services.add(existingService);
+        // 제공 서비스 코드 목록
+        if (data.getProvidedServices().contains(REQUIRED_SERVICE)
+                && (data.getProvidedServices().contains(OPTIONAL_SERVICE1)
+                        || data.getProvidedServices().contains(OPTIONAL_SERVICE2)
+                        || data.getProvidedServices().contains(OPTIONAL_SERVICE3))) { // 기본 조건 만족
+            List<String> serviceList = servicesRepository.findProvidedServicesByDesigner(designer);
+            for (String newServiceCode : data.getProvidedServices()) {
+                if (!serviceList.contains(newServiceCode)
+                        && !newServiceCode.startsWith(REQUIRED_SERVICE)) {
+                    Services newService =
+                            Services.builder()
+                                    .designer(designer)
+                                    .providedServicesCode(newServiceCode)
+                                    .build();
+                    servicesRepository.save(newService); // 등록
+                }
+            }
+            for (String preServiceCode : serviceList) {
+                if (!data.getProvidedServices().contains(preServiceCode)
+                        && !preServiceCode.startsWith(REQUIRED_SERVICE)) {
+                    List<Services> deleteServiceList =
+                            servicesRepository.findByProvidedServicesCodeAndDesigner(
+                                    preServiceCode, designer);
+                    if (deleteServiceList != null && !deleteServiceList.isEmpty()) {
+                        for (Services deleteService : deleteServiceList) {
+                            priceRepository.deleteByServiceCodeAndDesigner(
+                                    deleteService.getProvidedServicesCode(),
+                                    designer.getDesignerId());
+                        }
+                    }
+                    servicesRepository.deleteByDesignerAndProvidedServicesCode(
+                            designer, preServiceCode); // 삭제
+                }
             }
         }
-        List<Breeds> breeds = new ArrayList<>();
+        // 미용 가능 견종 코드 목록 (대분류)
         if (data.getPossibleBreed() != null) {
-            for (BreedCode breedCode : data.getPossibleBreed()) { // 미용 가능 견종 코드
-                Breeds newBreeds =
-                        Breeds.builder()
-                                .designer(designer)
-                                .possibleMajorBreedCode(breedCode.getMajorBreedCode())
-                                .possibleSubBreedCode(breedCode.getSubBreedCode())
-                                .build();
-                breeds.add(newBreeds);
+            List<String> breedList =
+                    breedsRepository.findPossibleMajorBreedCodesByDesigner(designer);
+            for (String newBreedCode : data.getPossibleBreed()) {
+                if (!breedList.contains(newBreedCode)) {
+                    Breeds newBreeds =
+                            Breeds.builder()
+                                    .designer(designer)
+                                    .possibleMajorBreedCode(newBreedCode)
+                                    .build();
+                    breedsRepository.save(newBreeds); // 등록
+                }
             }
-        } else {
-            breeds = designer.getBreeds();
+            for (String preBreedCode : breedList) {
+                if (!data.getPossibleBreed().contains(preBreedCode)) {
+                    breedsRepository.deleteByDesignerAndPossibleMajorBreedCode(
+                            designer, preBreedCode); // 삭제
+                }
+            }
         }
-
+        // 자격증 이미지 목록
+        List<String> certList = certificateRepository.findImgUrlsByDesigner(designer);
+        for (String preCertImgUrl : certList) { // 기존 인증서 url (a b c)
+            if (!data.getPreCertifications().contains(preCertImgUrl)) { // 남은 인증서 url (a b)
+                certificateRepository.deleteByDesignerAndImgUrl(designer, preCertImgUrl); // 삭제
+            }
+        }
+        if (data.getNewCertifications() != null) {
+            for (String newCertImgUrl : data.getNewCertifications()) { // 신규 인증서 url (d)
+                Certificate certificate =
+                        Certificate.builder().designer(designer).imgUrl(newCertImgUrl).build();
+                certificateRepository.save(certificate); // 등록
+            }
+        }
+        // 디자이너 정보
         Coordinate coordinate = externalService.addressToCoordinate(data.getAddress2());
         Designer updateDesigner =
                 designer.toBuilder()
-                        .designerName(data.getDesignerName())
                         .officialName(data.getNickname())
                         .designerImgUrl(imageUrl)
                         .address1(data.getAddress1())
@@ -268,43 +300,9 @@ public class DesignerService {
                         .phone(data.getPhone())
                         .businessNumber(data.getBusinessNumber())
                         .businessIsVerified(data.getBusinessIsVerified())
-                        .services(services)
-                        .breeds(breeds)
                         .updatedAt(LocalDateTime.now())
                         .build();
         designerRepository.save(updateDesigner);
-
-        // 인증서 등록
-        List<String> preCertifications =
-                certificateRepository.findImgUrlsByDesignerId(data.getDesignerId()); // 기존 인증서 url
-        // 남은 인증서 url
-        String[] certifications = data.getCertifications(); // 남은 인증서 url
-        for (String certification : preCertifications) {
-            boolean isPresent = false;
-            for (String cert : certifications) {
-                if (certification.equals(cert)) {
-                    isPresent = true;
-                    break;
-                }
-            }
-            // 기존엔 있는데, 남은곳엔 없으면 preCertifications 에서 삭제.
-            if (!isPresent) {
-                certificateRepository.deleteByDesignerDesignerIdAndImgUrl(
-                        data.getDesignerId(), certification);
-            }
-        }
-        // 신규 인증서 file
-        if (data.getCertificationsFileList() != null
-                && !data.getCertificationsFileList().isEmpty()) {
-            for (MultipartFile file : data.getCertificationsFileList()) {
-                String certificationsUrl =
-                        s3Service.uploadFileImage(
-                                file, "profile", "certifications"); // TODO 파일명 짓는 양식 정하기
-                Certificate newCertificate =
-                        Certificate.builder().designer(designer).imgUrl(certificationsUrl).build();
-                certificateRepository.save(newCertificate);
-            }
-        }
     } // updateDesignerProfile
 
     /**
@@ -614,13 +612,22 @@ public class DesignerService {
             Services savedService = servicesRepository.save(newService);
 
             for (BreedPriceTime breedPriceTime : providedServices.getBreedPriceTimeList()) {
-                Breeds newBreed =
-                        Breeds.builder()
-                                .designer(designer)
-                                .possibleMajorBreedCode(
-                                        breedPriceTime.getMajorBreedCode()) // 견종 대분류 코드
-                                .build();
-                Breeds savedBreed = breedsRepository.save(newBreed);
+                Breeds existingBreed =
+                        breedsRepository.findByDesignerAndPossibleMajorBreedCode(
+                                designer, breedPriceTime.getMajorBreedCode());
+                // 없으면 새로운 Breeds 객체 생성
+                Breeds savedBreed;
+                if (existingBreed == null) {
+                    savedBreed =
+                            Breeds.builder()
+                                    .designer(designer)
+                                    .possibleMajorBreedCode(
+                                            breedPriceTime.getMajorBreedCode()) // 견종 대분류 코드
+                                    .build();
+                    savedBreed = breedsRepository.save(savedBreed);
+                } else {
+                    savedBreed = existingBreed;
+                }
 
                 try {
                     Price price =
