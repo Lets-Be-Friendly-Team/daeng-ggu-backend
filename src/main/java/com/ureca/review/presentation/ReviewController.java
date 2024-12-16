@@ -1,7 +1,5 @@
 package com.ureca.review.presentation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ureca.common.response.ResponseDto;
 import com.ureca.common.response.ResponseUtil;
 import com.ureca.review.application.ReviewService;
@@ -12,7 +10,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -69,15 +66,9 @@ public class ReviewController {
     // 피드 수정
     @PatchMapping("/feed")
     @Operation(summary = "리뷰 수정", description = "[FED1110] 보호자 프로필 조회 - 리뷰 세부 조회 - 리뷰 수정 ")
-    public ResponseDto<String> updateReview(
-            @RequestPart("reviewRequest") String reviewRequestJson, // JSON 데이터를 String으로 받음
-            @RequestPart("FeedImgList") List<MultipartFile> feedImgList)
-            throws JsonProcessingException {
+    public ResponseDto<String> updateReview(@RequestBody ReviewDto.Patch reviewRequest) {
 
-        // reviewRequestJson을 객체로 변환
-        ReviewDto.Patch reviewRequest =
-                new ObjectMapper().readValue(reviewRequestJson, ReviewDto.Patch.class);
-        reviewService.updateReview(reviewRequest, feedImgList);
+        reviewService.updateReview(reviewRequest);
         return ResponseUtil.SUCCESS("완료되었습니다.", null);
     }
 

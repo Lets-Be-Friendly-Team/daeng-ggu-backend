@@ -27,7 +27,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -214,13 +213,14 @@ public class ReviewService {
     }
 
     @Transactional
-    public void updateReview(ReviewDto.Patch reviewRequest, List<MultipartFile> FeedImgList) {
+    public void updateReview(ReviewDto.Patch reviewRequest) {
         Review review =
                 reviewRepository
                         .findById(reviewRequest.getReviewId())
                         .orElseThrow(() -> new ApiException(ErrorCode.REVIEW_NOT_EXIST));
 
         List<String> keepImgUrls = reviewRequest.getExistImgList();
+        List<String> FeedImgList = reviewRequest.getFeedImgList();
 
         // 3. DB에서 기존 리뷰 이미지 가져오기
         List<ReviewImage> existingImages = reviewImageRepository.findByReview(review);
@@ -236,10 +236,9 @@ public class ReviewService {
         // 5. 새로운 이미지 업로드
         if (FeedImgList != null && !FeedImgList.isEmpty()) {
             List<ReviewImage> newImages = new ArrayList<>();
-            for (MultipartFile file : FeedImgList) {
-                String imageUrl = s3Service.uploadFileImage(file, "review", "review");
+            for (String file : FeedImgList) {
                 ReviewImage newImage =
-                        ReviewImage.builder().reviewImageUrl(imageUrl).review(review).build();
+                        ReviewImage.builder().reviewImageUrl(file).review(review).build();
                 newImages.add(newImage);
             }
             reviewImageRepository.saveAll(newImages); // DB에 저장
