@@ -56,6 +56,9 @@ dependencies {
 
     // AWS SDK S3 의존성 추가
     implementation 'com.amazonaws:aws-java-sdk-s3:1.12.503'
+    // AWS SDK IVS 의존성 추가
+    implementation 'software.amazon.awssdk:ivs:2.20.49'
+
     implementation 'mysql:mysql-connector-java:8.0.33'
     //Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
