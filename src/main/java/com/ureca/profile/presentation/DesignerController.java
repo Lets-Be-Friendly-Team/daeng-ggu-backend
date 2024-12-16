@@ -14,8 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -80,11 +82,10 @@ public class DesignerController {
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
     }
 
-    @GetMapping("/designer/portfolio/delete")
+    @DeleteMapping("/designer/portfolio/delete/{designerId}/{portfolioId}")
     @Operation(summary = "디자이너 포트폴리오 삭제", description = "[DMYP2100] 디자이너 포트폴리오 삭제 API")
     public ResponseDto<Void> designerPortfolioDelete(
-            @RequestParam(defaultValue = "") Long designerId,
-            @RequestParam(defaultValue = "") Long portfolioId) {
+            @PathVariable Long designerId, @PathVariable Long portfolioId) {
         // service - 디자이너 포트폴리오 삭제
         designerService.deleteDesignerPortfolio(designerId, portfolioId);
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);

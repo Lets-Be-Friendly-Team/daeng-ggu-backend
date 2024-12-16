@@ -1,7 +1,5 @@
 package com.ureca.profile.presentation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ureca.common.response.ResponseDto;
 import com.ureca.common.response.ResponseUtil;
 import com.ureca.profile.application.CustomerService;
@@ -19,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -76,31 +73,6 @@ public class CustomerController {
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
     }
 
-    @PostMapping(
-            value = "/customer/img/test8",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "test8", description = "Post 객체와 파일을 함께 받음")
-    public ResponseDto<String> customerUpdateTest8(
-            @RequestPart("data") @Valid CustomerUpdate data, // DTO 객체
-            @RequestPart("newCustomerImgFile") MultipartFile newCustomerImgFile // 파일
-            ) {
-        logger.info("Test 8 ) data >>> " + data);
-        logger.info("Test 8 ) newCustomerImgFile >>>: " + newCustomerImgFile);
-        if (newCustomerImgFile != null) {
-            // 각 정보를 한 줄씩 출력
-            logger.info("File Name: " + newCustomerImgFile.getOriginalFilename());
-            logger.info("File Size: " + newCustomerImgFile.getSize() + " bytes");
-            logger.info("Content Type: " + newCustomerImgFile.getContentType());
-            logger.info("Is File Empty: " + newCustomerImgFile.isEmpty());
-        } else {
-            logger.info("No file received.");
-        }
-
-        // 파일 처리 및 DTO 처리 로직
-        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
-    }
-
     @GetMapping("/customer/bookmark")
     @Operation(summary = "보호자 디자이너 찜하기", description = "[DMYP1000] 보호자 디자이너 찜하기 API")
     public ResponseDto<BookmarkYn> customerBookmark(
@@ -121,164 +93,5 @@ public class CustomerController {
         return ResponseUtil.SUCCESS(
                 "처리가 완료되었습니다.",
                 customerService.getCustomerViewDesignerProfile(customerId, designerId));
-    }
-
-    // TODO IMG TEST
-    @PostMapping(
-            value = "/customer/img/test1",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Post 파일만", description = "Post 파일만")
-    public ResponseDto<Void> customerUpdateTest1(
-            @RequestPart(value = "newCustomerImgFile", required = false)
-                    MultipartFile newCustomerImgFile) {
-        logger.info("Test 1 ) newCustomerImgFile>>>" + newCustomerImgFile);
-        if (newCustomerImgFile != null) {
-            // 각 정보를 한 줄씩 출력
-            logger.info("File Name: " + newCustomerImgFile.getOriginalFilename());
-            logger.info("File Size: " + newCustomerImgFile.getSize() + " bytes");
-            logger.info("Content Type: " + newCustomerImgFile.getContentType());
-            logger.info("Is File Empty: " + newCustomerImgFile.isEmpty());
-        } else {
-            logger.info("No file received.");
-        }
-        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
-    }
-
-    @PostMapping(
-            value = "/customer/img/test3",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Post 단순 파일만", description = "Post 단순 파일만")
-    public ResponseDto<Void> customerUpdateTest3(MultipartFile newCustomerImgFile) {
-        logger.info("Test 3 ) newCustomerImgFile>>>" + newCustomerImgFile);
-        if (newCustomerImgFile != null) {
-            // 각 정보를 한 줄씩 출력
-            logger.info("File Name: " + newCustomerImgFile.getOriginalFilename());
-            logger.info("File Size: " + newCustomerImgFile.getSize() + " bytes");
-            logger.info("Content Type: " + newCustomerImgFile.getContentType());
-            logger.info("Is File Empty: " + newCustomerImgFile.isEmpty());
-        } else {
-            logger.info("No file received.");
-        }
-        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
-    }
-
-    @PostMapping(
-            value = "/customer/img/test4",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Post 객체, 단순 파일", description = "Post 객체, 단순 파일")
-    public ResponseDto<Void> customerUpdateTest4(
-            @RequestPart @Valid CustomerUpdate data, MultipartFile newCustomerImgFile) {
-        logger.info("Test 4 ) newCustomerImgFile>>>" + newCustomerImgFile);
-        logger.info("Test 4 ) data>>>" + data);
-        if (newCustomerImgFile != null) {
-            // 각 정보를 한 줄씩 출력
-            logger.info("File Name: " + newCustomerImgFile.getOriginalFilename());
-            logger.info("File Size: " + newCustomerImgFile.getSize() + " bytes");
-            logger.info("Content Type: " + newCustomerImgFile.getContentType());
-            logger.info("Is File Empty: " + newCustomerImgFile.isEmpty());
-        } else {
-            logger.info("No file received.");
-        }
-        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
-    }
-
-    @PostMapping(
-            value = "/customer/img/test5",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Post 객체 String으로, 파일", description = "Post 객체 String으로, 파일")
-    public ResponseDto<String> customerUpdateTest5(
-            @RequestPart("data") String customerUpdateJson, // JSON 데이터를 String으로 받음
-            @RequestPart("newCustomerImgFile") MultipartFile newCustomerImgFile)
-            throws JsonProcessingException {
-
-        // reviewRequestJson을 객체로 변환
-        CustomerUpdate customerUpdate =
-                new ObjectMapper().readValue(customerUpdateJson, CustomerUpdate.class);
-        logger.info("Test 5 ) customerUpdate>>>" + customerUpdate);
-        logger.info("Test 5 ) newCustomerImgFile>>>" + newCustomerImgFile);
-        if (newCustomerImgFile != null) {
-            // 각 정보를 한 줄씩 출력
-            logger.info("File Name: " + newCustomerImgFile.getOriginalFilename());
-            logger.info("File Size: " + newCustomerImgFile.getSize() + " bytes");
-            logger.info("Content Type: " + newCustomerImgFile.getContentType());
-            logger.info("Is File Empty: " + newCustomerImgFile.isEmpty());
-        } else {
-            logger.info("No file received.");
-        }
-        return ResponseUtil.SUCCESS("완료되었습니다.", null);
-    }
-
-    @PostMapping(value = "/customer/img/test6", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "Post 객체 String으로, 파일", description = "Post 객체 String으로, 파일")
-    public ResponseDto<String> customerUpdateTest6(
-            @RequestPart("data") String customerUpdateJson, // JSON 데이터를 String으로 받음
-            @RequestPart("newCustomerImgFile") MultipartFile newCustomerImgFile)
-            throws JsonProcessingException {
-
-        // reviewRequestJson을 객체로 변환
-        CustomerUpdate customerUpdate =
-                new ObjectMapper().readValue(customerUpdateJson, CustomerUpdate.class);
-        logger.info("Test 6 ) customerUpdate>>>" + customerUpdate);
-        logger.info("Test 6 ) newCustomerImgFile>>>" + newCustomerImgFile);
-        if (newCustomerImgFile != null) {
-            // 각 정보를 한 줄씩 출력
-            logger.info("File Name: " + newCustomerImgFile.getOriginalFilename());
-            logger.info("File Size: " + newCustomerImgFile.getSize() + " bytes");
-            logger.info("Content Type: " + newCustomerImgFile.getContentType());
-            logger.info("Is File Empty: " + newCustomerImgFile.isEmpty());
-        } else {
-            logger.info("No file received.");
-        }
-        return ResponseUtil.SUCCESS("완료되었습니다.", null);
-    }
-
-    @PostMapping(
-            value = "/customer/img/test9",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "test9", description = "Post 객체와 파일을 함께 받음")
-    public ResponseDto<String> customerUpdateTest9(
-            @RequestBody @Valid CustomerUpdate data, // DTO 객체 (JSON으로 받음)
-            @RequestPart("newCustomerImgFile") MultipartFile newCustomerImgFile // 파일
-            ) {
-        logger.info("data>>>" + data);
-        logger.info("newCustomerImgFile>>>" + newCustomerImgFile);
-        if (newCustomerImgFile != null) {
-            // 각 정보를 한 줄씩 출력
-            logger.info("File Name: " + newCustomerImgFile.getOriginalFilename());
-            logger.info("File Size: " + newCustomerImgFile.getSize() + " bytes");
-            logger.info("Content Type: " + newCustomerImgFile.getContentType());
-            logger.info("Is File Empty: " + newCustomerImgFile.isEmpty());
-        } else {
-            logger.info("No file received.");
-        }
-        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
-    }
-
-    @PostMapping(
-            value = "/customer/img/test10",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "test10", description = "Post 객체와 파일을 함께 받음+json")
-    public ResponseDto<String> customerUpdateTest10(
-            @RequestBody @Valid CustomerUpdate data, // DTO 객체
-            @RequestPart("newCustomerImgFile") MultipartFile newCustomerImgFile // 파일
-            ) {
-        logger.info("Test 10 ) data >>> " + data);
-        logger.info("Test 10 ) newCustomerImgFile >>>: " + newCustomerImgFile);
-        if (newCustomerImgFile != null) {
-            // 각 정보를 한 줄씩 출력
-            logger.info("File Name: " + newCustomerImgFile.getOriginalFilename());
-            logger.info("File Size: " + newCustomerImgFile.getSize() + " bytes");
-            logger.info("Content Type: " + newCustomerImgFile.getContentType());
-            logger.info("Is File Empty: " + newCustomerImgFile.isEmpty());
-        } else {
-            logger.info("No file received.");
-        }
-        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
     }
 }

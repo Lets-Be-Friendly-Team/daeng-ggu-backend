@@ -70,7 +70,7 @@ public interface DesignerRepository extends JpaRepository<Designer, Long> {
     // 디자이너의 전체 리뷰 좋아요 수 조회
     @Query(
             value =
-                    "SELECT SUM(r.review_like_cnt) AS reviewLikeCntAll "
+                    "SELECT COALESCE(SUM(r.review_like_cnt), 0) AS reviewLikeCntAll "
                             + "FROM review r "
                             + "JOIN designer d ON d.designer_id = r.designer_id "
                             + "WHERE d.designer_id = :designerId",
