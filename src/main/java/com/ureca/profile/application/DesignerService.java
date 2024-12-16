@@ -481,13 +481,13 @@ public class DesignerService {
      * @param portfolioId 포트폴리오 아이디
      */
     public void deleteDesignerPortfolio(Long designerId, Long portfolioId) {
-        // TODO 당연히 존재하는 값일텐데 굳이 한번 더 조회하고 삭제하는 것이 맞을지?
-        //  delete는 데이터 없으면 알아서 아무일도 일어나지 않음.
+        // 포트폴리오 조회
         Portfolio portfolio =
                 portfolioRepository.findByDesignerDesignerIdAndPortfolioId(designerId, portfolioId);
         if (portfolio == null) {
             throw new ApiException(ErrorCode.DATA_NOT_EXIST);
         } else {
+            portfolioImgRepository.deleteAll(portfolio.getPortfolioImgs());
             portfolioRepository.delete(portfolio);
         }
     } // deleteDesignerPortfolio
