@@ -51,6 +51,8 @@ public class MonitoringGuardianController {
                         .reservationId(1L)
                         .reservationDate(LocalDate.of(2024, 12, 15))
                         .startTime(10)
+                        .isFinished(false)
+                        .processId(null)
                         .customerAddress("서울 강남구 테헤란로 123")
                         .shopAddress("경기 성남시 분당구 판교로 456")
                         .petInfo(petInfo1)
@@ -75,6 +77,8 @@ public class MonitoringGuardianController {
                         .reservationId(2L)
                         .reservationDate(LocalDate.of(2024, 12, 16))
                         .startTime(14)
+                        .isFinished(false)
+                        .processId(1L)
                         .customerAddress("서울 송파구 올림픽로 789")
                         .shopAddress("경기 수원시 영통구 광교로 101")
                         .petInfo(petInfo2)
@@ -101,6 +105,43 @@ public class MonitoringGuardianController {
                         .processStatus("PREPARING")
                         .processMessage("시작 전 서비스 준비 중.")
                         .build());
+    }
+
+    /**
+     * 배달기사가 단일 예약 정보를 조회하는 API.
+     *
+     * @return 예약 정보
+     */
+    @GetMapping("/reservation/{reservationId}")
+    @Operation(summary = "특정 예약 정보 조회", description = "배달기사가 예약 한개의 정보를 조회하는 API.")
+    public ResponseDto<ReservationInfoForGuardianDto> getReservationInfo() {
+        PetInfoDto petInfo =
+                PetInfoDto.builder()
+                        .petName("초코")
+                        .petImgUrl(
+                                "https://letsbefriendly.s3.ap-northeast-2.amazonaws.com/janggun.jpg")
+                        .birthDate("2022-05-10")
+                        .gender("Female")
+                        .weight(6.0)
+                        .specialNotes("알레르기 있음")
+                        .isNeutered(true)
+                        .majorBreed("포메라니안")
+                        .subBreed("스피츠계열")
+                        .build();
+
+        ReservationInfoForGuardianDto reservation =
+                ReservationInfoForGuardianDto.builder()
+                        .reservationId(1L)
+                        .reservationDate(LocalDate.of(2024, 12, 15))
+                        .startTime(10)
+                        .isFinished(false)
+                        .processId(1L)
+                        .customerAddress("서울 강남구 테헤란로 123")
+                        .shopAddress("경기 성남시 분당구 판교로 456")
+                        .petInfo(petInfo)
+                        .build();
+
+        return ResponseUtil.SUCCESS("예약 정보 조회 성공", reservation);
     }
 
     /**
