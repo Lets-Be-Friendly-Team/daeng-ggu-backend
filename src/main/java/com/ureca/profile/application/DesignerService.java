@@ -249,6 +249,8 @@ public class DesignerService {
                             designer, preServiceCode); // 삭제
                 }
             }
+        } else {
+            throw new ApiException(ErrorCode.REQUIRED_DATA_NOT_PROVIDED);
         }
         // 미용 가능 견종 코드 목록 (대분류)
         if (data.getPossibleBreed() != null) {
