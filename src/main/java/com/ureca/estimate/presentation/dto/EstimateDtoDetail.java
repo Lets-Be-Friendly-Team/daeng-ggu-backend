@@ -16,6 +16,7 @@ public class EstimateDtoDetail {
     private String designerName;
     private String designerImageUrl;
     private String designerAddress;
+    private String desiredServiceCode;
     private String estimateDetail;
     private BigDecimal groomingFee;
     private BigDecimal deliveryFee;
