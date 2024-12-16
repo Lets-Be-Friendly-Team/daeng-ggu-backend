@@ -157,10 +157,10 @@ public class ReviewService {
         return response;
     }
 
-    public void createReview(
-            Long customerId, ReviewDto.Request reviewRequest, List<MultipartFile> feedImgList) {
+    public void createReview(Long customerId, ReviewDto.Request reviewRequest) {
         System.out.println("A1 : " + customerId);
         System.out.println("A2 : " + reviewRequest.getDesignerId());
+        List<String> feedImgList = reviewRequest.getFeedImgList();
         Customer customer =
                 customerRepository
                         .findByCustomerId(customerId)
@@ -175,9 +175,7 @@ public class ReviewService {
 
         List<ReviewImage> reviewImages = new ArrayList<>();
         if (feedImgList != null) {
-            for (MultipartFile file : feedImgList) {
-                String imageUrl = s3Service.uploadFileImage(file, "review", "review");
-
+            for (String file : feedImgList) {
                 review =
                         Review.builder()
                                 .customer(customer)
@@ -185,11 +183,11 @@ public class ReviewService {
                                 .reviewContents(reviewRequest.getReviewContents())
                                 .reviewStar(reviewRequest.getReviewStar())
                                 .isFeedAdd(reviewRequest.getIsFeedAdd())
-                                .feedUrl(imageUrl)
+                                .feedUrl(file)
                                 .build();
 
                 ReviewImage reviewImage =
-                        ReviewImage.builder().reviewImageUrl(imageUrl).review(review).build();
+                        ReviewImage.builder().reviewImageUrl(file).review(review).build();
                 reviewImages.add(reviewImage);
             }
         }

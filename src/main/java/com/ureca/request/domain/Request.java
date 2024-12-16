@@ -35,6 +35,7 @@ public class Request extends BaseEntity {
     @Column(length = 20, nullable = false)
     private String desiredServiceCode;
 
+    @Builder.Default
     @Column(nullable = false)
     private Duration serviceTime = Duration.ofHours(1);
 

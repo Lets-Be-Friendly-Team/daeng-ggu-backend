@@ -57,19 +57,12 @@ public class ReviewController {
         return ResponseUtil.SUCCESS("피드 조회가 완료되었습니다.", review);
     }
 
-    // 피드 생성
+    // 피드 생성 API
     @PostMapping("/feed")
     @Operation(summary = "리뷰 생성", description = "[RSV2100] 리뷰(피드) 생성 API")
-    public ResponseDto<Void> createReview(
-            @RequestPart("reviewRequest") String reviewRequestJson, // JSON 데이터를 String으로 받음
-            @RequestPart("FeedImgList") List<MultipartFile> feedImgList)
-            throws JsonProcessingException { // Multipart 파일 리스트를 받음
+    public ResponseDto<Void> createReview(@RequestBody ReviewDto.Request reviewRequest) {
 
-        // reviewRequestJson을 객체로 변환
-        ReviewDto.Request reviewRequest =
-                new ObjectMapper().readValue(reviewRequestJson, ReviewDto.Request.class);
-
-        reviewService.createReview(2L, reviewRequest, feedImgList);
+        reviewService.createReview(2L, reviewRequest);
         return ResponseUtil.SUCCESS("리뷰가 성공적으로 생성되었습니다.", null);
     }
 
