@@ -16,7 +16,10 @@ public class ReviewDto {
     @NoArgsConstructor
     @Schema(name = "ReviewRequest")
     public static class Request {
+
+        @JsonProperty("designerId")
         private Long designerId;
+
         private String reviewContents;
         private Double reviewStar;
         private Boolean isFeedAdd;

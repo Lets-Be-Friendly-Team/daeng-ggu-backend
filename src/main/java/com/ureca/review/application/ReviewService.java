@@ -160,7 +160,7 @@ public class ReviewService {
         System.out.println("A1 : " + customerId);
         System.out.println("A2 : " + reviewRequest.getDesignerId());
         System.out.println("isFeedAdd: " + reviewRequest.getIsFeedAdd());
-        List<String> feedImgList = reviewRequest.getFeedImgList();
+        List<String> FeedImgList = reviewRequest.getFeedImgList();
         Customer customer =
                 customerRepository
                         .findByCustomerId(customerId)
@@ -174,8 +174,8 @@ public class ReviewService {
         Review review = new Review();
 
         List<ReviewImage> reviewImages = new ArrayList<>();
-        if (feedImgList != null) {
-            for (String file : feedImgList) {
+        if (FeedImgList != null) {
+            for (String file : FeedImgList) {
                 review =
                         Review.builder()
                                 .customer(customer)
