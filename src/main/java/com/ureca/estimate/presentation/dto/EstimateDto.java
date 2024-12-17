@@ -17,6 +17,17 @@ public class EstimateDto {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
+    @Schema(name = "EstimateCreate")
+    public static class Create {
+        private Request estimateRequest;
+        private List<Img> estimateImgList;
+        private List<TagId> estimateImgIdList;
+    }
+
+    @Builder(toBuilder = true)
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
     @Schema(name = "EstimateRequest")
     public static class Request {
         private Long requestId;
