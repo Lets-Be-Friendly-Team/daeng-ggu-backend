@@ -425,22 +425,25 @@ public class ReservationService {
         if (!customer.getCustomerLoginId().equals(orderKeysAndAmountDto.getCustomerKey())) {
             throw new ApiException(ErrorCode.INVALID_CUSTOMER_KEY);
         }
-
+        System.out.println("customer = " + customer);
         sendOrderInfoToPaymentServer(orderKeysAndAmountDto);
     }
 
     // 결제 서버로 전달
     private void sendOrderInfoToPaymentServer(OrderKeysAndAmountDto paymentRequestDto) {
         String paymentServerUrl = paymentServerConfig.getPaymentServerUrl() + "/v1/orders";
-
+        System.out.println("1. paymentServerUrl = " + paymentServerUrl);
         try {
             ResponseEntity<Void> response =
                     restTemplate.postForEntity(paymentServerUrl, paymentRequestDto, Void.class);
-
+            System.out.println("2. response = " + response);
             if (!response.getStatusCode().is2xxSuccessful()) {
+                System.out.println("3. response = " + response);
                 throw new ApiException(ErrorCode.PAYMENT_SERVER_ERROR);
             }
         } catch (Exception e) {
+            System.out.println("4. e = " + e);
+            e.printStackTrace(); // 로그 출력
             throw new ApiException(ErrorCode.PAYMENT_SERVER_ERROR);
         }
     }
