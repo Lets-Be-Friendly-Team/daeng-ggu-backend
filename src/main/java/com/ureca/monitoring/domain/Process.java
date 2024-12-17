@@ -37,8 +37,8 @@ public class Process extends BaseEntity {
     @Column(length = 255)
     private String playbackUrl; // 플레이백 URL
 
-    @Column(length = 255)
-    private String streamKey; // 스트림 Key
+    @Column(nullable = false)
+    private String channelARN; // 스트림 Key-> channelARN
 
     public void updateStatus(
             Integer processNum, ProcessStatus processStatus, String processMessage) {
@@ -47,8 +47,8 @@ public class Process extends BaseEntity {
         this.processMessage = processMessage;
     }
 
-    public void updateStreamValue(String playbackUrl, String streamKey) {
+    public void updateStreamValue(String playbackUrl, String channelARN) {
         this.playbackUrl = playbackUrl;
-        this.streamKey = streamKey;
+        this.channelARN = channelARN;
     }
 }

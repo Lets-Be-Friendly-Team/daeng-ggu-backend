@@ -8,6 +8,6 @@ import lombok.Getter;
 public class StreamingDto {
     private Long reservationId;
     private String streamUrl;
-    private String streamKey;
+    private String channelARN;
     private ProcessStatusDto statusDto;
 }

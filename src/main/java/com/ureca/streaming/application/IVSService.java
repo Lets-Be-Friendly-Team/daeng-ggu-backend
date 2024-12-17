@@ -52,13 +52,72 @@ public class IVSService {
         ivsClient.deleteChannel(request);
     }
 
-    public String getPlaybackUrl(String channelId) {
+    public String getPlaybackUrl(String channelARN) {
+        // 입력된 channelARN 검증
+        if (channelARN == null || channelARN.isEmpty()) {
+            throw new IllegalArgumentException("channelARN must not be null or empty.");
+        }
+
+        // AWS IVS 채널 요청
         GetChannelRequest request =
                 GetChannelRequest.builder()
-                        .arn("arn:aws:ivs:region:account-id:channel/" + channelId)
+                        .arn(channelARN) // ARN 직접 사용
                         .build();
 
+        // 채널 정보 가져오기
         GetChannelResponse response = ivsClient.getChannel(request);
-        return response.channel().playbackUrl(); // Playback URL 반환
+
+        // Playback URL 반환
+        return response.channel().playbackUrl();
+    }
+
+    //    public String getExistingStreamKey(String channelArn) {
+    //        // 스트림 키 조회 요청
+    //        ListStreamKeysRequest request = ListStreamKeysRequest.builder()
+    //                .channelArn(channelArn)
+    //                .build();
+    //
+    //        ListStreamKeysResponse response = ivsClient.listStreamKeys(request);
+    //
+    //        // 스트림 키 존재 여부 확인
+    //        if (response.streamKeys().isEmpty()) {
+    //            throw new IllegalStateException("No stream keys found for channel: " +
+    // channelArn);
+    //        }
+    //
+    //        // 첫 번째 스트림 키 반환
+    //        return response.streamKeys().get(0).value();
+    //    }
+    public String getRTMPUrl(String channelArn) {
+
+        // RTMP 엔드포인트 가져오기
+        String ingestEndpoint = getRtmpEndpoint(channelArn);
+
+        // 기존 스트림 키 조회
+        String streamKey = getExistingStreamKey(channelArn);
+        return "rtmp://" + ingestEndpoint + "/" + streamKey;
+        // 송출 URL 생성
+        //        return ingestEndpoint + "/" + streamKey;
+    }
+
+    public String getExistingStreamKey(String channelArn) {
+        ListStreamKeysRequest request =
+                ListStreamKeysRequest.builder().channelArn(channelArn).build();
+
+        ListStreamKeysResponse response = ivsClient.listStreamKeys(request);
+
+        if (response.streamKeys().isEmpty()) {
+            throw new IllegalStateException("No stream keys found for channel: " + channelArn);
+        }
+
+        // 첫 번째 StreamKeySummary ARN 가져오기
+        String streamKeyArn = response.streamKeys().get(0).arn();
+
+        // GetStreamKey API 호출로 실제 스트림 키 값 얻기
+        GetStreamKeyRequest getKeyRequest = GetStreamKeyRequest.builder().arn(streamKeyArn).build();
+
+        GetStreamKeyResponse getKeyResponse = ivsClient.getStreamKey(getKeyRequest);
+
+        return getKeyResponse.streamKey().value(); // 실제 스트림 키 값
     }
 }

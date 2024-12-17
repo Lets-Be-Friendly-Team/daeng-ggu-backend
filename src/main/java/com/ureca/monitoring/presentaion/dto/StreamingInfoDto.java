@@ -8,5 +8,4 @@ import lombok.Getter;
 public class StreamingInfoDto {
     private Long reservationId;
     private String streamUrl;
-    private String streamKey;
 }
