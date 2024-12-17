@@ -71,7 +71,6 @@ public class IVSService {
         return response.channel().playbackUrl();
     }
 
-
     public String getRTMPUrl(String channelArn) {
 
         // RTMP 엔드포인트 가져오기

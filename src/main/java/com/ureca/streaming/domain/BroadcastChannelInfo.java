@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor // 기본 생성자
 @AllArgsConstructor
 public class BroadcastChannelInfo {
-    
+
     String ingestUrl;
     String streamKey;
 }

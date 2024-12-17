@@ -53,7 +53,7 @@ public class StreamController {
         // 송출용 URL가져오기
         String ingestUrl = ivsService.getRtmpEndpoint(channelArn);
         String playbackUrl = ivsService.getPlaybackUrl(channelArn);
-//        String streamKey = ivsService.createStreamKey(channelArn);
+        //        String streamKey = ivsService.createStreamKey(channelArn);
         String streamKey = ivsService.getExistingStreamKey(channelArn);
         Process process = reservation.getProcess();
         if (process == null) {
@@ -67,11 +67,10 @@ public class StreamController {
         reservation.updateProcess(process);
         reservationRepository.save(reservation);
 
-        BroadcastChannelInfo broadcastChannelInfo = new BroadcastChannelInfo(ingestUrl,streamKey);
+        BroadcastChannelInfo broadcastChannelInfo = new BroadcastChannelInfo(ingestUrl, streamKey);
 
         return ResponseEntity.ok(broadcastChannelInfo);
     }
-
 
     @GetMapping("/channel-info")
     @Operation(summary = "생성한 IVS 채널 조회", description = "예약 ID를 기반으로 AWS IVS 채널 정보를 조회하는 API")
@@ -79,14 +78,18 @@ public class StreamController {
 
         // Reservation 조회
         Reservation reservation =
-                reservationRepository.findByReservationId(reservationId)
-                        .orElseThrow(() -> new IllegalArgumentException(
-                                "Invalid reservationId: " + reservationId));
+                reservationRepository
+                        .findByReservationId(reservationId)
+                        .orElseThrow(
+                                () ->
+                                        new IllegalArgumentException(
+                                                "Invalid reservationId: " + reservationId));
 
         // Process 객체 확인
         Process process = reservation.getProcess();
         if (process == null || process.getChannelARN() == null) {
-            throw new IllegalStateException("No valid channelARN associated with this reservation.");
+            throw new IllegalStateException(
+                    "No valid channelARN associated with this reservation.");
         }
 
         // 송출 및 스트림 키 정보 가져오기
@@ -148,7 +151,7 @@ public class StreamController {
 
         String channelARN = process.getChannelARN();
         String playbackUrl = ivsService.getPlaybackUrl(channelARN);
-        PlaybackChannelInfo playbackChannelInfo= new PlaybackChannelInfo(playbackUrl);
+        PlaybackChannelInfo playbackChannelInfo = new PlaybackChannelInfo(playbackUrl);
 
         return ResponseEntity.ok(playbackChannelInfo);
     }
