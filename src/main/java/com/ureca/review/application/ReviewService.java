@@ -330,11 +330,11 @@ public class ReviewService {
         String lockKey = LOCK_KEY_PREFIX + reviewId;
 
         // 1. 락 시도 (유효 시간 5초)
-        boolean lockAcquired = redisLockUtil.tryLock(lockKey, 5000);
-
-        if (!lockAcquired) {
-            throw new ApiException(ErrorCode.USER_CONFLICT_ERROR);
-        }
+        //        boolean lockAcquired = redisLockUtil.tryLock(lockKey, 5000);
+        //
+        //        if (!lockAcquired) {
+        //            throw new ApiException(ErrorCode.USER_CONFLICT_ERROR);
+        //        }
 
         // 2. 리뷰 조회
         Review review =
@@ -385,7 +385,7 @@ public class ReviewService {
             reviewRepository.save(review);
         } finally {
             // 9. 락 해제
-            redisLockUtil.unlock(lockKey);
+            //            redisLockUtil.unlock(lockKey);
         }
         ReviewLikeDto.Response response =
                 ReviewLikeDto.Response.builder()
