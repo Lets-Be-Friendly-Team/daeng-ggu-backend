@@ -56,8 +56,8 @@ public class MonitoringService {
         processRepository.save(process);
     }
 
-    private void updateStreamAndSave(Process process, String streamUrl, String streamKey) {
-        process.updateStreamValue(streamUrl, streamKey);
+    private void updateStreamAndSave(Process process, String streamUrl, String channelARN) {
+        process.updateStreamValue(streamUrl, channelARN);
         processRepository.save(process);
     }
 
@@ -159,7 +159,6 @@ public class MonitoringService {
         return StreamingInfoDto.builder()
                 .reservationId(reservationId)
                 .streamUrl(process.getPlaybackUrl())
-                .streamKey(process.getStreamKey())
                 .build();
     }
 
@@ -213,7 +212,7 @@ public class MonitoringService {
 
         // 스트리밍 정보 생성
         String streamKey = "스트리밍 KEY"; // TODO: 스트리밍 키 생성 로직
-        String streamUrl = "스트리밍 URL"; // TODO: 스트리밍 URL 생성 로직
+        String streamUrl = "스트리밍 URL"; // TODO: 스트리밍 URL 생성 로직 -> channelARN
         updateStreamAndSave(process, streamUrl, streamKey);
 
         ProcessStatusDto processStatusDto =
@@ -221,7 +220,7 @@ public class MonitoringService {
 
         return StreamingDto.builder()
                 .reservationId(reservationId)
-                .streamKey(process.getStreamKey())
+                .channelARN(process.getChannelARN())
                 .streamUrl(process.getPlaybackUrl())
                 .statusDto(processStatusDto)
                 .build();
@@ -350,7 +349,6 @@ public class MonitoringService {
 
         return StreamingDto.builder()
                 .reservationId(reservationId)
-                .streamKey(process.getStreamKey())
                 .streamUrl(process.getPlaybackUrl())
                 .statusDto(processStatusDto)
                 .build();
@@ -383,7 +381,6 @@ public class MonitoringService {
 
         return StreamingDto.builder()
                 .reservationId(reservationId)
-                .streamKey(process.getStreamKey())
                 .streamUrl(process.getPlaybackUrl())
                 .statusDto(processStatusDto)
                 .build();

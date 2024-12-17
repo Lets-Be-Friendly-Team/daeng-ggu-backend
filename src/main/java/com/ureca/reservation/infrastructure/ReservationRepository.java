@@ -3,6 +3,7 @@ package com.ureca.reservation.infrastructure;
 import com.ureca.reservation.domain.Reservation;
 import com.ureca.reservation.presentation.dto.ReservationInfo;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
+    Optional<Reservation> findByReservationId(Long reservationId);
 
     // 보호자 ID를 기준으로 예약 내역 조회, 최근 데이터가 맨 앞으로 오도록 정렬
     @Query(
