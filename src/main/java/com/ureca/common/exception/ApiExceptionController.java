@@ -1,6 +1,7 @@
 package com.ureca.common.exception;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -20,20 +21,26 @@ public class ApiExceptionController {
                         .status(exception.getErrorCode().getStatus())
                         .message(exception.getErrorCode().getMessage())
                         .build();
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON) // Content-Type 명시
+                .body(errorResponse);
     }
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException exception) {
         ErrorResponse errorResponse = new ErrorResponse(exception.getMessage(), 500, 500);
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON) // Content-Type 명시
+                .body(errorResponse);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(
             IllegalArgumentException exception) {
         ErrorResponse errorResponse = new ErrorResponse(exception.getMessage(), 500, 500);
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .contentType(MediaType.APPLICATION_JSON) // Content-Type 명시
+                .body(errorResponse);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -44,7 +51,9 @@ public class ApiExceptionController {
                         exception.getBindingResult().getAllErrors().get(0).getDefaultMessage(),
                         400,
                         400);
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON) // Content-Type 명시
+                .body(errorResponse);
     }
 
     // @ExceptionHandler(JwtException.class)
