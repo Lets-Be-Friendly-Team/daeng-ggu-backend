@@ -43,7 +43,7 @@ public class LoginService {
 
         String email = kakaoDTO.getEmail();
         String role = kakaoDTO.getRole();
-        String loginId = email + kakaoDTO.getId();
+        String loginId = email + "_" + kakaoDTO.getId();
 
         String joinYn = "";
         long id = 0L;
@@ -52,8 +52,9 @@ public class LoginService {
             case CUSTOMER:
                 Optional<Customer> customer =
                         customerRepository.findByEmailAndCustomerLoginId(email, loginId);
-                if (customer.isEmpty()) joinYn = "N";
-                else {
+                if (customer.isEmpty()) {
+                    joinYn = "N";
+                } else {
                     joinYn = "Y";
                     id = customer.get().getCustomerId();
                 }
@@ -61,8 +62,9 @@ public class LoginService {
             case DESIGNER:
                 Optional<Designer> designer =
                         designerRepository.findByEmailAndDesignerLoginId(email, loginId);
-                if (designer.isEmpty()) joinYn = "N";
-                else {
+                if (designer.isEmpty()) {
+                    joinYn = "N";
+                } else {
                     joinYn = "Y";
                     id = designer.get().getDesignerId();
                 }
