@@ -76,6 +76,10 @@ dependencies {
     implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.5'
     // WebSocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    // Security and validation
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
 }
 
 tasks.named('test') {
