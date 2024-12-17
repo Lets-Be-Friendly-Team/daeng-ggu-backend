@@ -61,12 +61,12 @@ public class EstimateService {
 
         String lockKey = LOCK_KEY_PREFIX + request1.getRequestId();
 
-        // 1. 락 시도 (유효 시간 5초)
-        boolean lockAcquired = redisLockUtil.tryLock(lockKey, 5000);
-
-        if (!lockAcquired) {
-            throw new ApiException(ErrorCode.USER_CONFLICT_ERROR);
-        }
+        //        // 1. 락 시도 (유효 시간 5초)
+        //        boolean lockAcquired = redisLockUtil.tryLock(lockKey, 5000);
+        //
+        //        if (!lockAcquired) {
+        //            throw new ApiException(ErrorCode.USER_CONFLICT_ERROR);
+        //        }
 
         if (request1.getRequestCnt() < 10) {
             Estimate estimate =
@@ -97,9 +97,9 @@ public class EstimateService {
             categoryAndAlarm(estimate);
             request1.setRequestCnt(request1.getRequestCnt() + 1);
             requestRepository.save(request1);
-            redisLockUtil.unlock(lockKey);
+            //            redisLockUtil.unlock(lockKey);
         } else {
-            redisLockUtil.unlock(lockKey);
+            //            redisLockUtil.unlock(lockKey);
             throw new ApiException(ErrorCode.REQUEST_FULL_ESTIMATE);
         }
     }
