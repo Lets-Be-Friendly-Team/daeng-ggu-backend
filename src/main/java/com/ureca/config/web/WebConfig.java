@@ -21,7 +21,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "https://localhost:5175",
                         "https://www.daeng-ggu-backend.com",
                         "https://www.daeng-ggu.com") // 허용할 도메인
-                .allowedMethods("GET", "POST", "PUT", "DELETE") // 허용할 HTTP 메소드
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH") // 허용할 HTTP 메소드
                 .allowedHeaders("*") // 허용할 헤더
                 .allowCredentials(true); // 쿠키 등을 허용할지 여부
     }
