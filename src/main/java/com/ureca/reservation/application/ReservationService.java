@@ -431,7 +431,7 @@ public class ReservationService {
 
     // 결제 서버로 전달
     private void sendOrderInfoToPaymentServer(OrderKeysAndAmountDto paymentRequestDto) {
-        String paymentServerUrl = paymentServerConfig.getLocalPaymentServerUrl() + "v1/orders";
+        String paymentServerUrl = paymentServerConfig.getPaymentServerUrl() + "/v1/orders";
 
         try {
             ResponseEntity<Void> response =
@@ -614,7 +614,7 @@ public class ReservationService {
 
     // 결제 요청
     public PaymentResponseDto processPayment(PaymentRequestDto paymentRequestDto) {
-        String paymentUrl = paymentServerConfig.getLocalPaymentServerUrl() + "/v1/toss/confirm";
+        String paymentUrl = paymentServerConfig.getPaymentServerUrl() + "/v1/toss/confirm";
 
         try {
             // 결제 서버에 요청
@@ -670,7 +670,7 @@ public class ReservationService {
     private PaymentCancelResponseDto processPaymentCancellation(
             String orderId, String cancelReason) {
         String paymentCancelUrl =
-                paymentServerConfig.getLocalPaymentServerUrl() + "/v1/toss/cancel";
+                paymentServerConfig.getPaymentServerUrl() + "/v1/toss/cancel";
 
         OrderIdWithCancelReasonDto cancelRequest =
                 OrderIdWithCancelReasonDto.builder()
