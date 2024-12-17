@@ -6,6 +6,8 @@ import com.ureca.reservation.domain.Reservation;
 import com.ureca.reservation.infrastructure.ReservationRepository;
 import com.ureca.streaming.application.IVSService;
 import com.ureca.streaming.domain.BroadcastChannelInfo;
+import com.ureca.streaming.domain.PlaybackChannelInfo;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,9 +51,10 @@ public class StreamController {
         String channelSendReq = convertReservationToChannelId(reservationId);
         String channelArn = ivsService.createChannel(channelSendReq);
         // 송출용 URL가져오기
-        String rtmpUrl = ivsService.getRTMPUrl(channelArn);
+        String ingestUrl = ivsService.getRtmpEndpoint(channelArn);
         String playbackUrl = ivsService.getPlaybackUrl(channelArn);
-
+        //        String streamKey = ivsService.createStreamKey(channelArn);
+        String streamKey = ivsService.getExistingStreamKey(channelArn);
         Process process = reservation.getProcess();
         if (process == null) {
             process = Process.builder().channelARN(channelArn).playbackUrl(playbackUrl).build();
@@ -64,7 +67,37 @@ public class StreamController {
         reservation.updateProcess(process);
         reservationRepository.save(reservation);
 
-        BroadcastChannelInfo broadcastChannelInfo = new BroadcastChannelInfo(rtmpUrl);
+        BroadcastChannelInfo broadcastChannelInfo = new BroadcastChannelInfo(ingestUrl, streamKey);
+
+        return ResponseEntity.ok(broadcastChannelInfo);
+    }
+
+    @GetMapping("/channel-info")
+    @Operation(summary = "생성한 IVS 채널 조회", description = "예약 ID를 기반으로 AWS IVS 채널 정보를 조회하는 API")
+    public ResponseEntity<BroadcastChannelInfo> getChannelInfo(@RequestParam Long reservationId) {
+
+        // Reservation 조회
+        Reservation reservation =
+                reservationRepository
+                        .findByReservationId(reservationId)
+                        .orElseThrow(
+                                () ->
+                                        new IllegalArgumentException(
+                                                "Invalid reservationId: " + reservationId));
+
+        // Process 객체 확인
+        Process process = reservation.getProcess();
+        if (process == null || process.getChannelARN() == null) {
+            throw new IllegalStateException(
+                    "No valid channelARN associated with this reservation.");
+        }
+
+        // 송출 및 스트림 키 정보 가져오기
+        String ingestUrl = ivsService.getRtmpEndpoint(process.getChannelARN());
+        String streamKey = ivsService.getExistingStreamKey(process.getChannelARN());
+
+        // BroadcastChannelInfo 생성
+        BroadcastChannelInfo broadcastChannelInfo = new BroadcastChannelInfo(ingestUrl, streamKey);
 
         return ResponseEntity.ok(broadcastChannelInfo);
     }
@@ -77,6 +110,7 @@ public class StreamController {
                 "http://localhost:5174",
                 "http://localhost:5175"
             })
+    @Hidden
     @GetMapping("/stream-url")
     public ResponseEntity<String> getStreamUrl(@RequestParam String channelArn) {
         String streamUrl = ivsService.getRTMPUrl(channelArn);
@@ -92,8 +126,8 @@ public class StreamController {
                 "http://localhost:5175"
             })
     @GetMapping("/playback-url")
-    @Operation(summary = "송출 스트리밍 시작", description = "AWS IVS 송출용 RTMP URL 반환 API")
-    public ResponseEntity<String> getPlaybackUrl(@RequestParam Long reservationId) {
+    @Operation(summary = "수신용 Playback URL", description = "AWS IVS  수신용 ingest URL 반환 API")
+    public ResponseEntity<PlaybackChannelInfo> getPlaybackUrl(@RequestParam Long reservationId) {
         Reservation reservation =
                 reservationRepository
                         .findByReservationId(reservationId)
@@ -106,6 +140,7 @@ public class StreamController {
            Process가 null이거나 channelARN이 없을 경우 명확한 예외 메시지를 반환합
         */
         Process process = reservation.getProcess();
+
         if (process == null) {
             throw new IllegalStateException("해당 reservation_id에 매핑된 process가 존재하지 않습니다.");
         }
@@ -116,8 +151,9 @@ public class StreamController {
 
         String channelARN = process.getChannelARN();
         String playbackUrl = ivsService.getPlaybackUrl(channelARN);
+        PlaybackChannelInfo playbackChannelInfo = new PlaybackChannelInfo(playbackUrl);
 
-        return ResponseEntity.ok(playbackUrl);
+        return ResponseEntity.ok(playbackChannelInfo);
     }
 
     // reservationID를 channelId로 변환하는 메서드
