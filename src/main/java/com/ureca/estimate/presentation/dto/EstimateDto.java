@@ -26,7 +26,24 @@ public class EstimateDto {
         private LocalDateTime requestDate;
 
         private BigDecimal requestPrice;
-        private List<String> estimateImgList;
+    }
+
+    @Builder(toBuilder = true)
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Schema(name = "EstimateImg")
+    public static class Img {
+        private String estimateImgUrl;
+    }
+
+    @Builder(toBuilder = true)
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Schema(name = "EstimateTagId")
+    public static class TagId {
+        private String estimateTagId;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
