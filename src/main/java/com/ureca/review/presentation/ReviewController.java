@@ -64,7 +64,11 @@ public class ReviewController {
     }
 
     // 피드 수정
-    @PatchMapping("/feed")
+    @PatchMapping(
+            value = "/feed",
+            consumes = "application/json", // 클라이언트 요청이 JSON 형식이어야 함
+            produces = "application/json" // 서버 응답이 JSON 형식임을 명시
+            )
     @Operation(summary = "리뷰 수정", description = "[FED1110] 보호자 프로필 조회 - 리뷰 세부 조회 - 리뷰 수정 ")
     public ResponseDto<String> updateReview(@RequestBody ReviewDto.Patch reviewRequest) {
 
