@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,6 +39,16 @@ public class PetController {
     public ResponseDto<Void> petUpdate(@RequestBody PetUpdate data) {
         // service - 반려견 프로필 수정
         petService.updatePetProfile(data);
+        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
+    }
+
+    @DeleteMapping("/pet/profile/delete")
+    @Operation(summary = "반려견 프로필 삭제", description = "[MYP1000] 반려견 프로필 삭제 API")
+    public ResponseDto<PetDetail> petDelete(
+            @RequestParam(defaultValue = "") Long customerId,
+            @RequestParam(defaultValue = "") Long petId) {
+        // service - 반려견 프로필 삭제
+        petService.deletePet(customerId, petId);
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
     }
 }

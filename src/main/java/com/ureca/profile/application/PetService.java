@@ -124,4 +124,27 @@ public class PetService {
             petRepository.save(updatedPet); // 업데이트
         }
     } // updatePetProfile
+
+    /**
+     * @title 반려견 - 프로필 삭제
+     * @description 반려견 프로필 삭제
+     * @param customerId 보호자 아이디
+     * @param petId 반려견 아이디
+     */
+    @Transactional
+    public void deletePet(Long customerId, Long petId) {
+        Customer customer =
+                customerRepository
+                        .findById(customerId)
+                        .orElseThrow(() -> new ApiException(ErrorCode.DATA_NOT_EXIST));
+
+        Pet pet =
+                petRepository
+                        .findByIdAndCustomerId(petId, customerId)
+                        .orElseThrow(() -> new ApiException(ErrorCode.PET_NOT_EXIST));
+
+        customer.getPets().remove(pet);
+
+        petRepository.delete(pet);
+    } // deletePet
 }
