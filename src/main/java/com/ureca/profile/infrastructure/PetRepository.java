@@ -2,7 +2,6 @@ package com.ureca.profile.infrastructure;
 
 import com.ureca.profile.domain.Pet;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,9 +9,6 @@ import org.springframework.stereotype.Repository;
 public interface PetRepository extends JpaRepository<Pet, Long> {
     // 고객 아이디로 반려견 목록 찾기
     List<Pet> findByCustomerCustomerId(Long customerId);
-
-    // customerId와 petId를 기반으로 반려견 찾기
-    Optional<Pet> findByIdAndCustomerId(Long petId, Long customerId);
 
     // 반려견 이름으로 반려견 찾기
     List<Pet> findByPetName(String petName);
