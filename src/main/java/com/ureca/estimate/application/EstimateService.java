@@ -48,11 +48,10 @@ public class EstimateService {
     private static final String LOCK_KEY_PREFIX = "estimate:cnt:";
 
     @Transactional
-    public void makeEstimate(
-            EstimateDto.Request request,
-            List<EstimateDto.Img> estimateImgList,
-            List<EstimateDto.TagId> estimateImgIdList,
-            Long designerId) {
+    public void makeEstimate(EstimateDto.Create estimateDto, Long designerId) {
+        EstimateDto.Request request = estimateDto.getEstimateRequest();
+        List<EstimateDto.Img> estimateImgList = estimateDto.getEstimateImgList();
+        List<EstimateDto.TagId> estimateImgIdList = estimateDto.getEstimateImgIdList();
         BigDecimal totalFee =
                 requestRepository
                         .findById(request.getRequestId())

@@ -21,11 +21,8 @@ public class EstimateController {
 
     @PutMapping("/bid/estimate")
     @Operation(summary = "견적서 생성", description = "[DREQ1340] 디자이너가 특정 요청서에 대한 견적서를 작성.")
-    ResponseDto<String> makeEstimate(
-            @RequestBody EstimateDto.Request estimateRequest,
-            @RequestBody List<EstimateDto.Img> estimateImgList,
-            @RequestBody List<EstimateDto.TagId> estimateImgIdList) {
-        estimateService.makeEstimate(estimateRequest, estimateImgList, estimateImgIdList, 1L);
+    ResponseDto<String> makeEstimate(@RequestBody EstimateDto.Create estimateDto) {
+        estimateService.makeEstimate(estimateDto, 1L);
         return ResponseUtil.SUCCESS("견적서 생성이 완료되었습니다.", null);
     }
 
