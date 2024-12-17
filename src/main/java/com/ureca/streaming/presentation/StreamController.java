@@ -53,6 +53,7 @@ public class StreamController {
         // 송출용 URL가져오기
         String ingestUrl = ivsService.getRtmpEndpoint(channelArn);
         String playbackUrl = ivsService.getPlaybackUrl(channelArn);
+//        String streamKey = ivsService.createStreamKey(channelArn);
         String streamKey = ivsService.getExistingStreamKey(channelArn);
         Process process = reservation.getProcess();
         if (process == null) {
@@ -136,6 +137,7 @@ public class StreamController {
            Process가 null이거나 channelARN이 없을 경우 명확한 예외 메시지를 반환합
         */
         Process process = reservation.getProcess();
+
         if (process == null) {
             throw new IllegalStateException("해당 reservation_id에 매핑된 process가 존재하지 않습니다.");
         }

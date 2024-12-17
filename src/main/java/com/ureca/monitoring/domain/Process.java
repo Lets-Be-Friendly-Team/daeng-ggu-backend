@@ -37,7 +37,7 @@ public class Process extends BaseEntity {
     @Column(length = 255)
     private String playbackUrl; // 플레이백 URL
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String channelARN; // 스트림 Key-> channelARN
 
     public void updateStatus(
