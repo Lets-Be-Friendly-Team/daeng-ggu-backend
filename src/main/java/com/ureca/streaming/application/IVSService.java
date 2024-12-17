@@ -71,23 +71,7 @@ public class IVSService {
         return response.channel().playbackUrl();
     }
 
-    //    public String getExistingStreamKey(String channelArn) {
-    //        // 스트림 키 조회 요청
-    //        ListStreamKeysRequest request = ListStreamKeysRequest.builder()
-    //                .channelArn(channelArn)
-    //                .build();
-    //
-    //        ListStreamKeysResponse response = ivsClient.listStreamKeys(request);
-    //
-    //        // 스트림 키 존재 여부 확인
-    //        if (response.streamKeys().isEmpty()) {
-    //            throw new IllegalStateException("No stream keys found for channel: " +
-    // channelArn);
-    //        }
-    //
-    //        // 첫 번째 스트림 키 반환
-    //        return response.streamKeys().get(0).value();
-    //    }
+
     public String getRTMPUrl(String channelArn) {
 
         // RTMP 엔드포인트 가져오기

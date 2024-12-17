@@ -49,9 +49,9 @@ public class StreamController {
         String channelSendReq = convertReservationToChannelId(reservationId);
         String channelArn = ivsService.createChannel(channelSendReq);
         // 송출용 URL가져오기
-        String rtmpUrl = ivsService.getRTMPUrl(channelArn);
+        String ingestUrl = ivsService.getRtmpEndpoint(channelArn);
         String playbackUrl = ivsService.getPlaybackUrl(channelArn);
-
+        String streamKey = ivsService.getExistingStreamKey(channelArn);
         Process process = reservation.getProcess();
         if (process == null) {
             process = Process.builder().channelARN(channelArn).playbackUrl(playbackUrl).build();
@@ -64,7 +64,7 @@ public class StreamController {
         reservation.updateProcess(process);
         reservationRepository.save(reservation);
 
-        BroadcastChannelInfo broadcastChannelInfo = new BroadcastChannelInfo(rtmpUrl);
+        BroadcastChannelInfo broadcastChannelInfo = new BroadcastChannelInfo(ingestUrl,streamKey);
 
         return ResponseEntity.ok(broadcastChannelInfo);
     }
