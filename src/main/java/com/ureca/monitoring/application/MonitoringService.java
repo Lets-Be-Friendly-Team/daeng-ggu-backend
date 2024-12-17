@@ -423,4 +423,29 @@ public class MonitoringService {
 
         return createProcessStatusDto(process, reservation.getIsDelivery());
     }
+
+    /**
+     * 예약 ID를 통해 디자이너 정보를 조회
+     *
+     * @param reservationId 예약 ID
+     * @return DesignerInfoDto
+     * @throws ApiException RESERVATION_NOT_EXIST: 예약 정보가 존재하지 않을 경우
+     */
+    @Transactional(readOnly = true)
+    public DesignerInfoDto getDesignerInfo(Long reservationId) {
+        // 예약 정보 조회
+        Reservation reservation = reservationRepository.findById(reservationId)
+            .orElseThrow(() -> new ApiException(ErrorCode.RESERVATION_NOT_EXIST));
+
+        // 디자이너 정보 가져오기
+        return DesignerInfoDto.builder()
+            .designerName(reservation.getDesigner().getDesignerName())
+            .address(reservation.getDesigner().getAddress2() + " " + reservation.getDesigner().getDetailAddress())
+            .officialName(reservation.getDesigner().getOfficialName())
+            .introduction(reservation.getDesigner().getIntroduction())
+            .phone(reservation.getDesigner().getPhone())
+            .designerImgUrl(reservation.getDesigner().getDesignerImgUrl())
+            .workExperience(reservation.getDesigner().getWorkExperience())
+            .build();
+    }
 }
