@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @Data // Getter, Setter, toString 자동 생성
 @NoArgsConstructor // 기본 생성자
 @AllArgsConstructor
-public class BroadcastChannelInfo {
-    
-    String ingestUrl;
-    String streamKey;
+public class PlaybackChannelInfo {
+
+    String playbackUrl;
+
 }
