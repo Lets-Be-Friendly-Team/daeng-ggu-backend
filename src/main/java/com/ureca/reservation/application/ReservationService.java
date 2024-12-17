@@ -669,8 +669,7 @@ public class ReservationService {
 
     private PaymentCancelResponseDto processPaymentCancellation(
             String orderId, String cancelReason) {
-        String paymentCancelUrl =
-                paymentServerConfig.getPaymentServerUrl() + "/v1/toss/cancel";
+        String paymentCancelUrl = paymentServerConfig.getPaymentServerUrl() + "/v1/toss/cancel";
 
         OrderIdWithCancelReasonDto cancelRequest =
                 OrderIdWithCancelReasonDto.builder()
