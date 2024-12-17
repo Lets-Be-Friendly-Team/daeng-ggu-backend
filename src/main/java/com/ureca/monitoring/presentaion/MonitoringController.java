@@ -8,7 +8,6 @@ import com.ureca.monitoring.presentaion.dto.ProcessStatusDto;
 import com.ureca.monitoring.presentaion.dto.StreamingInfoDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -63,9 +62,9 @@ public class MonitoringController {
 
     @GetMapping("/reservations/{reservationId}/designer-info")
     @Operation(summary = "해당 예약의 디자이너 정보 조회", description = "보호자는 디자이너의 정보를 볼 수 있습니다.")
-    public ResponseDto<DesignerInfoDto> getDesignerInfoForMonitoring(@PathVariable Long reservationId) {
+    public ResponseDto<DesignerInfoDto> getDesignerInfoForMonitoring(
+            @PathVariable Long reservationId) {
         return ResponseUtil.SUCCESS(
-            "디자이너 정보 조회 성공", monitoringService.getDesignerInfo(reservationId)
-        );
+                "디자이너 정보 조회 성공", monitoringService.getDesignerInfo(reservationId));
     }
 }
