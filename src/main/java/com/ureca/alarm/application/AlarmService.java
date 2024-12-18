@@ -16,8 +16,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -142,18 +140,12 @@ public class AlarmService {
         alarm = alarm.toBuilder().alarmStatus(true).build();
 
         // 변경된 알림을 저장 -- 일단 테스팅을 위해 주석처리
-        //        alarmRepository.save(alarm);
+        alarmRepository.save(alarm);
     }
 
-    public List<AlarmDto.Response> getAlarmsByReceiver(
-            Long receiverId, AuthorType receiverType, int page) {
-        // 페이지 요청 생성 (10개 고정)
-        Pageable pageable = PageRequest.of(page, 10);
-
+    public List<AlarmDto.Response> getAlarmsByReceiver(Long receiverId, AuthorType receiverType) {
         // Repository에서 데이터 조회 후 Dto로 변환
-        return alarmRepository
-                .findByReceiverIdAndReceiverType(receiverId, receiverType, pageable)
-                .stream()
+        return alarmRepository.findByReceiverIdAndReceiverType(receiverId, receiverType).stream()
                 .map(AlarmDto.Response::fromEntity) // Entity -> Response DTO 변환
                 .collect(Collectors.toList());
     }
