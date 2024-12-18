@@ -11,7 +11,7 @@ public class ReservationInfoForGuardianDto {
     private LocalDate reservationDate;
     private Integer startTime;
     private Boolean isFinished;
-    private Long processId;
+    private Boolean isProcess;
 
     private String customerAddress;
     private String shopAddress;

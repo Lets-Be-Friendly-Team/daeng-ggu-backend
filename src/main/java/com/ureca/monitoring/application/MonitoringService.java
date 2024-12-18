@@ -281,10 +281,7 @@ public class MonitoringService {
                                     .reservationDate(reservation.getReservationDate())
                                     .startTime(reservation.getStartTime().getHour())
                                     .isFinished(reservation.getIsFinished())
-                                    .processId(
-                                            reservation.getProcess() != null
-                                                    ? reservation.getProcess().getProcessId()
-                                                    : null)
+                                    .isProcess(reservation.getProcess() != null)
                                     .customerAddress(
                                             reservation.getPet().getCustomer().getAddress2())
                                     .shopAddress(reservation.getDesigner().getAddress2())
@@ -312,10 +309,7 @@ public class MonitoringService {
                 .reservationDate(reservation.getReservationDate())
                 .startTime(reservation.getStartTime().getHour())
                 .isFinished(reservation.getIsFinished())
-                .processId(
-                        reservation.getProcess() != null
-                                ? reservation.getProcess().getProcessId()
-                                : null)
+                .isProcess(reservation.getProcess() != null)
                 .customerAddress(reservation.getPet().getCustomer().getAddress2())
                 .shopAddress(reservation.getDesigner().getAddress2())
                 .petInfo(petInfo)
