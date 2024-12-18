@@ -29,6 +29,7 @@ public class ReservationHistoryResponseDto {
     private Integer monitoringFee;
     private Integer totalPayment;
     private String estimateDetail;
+    private Boolean isProcess;
 
     private DesignerInfoDto designerInfo;
     private RequestDetailDto requestDetail;
