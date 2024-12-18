@@ -75,7 +75,7 @@ public class Request extends BaseEntity {
         this.requestCnt = requestCnt;
     }
 
-    public void updateRequestStatus (String requestStatus) {
+    public void updateRequestStatus(String requestStatus) {
         this.requestStatus = requestStatus;
     }
 }
