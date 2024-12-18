@@ -13,6 +13,7 @@ import com.ureca.profile.presentation.dto.ReviewInfo;
 import com.ureca.review.domain.Review;
 import com.ureca.review.domain.ReviewImage;
 import com.ureca.review.infrastructure.ReviewRepository;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -49,23 +50,20 @@ public class ProfileService {
                                 review -> {
                                     ReviewInfo reviewInfo = new ReviewInfo();
                                     reviewInfo.setReviewId(review.getReviewId());
-                                    /// 리뷰 이미지 처리: 이미지가 없는 경우 null로 처리
+                                    /// 리뷰 이미지 처리
                                     List<ReviewImage> reviewImages = review.getReviewImages();
+                                    List<String> reviewImgUrlList = new LinkedList<>();
                                     if (reviewImages != null && !reviewImages.isEmpty()) {
-                                        if (reviewImages.size() > 0)
-                                            reviewInfo.setReviewImgUrl1(
-                                                    reviewImages.get(0).getReviewImageUrl());
+                                        reviewImgUrlList.add(
+                                                reviewImages.get(0).getReviewImageUrl());
                                         if (reviewImages.size() > 1)
-                                            reviewInfo.setReviewImgUrl1(
+                                            reviewImgUrlList.add(
                                                     reviewImages.get(1).getReviewImageUrl());
                                         if (reviewImages.size() > 2)
-                                            reviewInfo.setReviewImgUrl1(
+                                            reviewImgUrlList.add(
                                                     reviewImages.get(2).getReviewImageUrl());
-                                    } else { // 이미지가 없는 경우 기본값 설정 (null 처리)
-                                        reviewInfo.setReviewImgUrl1(null);
-                                        reviewInfo.setReviewImgUrl2(null);
-                                        reviewInfo.setReviewImgUrl3(null);
                                     }
+                                    reviewInfo.setReviewImgList(reviewImgUrlList);
 
                                     switch (userType) {
                                         case ("C"):
