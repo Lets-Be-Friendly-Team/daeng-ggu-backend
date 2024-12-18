@@ -124,6 +124,7 @@ public class ReservationService {
                                         .designerInfo(
                                                 buildDesignerInfoDto(reservation.getDesigner()))
                                         .requestDetail(buildRequestDetailDto(reservation))
+                                    .isProcess(reservation.getProcess() != null)
                                         .build())
                 .collect(Collectors.toList());
     }
@@ -500,6 +501,7 @@ public class ReservationService {
 
         // 4. 예약 데이터 저장
         Reservation reservation = saveEstimateReservation(estimate, estimateReservationRequestDto);
+        // estimate.up
 
         // 5. 예약 성공 ID 반환
         return reservation.getReservationId();
