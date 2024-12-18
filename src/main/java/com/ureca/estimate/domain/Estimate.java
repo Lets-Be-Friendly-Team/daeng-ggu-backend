@@ -48,4 +48,8 @@ public class Estimate extends BaseEntity {
 
     @OneToMany(mappedBy = "estimate", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EstimateImage> estimateImages;
+
+    public void updateEstimateStatus(String estimateStatus) {
+        this.estimateStatus = estimateStatus;
+    }
 }

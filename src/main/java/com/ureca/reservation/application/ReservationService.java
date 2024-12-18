@@ -11,6 +11,8 @@ import com.ureca.profile.infrastructure.CommonCodeRepository;
 import com.ureca.profile.infrastructure.CustomerRepository;
 import com.ureca.profile.infrastructure.DesignerRepository;
 import com.ureca.profile.infrastructure.PetRepository;
+import com.ureca.request.domain.Request;
+import com.ureca.request.infrastructure.RequestRepository;
 import com.ureca.reservation.config.PaymentServerConfig;
 import com.ureca.reservation.domain.Reservation;
 import com.ureca.reservation.infrastructure.ReservationRepository;
@@ -52,6 +54,7 @@ public class ReservationService {
     private final CommonCodeRepository commonCodeRepository;
     private final EstimateRepository estimateRepository;
     private final PetRepository petRepository;
+    private final RequestRepository requestRepository;
     private final PaymentServerConfig paymentServerConfig;
     private final RestTemplate restTemplate;
 
@@ -501,7 +504,7 @@ public class ReservationService {
 
         // 4. 예약 데이터 저장
         Reservation reservation = saveEstimateReservation(estimate, estimateReservationRequestDto);
-        // estimate.up
+        updateRequestAndEstimatesStatus(estimate.getRequest());
 
         // 5. 예약 성공 ID 반환
         return reservation.getReservationId();
@@ -654,6 +657,21 @@ public class ReservationService {
             e.printStackTrace();
             throw new ApiException(ErrorCode.PAYMENT_PROCESS_FAILED);
         }
+    }
+
+    // 예약 저장 후 요청과 연결된 상태 업데이트
+    private void updateRequestAndEstimatesStatus(Request request) {
+
+        request.updateRequestStatus("ST2");
+        requestRepository.save(request);
+
+        // 해당 요청과 연결된 모든 견적의 상태 변경
+        List<Estimate> estimates = estimateRepository.findAllByRequest(request);
+
+        estimates.forEach(estimate -> {
+            estimate.updateEstimateStatus("ST2");
+            estimateRepository.save(estimate);
+        });
     }
 
     public Long cancelReservation(Long reservationId) {
