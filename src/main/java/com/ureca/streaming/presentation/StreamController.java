@@ -87,7 +87,9 @@ public class StreamController {
 
         // Process 객체 확인
         Process process = reservation.getProcess();
-        if (process == null || process.getChannelARN() == null) {
+        if (process == null
+                || process.getChannelARN() == null
+                || process.getChannelARN().isEmpty()) {
             throw new IllegalStateException(
                     "No valid channelARN associated with this reservation.");
         }
@@ -156,7 +158,36 @@ public class StreamController {
         return ResponseEntity.ok(playbackChannelInfo);
     }
 
+    @DeleteMapping("/delete-channel")
+    @Operation(summary = "채널 삭제 API URL", description = "스트리밍 종료시 호출되는 API")
+    public ResponseEntity<String> deleteChannel(@RequestParam Long reservationId) {
+
+        Reservation reservation =
+                reservationRepository
+                        .findByReservationId(reservationId)
+                        .orElseThrow(
+                                () ->
+                                        new IllegalArgumentException(
+                                                "Invalid reservationId: " + reservationId));
+
+        // Process 및 Reservation 정보 초기화
+        Process process = reservation.getProcess();
+        if (process == null || process.getChannelARN() == null) {
+            throw new IllegalStateException(
+                    "No valid channelARN associated with this reservation.");
+        }
+
+        // AWS IVS 채널 삭제
+        String channelArn = process.getChannelARN();
+        ivsService.deleteChannel(channelArn);
+
+        process.updateStreamValue(null, null);
+        processRepository.save(process);
+        return ResponseEntity.ok("Channel deleted successfully");
+    }
+
     // reservationID를 channelId로 변환하는 메서드
+
     private String convertReservationToChannelId(Long reservationId) {
         // 예약 ID를 채널 ID로 변환하는 로직 (예: 단순 변환 또는 DB 조회)
         // 예시: "12345" -> "channel-12345"
