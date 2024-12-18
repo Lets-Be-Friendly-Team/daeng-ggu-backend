@@ -140,7 +140,7 @@ public class AlarmService {
         alarm = alarm.toBuilder().alarmStatus(true).build();
 
         // 변경된 알림을 저장 -- 일단 테스팅을 위해 주석처리
-        //        alarmRepository.save(alarm);
+        alarmRepository.save(alarm);
     }
 
     public List<AlarmDto.Response> getAlarmsByReceiver(Long receiverId, AuthorType receiverType) {

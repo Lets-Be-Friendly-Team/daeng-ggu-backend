@@ -59,7 +59,7 @@ public class AlarmController {
     @Operation(summary = "알람 전체 조회", description = "[HOM1000] 알람 내역을 10개씩 끊어서 보여줌.")
     public ResponseDto<List<AlarmDto.Response>> getAlarms() {
         List<AlarmDto.Response> alarmList =
-                alarmService.getAlarmsByReceiver(2L, AuthorType.valueOf("CUSTOMER"));
+                alarmService.getAlarmsByReceiver(1L, AuthorType.valueOf("DESIGNER"));
         for (AlarmDto.Response alarm : alarmList) {
             Long alarms = alarm.getAlarmId();
             alarmService.getUnreadToRead(alarms);
