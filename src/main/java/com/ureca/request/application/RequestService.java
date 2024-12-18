@@ -267,10 +267,12 @@ public class RequestService {
                 .gender(pet.getGender())
                 .isNeutered(pet.getIsNeutered())
                 .weight(pet.getWeight())
-                .majorBreedCode(String.valueOf(pet.getMajorBreedCode()))
+                .majorBreedCode(
+                        commonCodeRepository.findCodeNmByCodeId(
+                                String.valueOf(pet.getMajorBreedCode())))
                 .majorBreed(commonCodeRepository.findCodeNmByCodeId(pet.getMajorBreedCode()))
                 .subBreedCode(String.valueOf(pet.getSubBreedCode()))
-                .subBreed(commonCodeRepository.findCodeNmByCodeId(pet.getSubBreedCode()))
+                .subBreed(commonCodeRepository.findCodeDescByCodeId(pet.getSubBreedCode()))
                 .specialNotes(pet.getSpecialNotes())
                 .isRequested(requestRepository.existsByPetAndRequestStatus(pet, "ST1"))
                 .customerId(customer.getCustomerId())
@@ -279,7 +281,8 @@ public class RequestService {
                 .address(customer.getAddress1())
                 .desiredServiceCode(
                         commonCodeRepository.findCodeDescByCodeId(request.getDesiredServiceCode()))
-                .lastGroomingDate(request.getLastGroomingDate())
+                .lastGroomingDate(
+                        commonCodeRepository.findCodeDescByCodeId(request.getLastGroomingDate()))
                 .desiredDate1(request.getDesiredDate1())
                 .desiredDate2(request.getDesiredDate2())
                 .desiredDate3(request.getDesiredDate3())
@@ -375,7 +378,12 @@ public class RequestService {
                             .petId(request.getPet().getPetId())
                             .petName(request.getPet().getPetName())
                             .petImageUrl(request.getPet().getPetImgUrl())
-                            .majorBreedCode(request.getPet().getMajorBreedCode())
+                            .majorBreedCode(
+                                    commonCodeRepository.findCodeNmByCodeId(
+                                            request.getPet().getMajorBreedCode()))
+                            .subBreed(
+                                    commonCodeRepository.findCodeDescByCodeId(
+                                            request.getPet().getSubBreedCode()))
                             .desiredServiceCode(
                                     commonCodeRepository.findCodeDescByCodeId(
                                             request.getDesiredServiceCode()))
