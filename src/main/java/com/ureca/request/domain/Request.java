@@ -74,4 +74,8 @@ public class Request extends BaseEntity {
     public void setRequestCnt(Integer requestCnt) {
         this.requestCnt = requestCnt;
     }
+
+    public void updateRequestStatus(String requestStatus) {
+        this.requestStatus = requestStatus;
+    }
 }
