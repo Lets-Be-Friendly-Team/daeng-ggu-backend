@@ -1,5 +1,6 @@
 package com.ureca.profile.presentation.dto;
 
+import java.util.List;
 import lombok.Data;
 
 // 리뷰 정보
@@ -8,12 +9,8 @@ public class ReviewInfo {
 
     // 리뷰 아이디
     private Long reviewId;
-    // 리뷰 썸네일 이미지 URL
-    private String reviewImgUrl1;
-    // 리뷰 이미지 URL 2
-    private String reviewImgUrl2;
-    // 리뷰 이미지 URL 3
-    private String reviewImgUrl3;
+    // 리뷰 이미지 URL 목록
+    private List<String> reviewImgList;
     // 디자이너 아이디
     private Long designerId;
     // 디자이너 이미지 URL
