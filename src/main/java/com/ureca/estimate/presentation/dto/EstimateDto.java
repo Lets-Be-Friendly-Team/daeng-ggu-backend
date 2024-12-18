@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -67,7 +66,7 @@ public class EstimateDto {
         private Long petId;
         private String petName;
         private String petImageUrl;
-        private LocalDate birthDate;
+        private String birthDate;
         private String gender;
         private String isNeutered;
         private Double weight;

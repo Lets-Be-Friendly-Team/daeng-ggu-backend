@@ -20,6 +20,8 @@ import com.ureca.request.infrastructure.RequestRepository;
 import com.ureca.review.domain.Enum.AuthorType;
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -132,7 +134,7 @@ public class EstimateService {
                                 .petId(pet.getPetId())
                                 .petName(pet.getPetName())
                                 .petImageUrl(pet.getPetImgUrl())
-                                .birthDate(pet.getBirthDate())
+                                .birthDate(String.valueOf(pet.getBirthDate()))
                                 .gender(pet.getGender())
                                 .isNeutered(pet.getIsNeutered())
                                 .weight(pet.getWeight())
@@ -221,6 +223,11 @@ public class EstimateService {
         }
 
         return responseList;
+    }
+
+    public LocalDate convertToLocalDate(String dateString, String pattern) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+        return LocalDate.parse(dateString, formatter);
     }
 
     public List<EstimateDto.Response> getPreviousEstimatesByDesigner(Long designerId) {
