@@ -2,13 +2,13 @@ package com.ureca.streaming.application;
 
 import static software.amazon.awssdk.services.ivs.model.ChannelLatencyMode.LOW;
 
+import com.amazonaws.SdkClientException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.services.ivs.IvsClient;
 import software.amazon.awssdk.services.ivs.model.*;
 
-// 송출자는 RTMP URL과 스트림 키로 방송을 시작하지만
-// 시청자는 Playback URL만으로 방송을 시청 가능
 @Service
 @RequiredArgsConstructor
 public class IVSService {
@@ -19,9 +19,9 @@ public class IVSService {
     public String createChannel(String name) {
         CreateChannelRequest request =
                 CreateChannelRequest.builder()
-                        .name(name) // 예약 이름 기반으로 채널 생성
-                        .latencyMode(LOW) // 저지연 모드 설정
-                        .type(ChannelType.BASIC) // 채널 유형 설정 (BASIC/ADVANCED)
+                        .name(name)
+                        .latencyMode(LOW)
+                        .type(ChannelType.BASIC)
                         .build();
 
         CreateChannelResponse response = ivsClient.createChannel(request);
@@ -34,7 +34,7 @@ public class IVSService {
                 CreateStreamKeyRequest.builder().channelArn(channelArn).build();
 
         CreateStreamKeyResponse response = ivsClient.createStreamKey(request);
-        return response.streamKey().value(); // 스트림 키 반환
+        return response.streamKey().value();
     }
 
     // 3. 채널 정보 조회 (RTMP URL 포함)
@@ -42,42 +42,29 @@ public class IVSService {
         GetChannelRequest request = GetChannelRequest.builder().arn(channelArn).build();
 
         GetChannelResponse response = ivsClient.getChannel(request);
-        return response.channel().ingestEndpoint(); // RTMP 엔드포인트 반환
+        return response.channel().ingestEndpoint();
     }
 
-    // 4. 채널 삭제 (방송 종료 후 필요 시)
-
+    // Playback URL 조회
     public String getPlaybackUrl(String channelARN) {
-        // 입력된 channelARN 검증
         if (channelARN == null || channelARN.isEmpty()) {
             throw new IllegalArgumentException("channelARN must not be null or empty.");
         }
 
-        // AWS IVS 채널 요청
-        GetChannelRequest request =
-                GetChannelRequest.builder()
-                        .arn(channelARN) // ARN 직접 사용
-                        .build();
+        GetChannelRequest request = GetChannelRequest.builder().arn(channelARN).build();
 
-        // 채널 정보 가져오기
         GetChannelResponse response = ivsClient.getChannel(request);
-
-        // Playback URL 반환
         return response.channel().playbackUrl();
     }
 
+    // RTMP URL 조회
     public String getRTMPUrl(String channelArn) {
-
-        // RTMP 엔드포인트 가져오기
         String ingestEndpoint = getRtmpEndpoint(channelArn);
-
-        // 기존 스트림 키 조회
         String streamKey = getExistingStreamKey(channelArn);
         return "rtmp://" + ingestEndpoint + "/" + streamKey;
-        // 송출 URL 생성
-        //        return ingestEndpoint + "/" + streamKey;
     }
 
+    // 기존 스트림 키 ARN 조회
     public String getExistingStreamKey(String channelArn) {
         ListStreamKeysRequest request =
                 ListStreamKeysRequest.builder().channelArn(channelArn).build();
@@ -88,21 +75,62 @@ public class IVSService {
             throw new IllegalStateException("No stream keys found for channel: " + channelArn);
         }
 
-        // 첫 번째 StreamKeySummary ARN 가져오기
-        String streamKeyArn = response.streamKeys().get(0).arn();
+        return response.streamKeys().get(0).arn();
+    }
 
-        // GetStreamKey API 호출로 실제 스트림 키 값 얻기
+    // 기존 스트림 키 값 조회
+    public String getExistingStreamKey2(String channelArn) {
+        ListStreamKeysRequest request =
+                ListStreamKeysRequest.builder().channelArn(channelArn).build();
+
+        ListStreamKeysResponse response = ivsClient.listStreamKeys(request);
+
+        if (response.streamKeys().isEmpty()) {
+            throw new IllegalStateException("No stream keys found for channel: " + channelArn);
+        }
+
+        String streamKeyArn = response.streamKeys().get(0).arn();
         GetStreamKeyRequest getKeyRequest = GetStreamKeyRequest.builder().arn(streamKeyArn).build();
 
         GetStreamKeyResponse getKeyResponse = ivsClient.getStreamKey(getKeyRequest);
-
-        return getKeyResponse.streamKey().value(); // 실제 스트림 키 값
+        return getKeyResponse.streamKey().value();
     }
 
+    // 스트림 키 삭제
+    public void deleteStreamKey(String streamKeyArn) {
+        try {
+            ivsClient.deleteStreamKey(DeleteStreamKeyRequest.builder().arn(streamKeyArn).build());
+            System.out.println("Successfully deleted StreamKey: " + streamKeyArn);
+        } catch (ResourceNotFoundException e) {
+            System.err.println("StreamKey not found: " + streamKeyArn);
+        } catch (AccessDeniedException e) {
+            System.err.println("Access denied to delete StreamKey: " + streamKeyArn);
+        } catch (ValidationException e) {
+            System.err.println("Invalid StreamKey ARN format: " + streamKeyArn);
+        } catch (AwsServiceException | SdkClientException e) {
+            System.err.println("Failed to delete StreamKey: " + e.getMessage());
+        }
+    }
+
+    // 스트림 키 재설정
+    public String resetStreamKey(String channelArn) {
+        String streamKeyArn = null;
+
+        try {
+            streamKeyArn = getExistingStreamKey(channelArn);
+            deleteStreamKey(streamKeyArn);
+        } catch (ResourceNotFoundException e) {
+            System.out.println("No existing StreamKey found. Creating a new one...");
+        }
+
+        return createStreamKey(channelArn);
+    }
+
+    // 채널 삭제
     public void deleteChannel(String channelArn) {
         DeleteChannelRequest request = DeleteChannelRequest.builder().arn(channelArn).build();
 
-        ivsClient.deleteChannel(request); // AWS IVS 채널 삭제
+        ivsClient.deleteChannel(request);
         System.out.println("Channel deleted successfully: " + channelArn);
     }
 }

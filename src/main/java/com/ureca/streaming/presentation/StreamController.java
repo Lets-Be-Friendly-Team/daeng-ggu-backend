@@ -9,6 +9,7 @@ import com.ureca.streaming.domain.BroadcastChannelInfo;
 import com.ureca.streaming.domain.PlaybackChannelInfo;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/ivs")
+@Tag(name = "IVS Channel Management", description = "스트리밍 Amazon IVS 채널 및 스트림키 관리 API")
 @RequiredArgsConstructor
 public class StreamController {
     private final IVSService ivsService;
@@ -36,7 +38,7 @@ public class StreamController {
                 "http://localhost:5175"
             })
     @PostMapping("/create-channel")
-    @Operation(summary = "IVS 채널 생성", description = "AWS IVS 채널을 생성하고 송출 및 수신 URL을 반환하는 API")
+    @Operation(summary = "스트리밍쪽 채널 생성", description = "스트리밍쪽 채널을 생성하고 송출 및 수신 URL을 반환하는 API")
     public ResponseEntity<BroadcastChannelInfo> createChannel(@RequestParam Long reservationId) {
 
         Reservation reservation =
@@ -53,8 +55,10 @@ public class StreamController {
         // 송출용 URL가져오기
         String ingestUrl = ivsService.getRtmpEndpoint(channelArn);
         String playbackUrl = ivsService.getPlaybackUrl(channelArn);
-        //        String streamKey = ivsService.createStreamKey(channelArn);
-        String streamKey = ivsService.getExistingStreamKey(channelArn);
+        String newStreamKey = ivsService.resetStreamKey(channelArn);
+        //        1ivsService.resetStreamKey(channelArn);
+        //           2     String streamKey = ivsService.createStreamKey(channelArn);
+        //        String streamKey = ivsService.getExistingStreamKey(channelArn);
         Process process = reservation.getProcess();
         if (process == null) {
             process = Process.builder().channelARN(channelArn).playbackUrl(playbackUrl).build();
@@ -67,7 +71,8 @@ public class StreamController {
         reservation.updateProcess(process);
         reservationRepository.save(reservation);
 
-        BroadcastChannelInfo broadcastChannelInfo = new BroadcastChannelInfo(ingestUrl, streamKey);
+        BroadcastChannelInfo broadcastChannelInfo =
+                new BroadcastChannelInfo(ingestUrl, newStreamKey);
 
         return ResponseEntity.ok(broadcastChannelInfo);
     }
@@ -96,7 +101,7 @@ public class StreamController {
 
         // 송출 및 스트림 키 정보 가져오기
         String ingestUrl = ivsService.getRtmpEndpoint(process.getChannelARN());
-        String streamKey = ivsService.getExistingStreamKey(process.getChannelARN());
+        String streamKey = ivsService.getExistingStreamKey2(process.getChannelARN());
 
         // BroadcastChannelInfo 생성
         BroadcastChannelInfo broadcastChannelInfo = new BroadcastChannelInfo(ingestUrl, streamKey);
@@ -128,7 +133,7 @@ public class StreamController {
                 "http://localhost:5175"
             })
     @GetMapping("/playback-url")
-    @Operation(summary = "수신용 Playback URL", description = "AWS IVS  수신용 ingest URL 반환 API")
+    @Operation(summary = "스트리밍쪽 수신 Playback URL", description = "스트리밍 쪽 수신용 ingest URL 반환 API")
     public ResponseEntity<PlaybackChannelInfo> getPlaybackUrl(@RequestParam Long reservationId) {
         Reservation reservation =
                 reservationRepository
@@ -159,7 +164,7 @@ public class StreamController {
     }
 
     @DeleteMapping("/delete-channel")
-    @Operation(summary = "채널 삭제 API URL", description = "스트리밍 종료시 호출되는 API")
+    @Operation(summary = "스트리밍쪽 채널 삭제 API URL", description = "스트리밍 종료시 호출되는 API")
     public ResponseEntity<String> deleteChannel(@RequestParam Long reservationId) {
 
         Reservation reservation =
@@ -179,6 +184,7 @@ public class StreamController {
 
         // AWS IVS 채널 삭제
         String channelArn = process.getChannelARN();
+        ivsService.resetStreamKey(channelArn);
         ivsService.deleteChannel(channelArn);
 
         process.updateStreamValue(null, null);
