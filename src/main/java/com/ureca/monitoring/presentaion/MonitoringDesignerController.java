@@ -1,5 +1,6 @@
 package com.ureca.monitoring.presentaion;
 
+import com.ureca.common.application.AuthService;
 import com.ureca.common.response.ResponseDto;
 import com.ureca.common.response.ResponseUtil;
 import com.ureca.monitoring.application.MonitoringService;
@@ -8,6 +9,8 @@ import com.ureca.monitoring.presentaion.dto.ReservationInfoForDesignerDto;
 import com.ureca.monitoring.presentaion.dto.StreamingDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MonitoringDesignerController {
 
     private final MonitoringService monitoringService;
+    private final AuthService authService;
 
     /**
      * 미용실이 시작 전 고객 정보를 확인하는 API.
@@ -32,8 +36,12 @@ public class MonitoringDesignerController {
     @GetMapping("/process/{reservationId}/info")
     @Operation(summary = "시작 전 고객 정보 조회", description = "미용 시작 전 고객과 반려견 정보를 조회합니다.")
     public ResponseDto<ReservationInfoForDesignerDto> getProcessInfo(
-            @PathVariable Long reservationId) {
-
+            @PathVariable Long reservationId,
+            HttpServletRequest request,
+            HttpServletResponse response) {
+        Long id = authService.getRequestToUserId(request);
+        response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
+        response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         return ResponseUtil.SUCCESS(
                 "고객 정보 조회 성공", monitoringService.getReservationInfo(reservationId));
     }
@@ -45,8 +53,13 @@ public class MonitoringDesignerController {
      */
     @PostMapping("/process/{reservationId}/start")
     @Operation(summary = "스트리밍 시작 (상태 변경)", description = "미용실이 스트리밍을 시작합니다.")
-    public ResponseDto<StreamingDto> startStreaming(@PathVariable Long reservationId) {
-
+    public ResponseDto<StreamingDto> startStreaming(
+            @PathVariable Long reservationId,
+            HttpServletRequest request,
+            HttpServletResponse response) {
+        Long id = authService.getRequestToUserId(request);
+        response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
+        response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         return ResponseUtil.SUCCESS(
                 "고객 정보 조회 성공", monitoringService.designerStartStreaming(reservationId));
     }
@@ -58,7 +71,13 @@ public class MonitoringDesignerController {
      */
     @PostMapping("/process/{reservationId}/end")
     @Operation(summary = "스트리밍 종료 (상태 변경)", description = "미용실이 스트리밍을 종료합니다.")
-    public ResponseDto<ProcessStatusDto> endProcess(@PathVariable Long reservationId) {
+    public ResponseDto<ProcessStatusDto> endProcess(
+            @PathVariable Long reservationId,
+            HttpServletRequest request,
+            HttpServletResponse response) {
+        Long id = authService.getRequestToUserId(request);
+        response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
+        response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         return ResponseUtil.SUCCESS(
                 "스트리밍 종료", monitoringService.designerEndStreaming(reservationId));
     }

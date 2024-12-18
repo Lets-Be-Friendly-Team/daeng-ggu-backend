@@ -1,5 +1,6 @@
 package com.ureca.login.presentation;
 
+import com.ureca.common.application.AuthService;
 import com.ureca.common.exception.ApiException;
 import com.ureca.common.exception.ErrorCode;
 import com.ureca.common.response.ApiResponse;
@@ -42,6 +43,7 @@ public class TestController {
     @Autowired private CustomerService customerService;
     @Autowired private DesignerService designerService;
     @Autowired private ExternalService externalService;
+    @Autowired private AuthService authService;
 
     // Test : 기존 Login Step 1~3 합침
     /**
@@ -73,7 +75,9 @@ public class TestController {
     @PostMapping("/customer/signup")
     @Operation(summary = "TEST 보호자 회원가입 정보 입력", description = "[LOG2000] 테스트 보호자 회원가입 정보 입력 API")
     public ResponseDto<Map<String, Long>> customerSignup(
-            HttpServletRequest request, @RequestBody CustomerSignup data) {
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestBody CustomerSignup data) {
 
         Cookie cookie = CookieUtil.getJwtFromCookies(request); // util - 쿠키에서 jwt 꺼내기
         if (cookie == null) throw new ApiException(ErrorCode.JWT_NOT_EXIST);
@@ -81,7 +85,8 @@ public class TestController {
         KakaoDTO kakaoDTO = null;
         if (!isValid) throw new ApiException(ErrorCode.INVALID_TOKEN);
         kakaoDTO = TokenUtils.parseTokenToUserInfo(cookie.getValue()); // util - jwt 기반 사용자 정보 꺼내기
-
+        response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
+        response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         // service - 보호자 회원가입
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", customerService.insertCustomer(data, kakaoDTO));
     }
@@ -89,7 +94,9 @@ public class TestController {
     @PostMapping("/designer/signup")
     @Operation(summary = "TEST 디자이너 회원가입 정보 입력", description = "[DLOG3100] 테스트 디자이너 회원가입 정보 입력 API")
     public ResponseDto<Map<String, Long>> designerSignup(
-            HttpServletRequest request, @RequestBody DesignerSignup data) {
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestBody DesignerSignup data) {
 
         Cookie cookie = CookieUtil.getJwtFromCookies(request); // util - 쿠키에서 jwt 꺼내기
         if (cookie == null) throw new ApiException(ErrorCode.JWT_NOT_EXIST);
@@ -97,7 +104,8 @@ public class TestController {
         KakaoDTO kakaoDTO = null;
         if (!isValid) throw new ApiException(ErrorCode.INVALID_TOKEN);
         kakaoDTO = TokenUtils.parseTokenToUserInfo(cookie.getValue()); // util - jwt 기반 사용자 정보 꺼내기
-
+        response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
+        response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         // service - 디자이너 회원가입
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", designerService.insertDesigner(data, kakaoDTO));
     }
