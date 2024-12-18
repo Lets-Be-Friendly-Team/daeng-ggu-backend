@@ -486,9 +486,12 @@ public class ReservationService {
 
         // 3. 결제 서버에 요청
         PaymentRequestDto paymentRequestDto = buildPaymentRequest(estimateReservationRequestDto);
+        System.out.println("3-1. paymentRequestDto = " + paymentRequestDto.toString());
         PaymentResponseDto paymentResponse = processPayment(paymentRequestDto);
+        System.out.println("3-2. paymentResponse = " + paymentResponse.toString());
 
         if (paymentResponse.getStatus().equals("FAILED")) {
+            System.out.println("3-3. if (paymentResponse.getStatus().equals(\"FAILED\")) -> paymentResponse = " + paymentResponse.toString());
             throw new ApiException(ErrorCode.PAYMENT_PROCESS_FAILED);
         }
 
@@ -558,9 +561,13 @@ public class ReservationService {
 
         // 3. 결제 서버에 요청
         PaymentRequestDto paymentRequestDto = buildPaymentRequest(directReservationRequestDto);
+        System.out.println("3-1. paymentRequestDto = " + paymentRequestDto.toString());
         PaymentResponseDto paymentResponse = processPayment(paymentRequestDto);
+        System.out.println("3-2. paymentResponse = " + paymentResponse);
+
 
         if ("FAILED".equals(paymentResponse.getStatus())) {
+            System.out.println("3-3. paymentResponse.getStatus() = " + paymentResponse.getStatus());
             throw new ApiException(ErrorCode.PAYMENT_PROCESS_FAILED);
         }
 
@@ -625,16 +632,23 @@ public class ReservationService {
                     restTemplate.postForObject(
                             paymentUrl, paymentRequestDto, PaymentResponseDto.class);
 
+
             // 응답 검증
             if (response == null) {
+                System.out.println("응답 값 null");
                 throw new ApiException(ErrorCode.PAYMENT_SERVER_ERROR);
             }
+            System.out.println("response.toString() = " + response.toString());
             return response;
 
         } catch (ApiException e) {
             // 결제 서버 예외 처리
+            System.out.println("ApiException");
+            e.printStackTrace();
             throw e;
         } catch (Exception e) {
+            System.out.println("Exception");
+            e.printStackTrace();
             throw new ApiException(ErrorCode.PAYMENT_PROCESS_FAILED);
         }
     }
