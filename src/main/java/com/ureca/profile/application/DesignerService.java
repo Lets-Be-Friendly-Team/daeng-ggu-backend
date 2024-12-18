@@ -398,9 +398,10 @@ public class DesignerService {
             if (data.getNewVideoUrl() != null && !data.getNewVideoUrl().isEmpty()) { // 신규 영상 업데이트
                 videoUrl = data.getNewVideoUrl();
             }
-            // 사진 등록
-            if (data.getNewImgUrlList() != null && !data.getNewImgUrlList().isEmpty()) {
-                List<PortfolioImg> preImgUrlList = imgRepository.findByPortfolio(portfolio);
+
+            List<PortfolioImg> preImgUrlList = imgRepository.findByPortfolio(portfolio);
+
+            if (data.getPreImgUrlList().size() < preImgUrlList.size()) {
                 for (PortfolioImg preImgUrl : preImgUrlList) { // 기존 사진 url (a b c)
                     if (!data.getPreImgUrlList()
                             .contains(preImgUrl.getImgUrl())) { // 남은 사진 url (a b)
@@ -408,15 +409,13 @@ public class DesignerService {
                                 portfolio, preImgUrl.getImgUrl()); // 삭제
                     }
                 }
-                if (data.getNewImgUrlList() != null) {
-                    for (String newImgUrl : data.getNewImgUrlList()) { // 신규 사진 url (d)
-                        PortfolioImg newPortfolioImg =
-                                PortfolioImg.builder()
-                                        .portfolio(portfolio)
-                                        .imgUrl(newImgUrl)
-                                        .build();
-                        imgRepository.save(newPortfolioImg); // 신규 이미지 등록
-                    }
+            }
+            // 사진 등록
+            if (data.getNewImgUrlList() != null && !data.getNewImgUrlList().isEmpty()) {
+                for (String newImgUrl : data.getNewImgUrlList()) { // 신규 사진 url (d)
+                    PortfolioImg newPortfolioImg =
+                            PortfolioImg.builder().portfolio(portfolio).imgUrl(newImgUrl).build();
+                    imgRepository.save(newPortfolioImg); // 신규 이미지 등록
                 }
             }
             Portfolio updatePortfolio =
