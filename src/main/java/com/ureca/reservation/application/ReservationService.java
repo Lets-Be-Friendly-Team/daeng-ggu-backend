@@ -491,7 +491,9 @@ public class ReservationService {
         System.out.println("3-2. paymentResponse = " + paymentResponse.toString());
 
         if (paymentResponse.getStatus().equals("FAILED")) {
-            System.out.println("3-3. if (paymentResponse.getStatus().equals(\"FAILED\")) -> paymentResponse = " + paymentResponse.toString());
+            System.out.println(
+                    "3-3. if (paymentResponse.getStatus().equals(\"FAILED\")) -> paymentResponse = "
+                            + paymentResponse.toString());
             throw new ApiException(ErrorCode.PAYMENT_PROCESS_FAILED);
         }
 
@@ -565,7 +567,6 @@ public class ReservationService {
         PaymentResponseDto paymentResponse = processPayment(paymentRequestDto);
         System.out.println("3-2. paymentResponse = " + paymentResponse);
 
-
         if ("FAILED".equals(paymentResponse.getStatus())) {
             System.out.println("3-3. paymentResponse.getStatus() = " + paymentResponse.getStatus());
             throw new ApiException(ErrorCode.PAYMENT_PROCESS_FAILED);
@@ -631,7 +632,6 @@ public class ReservationService {
             PaymentResponseDto response =
                     restTemplate.postForObject(
                             paymentUrl, paymentRequestDto, PaymentResponseDto.class);
-
 
             // 응답 검증
             if (response == null) {
