@@ -46,11 +46,6 @@ public class IVSService {
     }
 
     // 4. 채널 삭제 (방송 종료 후 필요 시)
-    public void deleteChannel(String channelArn) {
-        DeleteChannelRequest request = DeleteChannelRequest.builder().arn(channelArn).build();
-
-        ivsClient.deleteChannel(request);
-    }
 
     public String getPlaybackUrl(String channelARN) {
         // 입력된 channelARN 검증
@@ -102,5 +97,12 @@ public class IVSService {
         GetStreamKeyResponse getKeyResponse = ivsClient.getStreamKey(getKeyRequest);
 
         return getKeyResponse.streamKey().value(); // 실제 스트림 키 값
+    }
+
+    public void deleteChannel(String channelArn) {
+        DeleteChannelRequest request = DeleteChannelRequest.builder().arn(channelArn).build();
+
+        ivsClient.deleteChannel(request); // AWS IVS 채널 삭제
+        System.out.println("Channel deleted successfully: " + channelArn);
     }
 }
