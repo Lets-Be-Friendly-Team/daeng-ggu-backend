@@ -39,12 +39,14 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 /** 예약 관련 서비스 클래스 */
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ReservationService {
 
@@ -127,7 +129,7 @@ public class ReservationService {
                                         .designerInfo(
                                                 buildDesignerInfoDto(reservation.getDesigner()))
                                         .requestDetail(buildRequestDetailDto(reservation))
-                                    .isProcess(reservation.getProcess() != null)
+                                        .isProcess(reservation.getProcess() != null)
                                         .build())
                 .collect(Collectors.toList());
     }
@@ -430,25 +432,25 @@ public class ReservationService {
         if (!customer.getCustomerLoginId().equals(orderKeysAndAmountDto.getCustomerKey())) {
             throw new ApiException(ErrorCode.INVALID_CUSTOMER_KEY);
         }
-        System.out.println("customer = " + customer);
+
         sendOrderInfoToPaymentServer(orderKeysAndAmountDto);
     }
 
     // 결제 서버로 전달
     private void sendOrderInfoToPaymentServer(OrderKeysAndAmountDto paymentRequestDto) {
         String paymentServerUrl = paymentServerConfig.getPaymentServerUrl() + "/v1/orders";
-        System.out.println("1. paymentServerUrl = " + paymentServerUrl);
+        log.info("Sending order info to payment server. URL: {}", paymentServerUrl);
         try {
             ResponseEntity<Void> response =
                     restTemplate.postForEntity(paymentServerUrl, paymentRequestDto, Void.class);
-            System.out.println("2. response = " + response);
+            log.info("Received response from payment server: {}", response);
+
             if (!response.getStatusCode().is2xxSuccessful()) {
-                System.out.println("3. response = " + response);
+                log.warn("Non-successful response from payment server: {}", response);
                 throw new ApiException(ErrorCode.PAYMENT_SERVER_ERROR);
             }
         } catch (Exception e) {
-            System.out.println("4. e = " + e);
-            e.printStackTrace(); // 로그 출력
+            log.error("Error occurred while sending order info to payment server", e);
             throw new ApiException(ErrorCode.PAYMENT_SERVER_ERROR);
         }
     }
@@ -464,6 +466,7 @@ public class ReservationService {
      */
     public Long estimateReservation(
             Long customerId, EstimateReservationRequestDto estimateReservationRequestDto) {
+        log.info("Starting estimate reservation process for customer ID: {}", customerId);
         // 1. 예약 가능 여부에 대한 검증
         ValidationUtil.validateReservationTime(
                 estimateReservationRequestDto.getStartTime(),
@@ -474,6 +477,7 @@ public class ReservationService {
 
         // 2. 보호자 및 요청 데이터 유효성 확인
         if (!customerRepository.existsById(customerId)) {
+            log.warn("Customer with ID {} does not exist.", customerId);
             throw new ApiException(ErrorCode.CUSTOMER_NOT_EXIST);
         }
 
@@ -491,22 +495,24 @@ public class ReservationService {
 
         // 3. 결제 서버에 요청
         PaymentRequestDto paymentRequestDto = buildPaymentRequest(estimateReservationRequestDto);
-        System.out.println("3-1. paymentRequestDto = " + paymentRequestDto.toString());
         PaymentResponseDto paymentResponse = processPayment(paymentRequestDto);
-        System.out.println("3-2. paymentResponse = " + paymentResponse.toString());
+        log.info("Payment response received: {}", paymentResponse);
 
         if (paymentResponse.getStatus().equals("FAILED")) {
-            System.out.println(
-                    "3-3. if (paymentResponse.getStatus().equals(\"FAILED\")) -> paymentResponse = "
-                            + paymentResponse.toString());
+            log.warn("Payment failed. Response: {}", paymentResponse);
             throw new ApiException(ErrorCode.PAYMENT_PROCESS_FAILED);
         }
 
         // 4. 예약 데이터 저장
         Reservation reservation = saveEstimateReservation(estimate, estimateReservationRequestDto);
+        log.info("Reservation saved with ID: {}", reservation.getReservationId());
+
         updateRequestAndEstimatesStatus(estimate.getRequest());
 
         // 5. 예약 성공 ID 반환
+        log.info(
+                "Reservation process completed successfully. Reservation ID: {}",
+                reservation.getReservationId());
         return reservation.getReservationId();
     }
 
@@ -552,6 +558,8 @@ public class ReservationService {
      */
     public Long directReservation(
             Long customerId, DirectReservationRequestDto directReservationRequestDto) {
+        log.info("Starting direct reservation process for customer ID: {}", customerId);
+
         // 1. 예약 가능 여부 검증
         ValidationUtil.validateReservationTime(
                 directReservationRequestDto.getStartTime(),
@@ -559,29 +567,36 @@ public class ReservationService {
         ValidationUtil.validateAfterCurrentDateTime(
                 directReservationRequestDto.getReservationDate(),
                 directReservationRequestDto.getStartTime());
+        log.debug("Reservation time validation completed for customer ID: {}", customerId);
 
         // TODO: 서비스별 소요 시간 반영 end time 생성 (디자이너의 데이터에서 가져와서 연산 수행)
 
         // 2. 보호자 및 요청 데이터 유효성 확인
         if (!customerRepository.existsById(customerId)) {
+            log.warn("Customer with ID {} does not exist.", customerId);
             throw new ApiException(ErrorCode.CUSTOMER_NOT_EXIST);
         }
+        log.debug("Customer ID {} validation passed.", customerId);
 
         // 3. 결제 서버에 요청
         PaymentRequestDto paymentRequestDto = buildPaymentRequest(directReservationRequestDto);
-        System.out.println("3-1. paymentRequestDto = " + paymentRequestDto.toString());
         PaymentResponseDto paymentResponse = processPayment(paymentRequestDto);
-        System.out.println("3-2. paymentResponse = " + paymentResponse);
+        log.info("Payment response received: {}", paymentResponse);
 
         if ("FAILED".equals(paymentResponse.getStatus())) {
-            System.out.println("3-3. paymentResponse.getStatus() = " + paymentResponse.getStatus());
+            log.warn("Payment failed. Response: {}", paymentResponse);
             throw new ApiException(ErrorCode.PAYMENT_PROCESS_FAILED);
         }
+        log.info("Payment processed successfully for customer ID: {}", customerId);
 
         // 4. 예약 데이터 저장
         Reservation reservation = saveDirectReservation(directReservationRequestDto);
+        log.info("Reservation saved with ID: {}", reservation.getReservationId());
 
         // 5. 예약 성공 ID 반환
+        log.info(
+                "Direct reservation process completed successfully. Reservation ID: {}",
+                reservation.getReservationId());
         return reservation.getReservationId();
     }
 
@@ -632,6 +647,8 @@ public class ReservationService {
     // 결제 요청
     public PaymentResponseDto processPayment(PaymentRequestDto paymentRequestDto) {
         String paymentUrl = paymentServerConfig.getPaymentServerUrl() + "/v1/toss/confirm";
+        log.info("Sending payment request to URL: {}", paymentUrl);
+        log.debug("PaymentRequestDto: {}", paymentRequestDto);
 
         try {
             // 결제 서버에 요청
@@ -641,20 +658,26 @@ public class ReservationService {
 
             // 응답 검증
             if (response == null) {
-                System.out.println("응답 값 null");
+                log.error(
+                        "Payment server response is null. PaymentRequestDto: {}",
+                        paymentRequestDto);
                 throw new ApiException(ErrorCode.PAYMENT_SERVER_ERROR);
             }
-            System.out.println("response.toString() = " + response.toString());
+
+            log.info("Payment server response received successfully.");
+            log.debug("PaymentResponseDto: {}", response);
             return response;
 
         } catch (ApiException e) {
             // 결제 서버 예외 처리
-            System.out.println("ApiException");
-            e.printStackTrace();
+            log.warn("ApiException occurred while processing payment: {}", e.getMessage());
+            log.debug("Exception details: ", e);
             throw e;
+
         } catch (Exception e) {
-            System.out.println("Exception");
-            e.printStackTrace();
+            // 일반 예외 처리
+            log.error("Unexpected exception occurred while processing payment: {}", e.getMessage());
+            log.debug("Exception details: ", e);
             throw new ApiException(ErrorCode.PAYMENT_PROCESS_FAILED);
         }
     }
@@ -668,13 +691,16 @@ public class ReservationService {
         // 해당 요청과 연결된 모든 견적의 상태 변경
         List<Estimate> estimates = estimateRepository.findAllByRequest(request);
 
-        estimates.forEach(estimate -> {
-            estimate.updateEstimateStatus("ST2");
-            estimateRepository.save(estimate);
-        });
+        estimates.forEach(
+                estimate -> {
+                    estimate.updateEstimateStatus("ST2");
+                    estimateRepository.save(estimate);
+                });
     }
 
     public Long cancelReservation(Long reservationId) {
+        log.info("Starting reservation cancellation process for reservation ID: {}", reservationId);
+
         // 1. 예약 데이터 조회
         Reservation reservation =
                 reservationRepository
@@ -686,21 +712,31 @@ public class ReservationService {
         if (orderId == null) {
             throw new ApiException(ErrorCode.ORDER_ID_NOT_EXIST);
         }
+        log.info("Order ID retrieved for cancellation: {}", orderId);
 
         try {
             // 4. 결제 서버 호출
             PaymentCancelResponseDto response = processPaymentCancellation(orderId, "사용자의 요청 취소");
+            log.info("Payment cancellation response received: {}", response);
 
             // 5. 예약 데이터 업데이트
             reservation.updateCancelInfo(true);
             reservationRepository.save(reservation);
+            log.info("Reservation updated as canceled. ID: {}", reservationId);
 
-            return response.getCancels().get(0).getCancelAmount().longValue(); // 취소 성공
+            Long cancelAmount = response.getCancels().get(0).getCancelAmount().longValue();
+            log.info("Reservation cancellation successful. Cancel amount: {}", cancelAmount);
+            return cancelAmount;
 
         } catch (ApiException e) {
             // 6. 결제 취소 실패 처리
+            log.warn("ApiException occurred during cancellation: {}", e.getMessage());
+            log.debug("Exception details: ", e);
             throw e;
+
         } catch (Exception e) {
+            log.error("Unexpected exception occurred during cancellation: {}", e.getMessage());
+            log.debug("Exception details: ", e);
             throw new ApiException(ErrorCode.PAYMENT_PROCESS_FAILED);
         }
     }
@@ -708,6 +744,10 @@ public class ReservationService {
     private PaymentCancelResponseDto processPaymentCancellation(
             String orderId, String cancelReason) {
         String paymentCancelUrl = paymentServerConfig.getPaymentServerUrl() + "/v1/toss/cancel";
+        log.info(
+                "Initiating payment cancellation. Order ID: {}, Cancel Reason: {}",
+                orderId,
+                cancelReason);
 
         OrderIdWithCancelReasonDto cancelRequest =
                 OrderIdWithCancelReasonDto.builder()
@@ -716,9 +756,19 @@ public class ReservationService {
                         .build();
 
         try {
-            return restTemplate.postForObject(
-                    paymentCancelUrl, cancelRequest, PaymentCancelResponseDto.class);
+            PaymentCancelResponseDto response =
+                    restTemplate.postForObject(
+                            paymentCancelUrl, cancelRequest, PaymentCancelResponseDto.class);
+            log.info(
+                    "Payment cancellation successful for Order ID: {}. Response: {}",
+                    orderId,
+                    response);
+            return response;
         } catch (Exception e) {
+            log.error(
+                    "Payment cancellation failed for Order ID: {}. Error: {}",
+                    orderId,
+                    e.getMessage());
             throw new ApiException(ErrorCode.PAYMENT_SERVER_ERROR);
         }
     }
