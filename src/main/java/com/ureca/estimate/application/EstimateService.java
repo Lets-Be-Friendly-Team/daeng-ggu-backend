@@ -142,6 +142,9 @@ public class EstimateService {
                                 .majorBreed(
                                         commonCodeRepository.findCodeDescByCodeId(
                                                 pet.getMajorBreedCode()))
+                                .subBreed(
+                                        commonCodeRepository.findCodeDescByCodeId(
+                                                pet.getSubBreedCode()))
                                 .desiredServiceCode(
                                         commonCodeRepository.findCodeDescByCodeId(
                                                 request.getDesiredServiceCode()))

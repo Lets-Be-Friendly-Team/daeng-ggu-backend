@@ -64,7 +64,8 @@ public class RequestService {
                                             pet.getMajorBreedCode()))
                             .subBreedCode(String.valueOf(pet.getSubBreedCode()))
                             .subBreed(
-                                    commonCodeRepository.findCodeNmByCodeId(pet.getSubBreedCode()))
+                                    commonCodeRepository.findCodeDescByCodeId(
+                                            pet.getSubBreedCode()))
                             .specialNotes(pet.getSpecialNotes())
                             .isRequested(requestRepository.existsByPetAndRequestStatus(pet, "ST1"))
                             .customerId(customer.getCustomerId())
