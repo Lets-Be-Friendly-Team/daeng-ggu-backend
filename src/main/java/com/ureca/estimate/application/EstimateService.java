@@ -14,15 +14,14 @@ import com.ureca.estimate.presentation.dto.EstimateDto;
 import com.ureca.estimate.presentation.dto.EstimateDtoDetail;
 import com.ureca.profile.domain.Designer;
 import com.ureca.profile.domain.Pet;
-import com.ureca.profile.infrastructure.BreedsRepository;
-import com.ureca.profile.infrastructure.DesignerRepository;
-import com.ureca.profile.infrastructure.PetRepository;
-import com.ureca.profile.infrastructure.ServicesRepository;
+import com.ureca.profile.infrastructure.*;
 import com.ureca.request.domain.Request;
 import com.ureca.request.infrastructure.RequestRepository;
 import com.ureca.review.domain.Enum.AuthorType;
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,6 +45,7 @@ public class EstimateService {
     private final RedisLockUtil redisLockUtil;
 
     private static final String LOCK_KEY_PREFIX = "estimate:cnt:";
+    private final CommonCodeRepository commonCodeRepository;
 
     @Transactional
     public void makeEstimate(EstimateDto.Create estimateDto, Long designerId) {
@@ -134,8 +134,17 @@ public class EstimateService {
                                 .petId(pet.getPetId())
                                 .petName(pet.getPetName())
                                 .petImageUrl(pet.getPetImgUrl())
+                                .birthDate(String.valueOf(pet.getBirthDate()))
+                                .gender(pet.getGender())
+                                .isNeutered(pet.getIsNeutered())
+                                .weight(pet.getWeight())
                                 .majorBreedCode(pet.getMajorBreedCode())
-                                .desiredServiceCode(request.getDesiredServiceCode())
+                                .majorBreed(
+                                        commonCodeRepository.findCodeDescByCodeId(
+                                                pet.getMajorBreedCode()))
+                                .desiredServiceCode(
+                                        commonCodeRepository.findCodeDescByCodeId(
+                                                request.getDesiredServiceCode()))
                                 .lastGrommingDate(request.getLastGroomingDate())
                                 .desiredDate1(request.getDesiredDate1())
                                 .desiredDate2(request.getDesiredDate2())
@@ -144,6 +153,9 @@ public class EstimateService {
                                 .isVisitRequired(request.getIsDelivery())
                                 .isMonitoringIncluded(request.getIsMonitoringIncluded())
                                 .additionalRequest(request.getAdditionalRequest())
+                                .address(
+                                        request.getCustomer().getAddress1()
+                                                + request.getCustomer().getDetailAddress())
                                 .createdAt(request.getCreatedAt())
                                 .estimateList(
                                         estimateRepository.findAllByRequest(request).stream()
@@ -213,6 +225,11 @@ public class EstimateService {
         return responseList;
     }
 
+    public LocalDate convertToLocalDate(String dateString, String pattern) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+        return LocalDate.parse(dateString, formatter);
+    }
+
     public List<EstimateDto.Response> getPreviousEstimatesByDesigner(Long designerId) {
         List<Estimate> estimates = estimateRepository.findAllByDesignerDesignerId(designerId);
 
@@ -229,8 +246,9 @@ public class EstimateService {
                                                                 .getPet()
                                                                 .getPetImgUrl())
                                                 .desiredServiceCode(
-                                                        estimate.getRequest()
-                                                                .getDesiredServiceCode())
+                                                        commonCodeRepository.findCodeDescByCodeId(
+                                                                estimate.getRequest()
+                                                                        .getDesiredServiceCode()))
                                                 .lastGrommingDate(
                                                         estimate.getRequest().getLastGroomingDate())
                                                 .desiredDate1(
@@ -275,7 +293,9 @@ public class EstimateService {
                 .designerAddress(
                         estimate.getDesigner().getAddress1()
                                 + estimate.getDesigner().getDetailAddress())
-                .desiredServiceCode(estimate.getRequest().getDesiredServiceCode())
+                .desiredServiceCode(
+                        commonCodeRepository.findCodeDescByCodeId(
+                                estimate.getRequest().getDesiredServiceCode()))
                 .createdAt(estimate.getCreatedAt())
                 .estimateDetail(estimate.getEstimateDetail())
                 .startTime(estimate.getDesiredDate())

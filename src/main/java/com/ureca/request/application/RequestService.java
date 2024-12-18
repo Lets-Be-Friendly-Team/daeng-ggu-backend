@@ -165,7 +165,7 @@ public class RequestService {
                 servicetime += 1;
                 break;
         }
-        switch (requestDto.getDesiredServiceCode()) {
+        switch (commonCodeRepository.findCodeIdByCodeDesc(requestDto.getDesiredServiceCode())) {
             case "S2":
                 servicetime += 1;
                 break;
@@ -186,9 +186,13 @@ public class RequestService {
                 Request.builder()
                         .pet(pet)
                         .customer(customer)
-                        .desiredServiceCode(requestDto.getDesiredServiceCode())
+                        .desiredServiceCode(
+                                commonCodeRepository.findCodeIdByCodeDesc(
+                                        requestDto.getDesiredServiceCode()))
                         .serviceTime(servicetime)
-                        .lastGroomingDate(requestDto.getLastGroomingDate())
+                        .lastGroomingDate(
+                                commonCodeRepository.findCodeIdByCodeDesc(
+                                        requestDto.getLastGroomingDate()))
                         .desiredDate1(requestDto.getDesiredDate1())
                         .desiredDate2(requestDto.getDesiredDate2())
                         .desiredDate3(requestDto.getDesiredDate3())
@@ -272,7 +276,8 @@ public class RequestService {
                 .customerName(customer.getCustomerName())
                 .phone(customer.getPhone())
                 .address(customer.getAddress1())
-                .desiredServiceCode(request.getDesiredServiceCode())
+                .desiredServiceCode(
+                        commonCodeRepository.findCodeDescByCodeId(request.getDesiredServiceCode()))
                 .lastGroomingDate(request.getLastGroomingDate())
                 .desiredDate1(request.getDesiredDate1())
                 .desiredDate2(request.getDesiredDate2())
@@ -306,7 +311,9 @@ public class RequestService {
                             .majorBreed(
                                     commonCodeRepository.findCodeNmByCodeId(
                                             request.getPet().getMajorBreedCode()))
-                            .desiredServiceCode(request.getDesiredServiceCode())
+                            .desiredServiceCode(
+                                    commonCodeRepository.findCodeDescByCodeId(
+                                            request.getDesiredServiceCode()))
                             .isVisitRequired(request.getIsDelivery())
                             .createdAt(request.getCreatedAt())
                             .codeName(
@@ -368,7 +375,9 @@ public class RequestService {
                             .petName(request.getPet().getPetName())
                             .petImageUrl(request.getPet().getPetImgUrl())
                             .majorBreedCode(request.getPet().getMajorBreedCode())
-                            .desiredServiceCode(request.getDesiredServiceCode())
+                            .desiredServiceCode(
+                                    commonCodeRepository.findCodeDescByCodeId(
+                                            request.getDesiredServiceCode()))
                             .isVisitRequired(request.getIsDelivery())
                             .createdAt(request.getCreatedAt())
                             .build();

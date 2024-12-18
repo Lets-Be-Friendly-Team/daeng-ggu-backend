@@ -66,7 +66,12 @@ public class EstimateDto {
         private Long petId;
         private String petName;
         private String petImageUrl;
+        private String birthDate;
+        private String gender;
+        private String isNeutered;
+        private Double weight;
         private String majorBreedCode;
+        private String majorBreed;
         private String desiredServiceCode;
         private String lastGrommingDate;
         private LocalDateTime desiredDate1;
@@ -77,6 +82,7 @@ public class EstimateDto {
         private Boolean isMonitoringIncluded;
         private String additionalRequest;
         private LocalDateTime createdAt;
+        private String address;
         private List<EstimateDtoDetail> estimateList;
     }
 
