@@ -4,6 +4,7 @@ import com.ureca.common.application.S3Service;
 import com.ureca.common.exception.ApiException;
 import com.ureca.common.exception.ErrorCode;
 import com.ureca.common.util.ValidationUtil;
+import com.ureca.estimate.infrastructure.EstimateRepository;
 import com.ureca.profile.domain.Customer;
 import com.ureca.profile.domain.Pet;
 import com.ureca.profile.infrastructure.CommonCodeRepository;
@@ -11,7 +12,10 @@ import com.ureca.profile.infrastructure.CustomerRepository;
 import com.ureca.profile.infrastructure.PetRepository;
 import com.ureca.profile.presentation.dto.PetDetail;
 import com.ureca.profile.presentation.dto.PetUpdate;
+import com.ureca.request.domain.Request;
+import com.ureca.request.infrastructure.RequestRepository;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +29,8 @@ public class PetService {
 
     @Autowired private CustomerRepository customerRepository;
     @Autowired private PetRepository petRepository;
+    @Autowired private RequestRepository requestRepository;
+    @Autowired private EstimateRepository estimateRepository;
     @Autowired private CommonCodeRepository commonCodeRepository;
     @Autowired private S3Service s3Service;
 
@@ -139,6 +145,12 @@ public class PetService {
                         .orElseThrow(() -> new ApiException(ErrorCode.DATA_NOT_EXIST));
         Pet pet = petRepository.findByCustomerCustomerIdAndPetId(customerId, petId);
 
+        List<Request> request = requestRepository.findAllByPet(pet);
+
+        for (Request deleteRequest : request) {
+            estimateRepository.deleteAllByRequest(deleteRequest);
+        }
+        requestRepository.deleteAllByPet(pet);
         customer.getPets().remove(pet);
         petRepository.delete(pet);
     } // deletePet

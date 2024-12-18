@@ -20,4 +20,10 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     @Query("SELECT r FROM Request r WHERE r.pet = :pet AND r.requestStatus = :request_status")
     Request findByPetAndRequest_status(
             @Param("pet") Pet pet, @Param("request_status") String requesStatus);
+
+    // Pet으로 Request 목록 조회
+    List<Request> findAllByPet(Pet pet);
+
+    // 반려견 삭제 - 관련 예약 삭제
+    void deleteAllByPet(Pet pet);
 }

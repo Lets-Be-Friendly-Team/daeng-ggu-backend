@@ -12,4 +12,7 @@ public interface EstimateRepository extends JpaRepository<Estimate, Long> {
     List<Estimate> findAllByDesignerDesignerId(Long designerId);
 
     List<Estimate> findAllByRequest(Request request);
+
+    // 반려견 삭제 - 관련 견적 삭제
+    void deleteAllByRequest(Request request);
 }
