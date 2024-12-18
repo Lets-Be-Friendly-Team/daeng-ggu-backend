@@ -33,6 +33,8 @@ public enum ErrorCode {
 
     // 3000번대: 권한 관련 오류
     ACCESS_DENIED(403, "데이터 접근 권한이 없습니다.", 3000),
+    INVALID_ROLE(401, "api 접근 권한이 없습니다.", 3010),
+    UNEXPECTED_USER_DETAILS(401, "Authentication 문제가 발생했습니다.", 3020),
 
     // 4000번대: 예약 및 비즈니스 로직 관련 오류
     HISTORY_NOT_EXIST(500, "조건에 맞는 Reservation history 정보가 없습니다.", 4000),
@@ -61,8 +63,8 @@ public enum ErrorCode {
     TOKEN_TAMPERED(401, "변조된 JWT입니다. JWT의 구성를 확인해 주세요.", 9020),
     TOKEN_IS_NULL(401, "없는 JWT입니다. JWT의 파싱 상태를 확인해 주세요.", 9030),
     COOKIE_NOT_EXIST(500, "요청에 쿠키 데이터가 없습니다.", 9040),
-    JWT_NOT_EXIST(500, "쿠키에 JWT 데이터가 없습니다.", 9040),
-    INVALID_TOKEN(500, "유효하지 않은 토큰입니다.", 9050);
+    JWT_NOT_EXIST(401, "쿠키에 JWT 데이터가 없습니다.", 9040),
+    INVALID_TOKEN(401, "유효하지 않은 토큰입니다.", 9050);
 
     private final int status; // HTTP 상태 코드
     private final String message; // 에러 메시지
