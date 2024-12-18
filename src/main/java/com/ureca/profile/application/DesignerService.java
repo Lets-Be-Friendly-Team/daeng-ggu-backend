@@ -66,6 +66,10 @@ public class DesignerService {
 
     private static final String DESIGNER = "D";
     private static final String REQUIRED_SERVICE = "S1";
+    private static final String REQUIRED_SERVICE1 = "S101";
+    private static final String REQUIRED_SERVICE2 = "S102";
+    private static final String REQUIRED_SERVICE3 = "S103";
+    private static final String REQUIRED_SERVICE4 = "S104";
     private static final String OPTIONAL_SERVICE1 = "S2";
     private static final String OPTIONAL_SERVICE2 = "S3";
     private static final String OPTIONAL_SERVICE3 = "S4";
@@ -210,11 +214,15 @@ public class DesignerService {
                         .findById(data.getDesignerId())
                         .orElseThrow(() -> new ApiException(ErrorCode.DESIGNER_NOT_EXIST));
         String imageUrl = designer.getDesignerImgUrl();
-        if (!data.getNewImgUrl().isEmpty()) { // 신규 이미지 업데이트
+        if (data.getNewImgUrl() == null || !data.getNewImgUrl().isEmpty()) { // 신규 이미지 업데이트
             imageUrl = data.getNewImgUrl();
         }
         // 제공 서비스 코드 목록
-        if (data.getProvidedServices().contains(REQUIRED_SERVICE)
+        if ((data.getProvidedServices().contains(REQUIRED_SERVICE)
+                        || data.getProvidedServices().contains(REQUIRED_SERVICE1)
+                        || data.getProvidedServices().contains(REQUIRED_SERVICE2)
+                        || data.getProvidedServices().contains(REQUIRED_SERVICE3)
+                        || data.getProvidedServices().contains(REQUIRED_SERVICE4))
                 && (data.getProvidedServices().contains(OPTIONAL_SERVICE1)
                         || data.getProvidedServices().contains(OPTIONAL_SERVICE2)
                         || data.getProvidedServices().contains(OPTIONAL_SERVICE3))) { // 기본 조건 만족
@@ -297,9 +305,8 @@ public class DesignerService {
                         .xPosition(coordinate.getX())
                         .yPosition(coordinate.getY())
                         .introduction(data.getIntroduction())
+                        .workExperience(data.getWorkExperience())
                         .phone(data.getPhone())
-                        .businessNumber(data.getBusinessNumber())
-                        .businessIsVerified(data.getBusinessIsVerified())
                         .updatedAt(LocalDateTime.now())
                         .build();
         designerRepository.save(updateDesigner);
