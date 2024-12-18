@@ -202,6 +202,7 @@ public class ReservationService {
                                                         .getPet()
                                                         .getCustomer()
                                                         .getCustomerImgUrl())
+                                        .isProcess(reservation.getProcess() != null)
                                         .build())
                 .collect(Collectors.toList());
     }
