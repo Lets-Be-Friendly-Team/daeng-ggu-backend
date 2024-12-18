@@ -138,14 +138,21 @@ public class EstimateService {
                                 .gender(pet.getGender())
                                 .isNeutered(pet.getIsNeutered())
                                 .weight(pet.getWeight())
-                                .majorBreedCode(pet.getMajorBreedCode())
+                                .majorBreedCode(
+                                        commonCodeRepository.findCodeNmByCodeId(
+                                                pet.getMajorBreedCode()))
                                 .majorBreed(
                                         commonCodeRepository.findCodeDescByCodeId(
                                                 pet.getMajorBreedCode()))
+                                .subBreed(
+                                        commonCodeRepository.findCodeDescByCodeId(
+                                                pet.getSubBreedCode()))
                                 .desiredServiceCode(
                                         commonCodeRepository.findCodeDescByCodeId(
                                                 request.getDesiredServiceCode()))
-                                .lastGrommingDate(request.getLastGroomingDate())
+                                .lastGrommingDate(
+                                        commonCodeRepository.findCodeDescByCodeId(
+                                                request.getLastGroomingDate()))
                                 .desiredDate1(request.getDesiredDate1())
                                 .desiredDate2(request.getDesiredDate2())
                                 .desiredDate3(request.getDesiredDate3())

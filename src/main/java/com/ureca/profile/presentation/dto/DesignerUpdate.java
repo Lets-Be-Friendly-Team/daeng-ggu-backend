@@ -31,10 +31,6 @@ public class DesignerUpdate {
     private List<String> providedServices;
     // 미용 가능 견종 코드 목록 (대분류)
     private List<String> possibleBreed;
-    // 사업자번호
-    private String businessNumber;
-    // 사업자인증 여부 (Y/N)
-    private String businessIsVerified;
     // 기존 자격증 이미지 URL 목록
     private List<String> preCertifications;
     // 경력사항

@@ -72,6 +72,7 @@ public class EstimateDto {
         private Double weight;
         private String majorBreedCode;
         private String majorBreed;
+        private String subBreed;
         private String desiredServiceCode;
         private String lastGrommingDate;
         private LocalDateTime desiredDate1;
