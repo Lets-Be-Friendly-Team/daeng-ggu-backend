@@ -89,6 +89,10 @@ public class ReviewService {
 
         Long customerId = customer.getCustomerId();
 
+        if (review.getDesigner().getDesignerName() == null) {
+            throw new ApiException(ErrorCode.DESIGNER_NOT_EXIST);
+        }
+
         List<ReviewImage> reviewImages = reviewImageRepository.findByReview(review);
         List<String> reviewImglist = new ArrayList<>();
         for (ReviewImage reviewImage : reviewImages) {
@@ -220,6 +224,9 @@ public class ReviewService {
                         .findById(reviewRequest.getReviewId())
                         .orElseThrow(() -> new ApiException(ErrorCode.REVIEW_NOT_EXIST));
 
+        if (review.getDesigner().getDesignerName() == null) {
+            throw new ApiException(ErrorCode.DESIGNER_NOT_EXIST);
+        }
         List<String> keepImgUrls = reviewRequest.getExistImgList();
         List<String> FeedImgList = reviewRequest.getFeedImgList();
 
@@ -278,6 +285,9 @@ public class ReviewService {
         // ReviewDto.Response 리스트 생성
         List<ReviewDto.Response> reviewlist = new ArrayList<>();
         for (Review review : reviews) {
+            if (review.getDesigner().getDesignerName() == null) {
+                continue;
+            }
             List<ReviewImage> reviewImages = reviewImageRepository.findByReview(review);
             List<String> reviewImglist = new ArrayList<>();
             for (ReviewImage reviewImage : reviewImages) {
@@ -341,7 +351,9 @@ public class ReviewService {
                 reviewRepository
                         .findById(reviewId)
                         .orElseThrow(() -> new ApiException(ErrorCode.REVIEW_NOT_EXIST));
-        // 3. 리뷰 좋아요 엔티티 조회 (같은 사용자, 같은 리뷰에 대한 좋아요 존재 여부 체크)
+        if (review.getDesigner().getDesignerName() == null) {
+            throw new ApiException(ErrorCode.DESIGNER_NOT_EXIST);
+        } // 3. 리뷰 좋아요 엔티티 조회 (같은 사용자, 같은 리뷰에 대한 좋아요 존재 여부 체크)
         ReviewLike existingReviewLike =
                 reviewLikeRepository.findByReviewAndUserIdAndUserType(review, userId, userType);
         ReviewLike reviewLike = new ReviewLike();

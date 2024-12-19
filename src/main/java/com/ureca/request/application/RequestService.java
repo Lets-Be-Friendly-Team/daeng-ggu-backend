@@ -256,6 +256,9 @@ public class RequestService {
 
         Pet pet = request.getPet();
         Customer customer = pet.getCustomer();
+        if (request.getPet() == null) {
+            throw new ApiException(ErrorCode.PET_NOT_EXIST);
+        }
 
         // 조회된 데이터를 Response DTO로 변환
         return RequestDto.Response.builder()
@@ -371,27 +374,29 @@ public class RequestService {
                                             new NoSuchElementException(
                                                     "Request not found with ID: " + requestId));
 
-            // 응답 DTO 빌드
-            RequestDto.Response response =
-                    RequestDto.Response.builder()
-                            .requestId(requestId)
-                            .petId(request.getPet().getPetId())
-                            .petName(request.getPet().getPetName())
-                            .petImageUrl(request.getPet().getPetImgUrl())
-                            .majorBreedCode(
-                                    commonCodeRepository.findCodeNmByCodeId(
-                                            request.getPet().getMajorBreedCode()))
-                            .subBreed(
-                                    commonCodeRepository.findCodeDescByCodeId(
-                                            request.getPet().getSubBreedCode()))
-                            .desiredServiceCode(
-                                    commonCodeRepository.findCodeDescByCodeId(
-                                            request.getDesiredServiceCode()))
-                            .isVisitRequired(request.getIsDelivery())
-                            .createdAt(request.getCreatedAt())
-                            .build();
+            if (request.getPet().getPetName() != null) {
+                // 응답 DTO 빌드
+                RequestDto.Response response =
+                        RequestDto.Response.builder()
+                                .requestId(requestId)
+                                .petId(request.getPet().getPetId())
+                                .petName(request.getPet().getPetName())
+                                .petImageUrl(request.getPet().getPetImgUrl())
+                                .majorBreedCode(
+                                        commonCodeRepository.findCodeNmByCodeId(
+                                                request.getPet().getMajorBreedCode()))
+                                .subBreed(
+                                        commonCodeRepository.findCodeDescByCodeId(
+                                                request.getPet().getSubBreedCode()))
+                                .desiredServiceCode(
+                                        commonCodeRepository.findCodeDescByCodeId(
+                                                request.getDesiredServiceCode()))
+                                .isVisitRequired(request.getIsDelivery())
+                                .createdAt(request.getCreatedAt())
+                                .build();
 
-            reqList.add(response);
+                reqList.add(response);
+            }
         }
 
         return reqList;
