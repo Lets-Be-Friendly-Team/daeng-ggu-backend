@@ -75,9 +75,9 @@ public class ReservationController {
             @RequestParam int month,
             HttpServletRequest request,
             HttpServletResponse response) {
-        Long id = authService.getRequestToUserId(request);
-        response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
-        response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
+        // Long id = authService.getRequestToUserId(request);
+        // response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
+        // response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         return ResponseUtil.SUCCESS(
                 "예약 가능 시간 조회 성공", reservationService.getAvailableDate(designerId, year, month));
     }
