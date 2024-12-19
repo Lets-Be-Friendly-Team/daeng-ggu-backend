@@ -41,7 +41,7 @@ public class CustomerController {
         response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         // service - 보호자 프로필
-        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", customerService.getCustomerProfile(id));
+        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", customerService.getCustomerProfile(customerId));
     }
 
     @GetMapping("/customer/profile/detail")
@@ -54,7 +54,7 @@ public class CustomerController {
         response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         // service - 보호자 프로필 상세 조회
-        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", customerService.getCustomerDetail(id));
+        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", customerService.getCustomerDetail(customerId));
     }
 
     @PatchMapping("/customer/profile/update")

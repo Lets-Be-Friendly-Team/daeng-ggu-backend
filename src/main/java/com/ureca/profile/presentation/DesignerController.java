@@ -45,7 +45,7 @@ public class DesignerController {
         response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         // service - 디자이너 프로필
-        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", designerService.getDesignerProfile(id));
+        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", designerService.getDesignerProfile(designerId));
     }
 
     @GetMapping("/designer/profile/detail")
@@ -58,7 +58,7 @@ public class DesignerController {
         response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         // service - 디자이너 프로필 상세
-        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", designerService.getDesignerDetail(id));
+        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", designerService.getDesignerDetail(designerId));
     }
 
     @PatchMapping("/designer/profile/update")
@@ -87,7 +87,8 @@ public class DesignerController {
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         // service - 디자이너 포트폴리오 상세
         return ResponseUtil.SUCCESS(
-                "처리가 완료되었습니다.", designerService.getDesignerPortfolioDetail(id, portfolioId));
+                "처리가 완료되었습니다.",
+                designerService.getDesignerPortfolioDetail(designerId, portfolioId));
     }
 
     @PatchMapping("/designer/portfolio/update")
