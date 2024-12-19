@@ -12,7 +12,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -26,17 +25,16 @@ public class AlarmController {
 
     @GetMapping(value = "/alarm/subscribe")
     @Operation(summary = "알람 포트 연결", description = "[HOM1000] 클라이언트가 알림 서버 연결 요청.")
-    public SseEmitter subscribe(HttpServletRequest request, HttpServletResponse response) {
-        // TODO : 토큰 수정
-        Long id = authService.getRequestToUserId(request);
-        String role = authService.getRequestToRole(request);
-        AuthorType authorType =
-                "C".equalsIgnoreCase(role) ? AuthorType.CUSTOMER : AuthorType.DESIGNER;
+    public SseEmitter subscribe(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestParam Long userId,
+            @RequestParam String userType) {
 
         SseEmitter emitter = new SseEmitter();
         alarmService
                 .getEmitterMap()
-                .put(String.valueOf(authorType).toUpperCase() + String.valueOf(id), emitter);
+                .put(String.valueOf(userType).toUpperCase() + String.valueOf(userId), emitter);
 
         // 클라이언트 연결 해제 시 맵에서 제거
         emitter.onCompletion(
@@ -44,18 +42,19 @@ public class AlarmController {
                         alarmService
                                 .getEmitterMap()
                                 .remove(
-                                        String.valueOf(authorType).toUpperCase()
-                                                + String.valueOf(id)));
+                                        String.valueOf(userType).toUpperCase()
+                                                + String.valueOf(userId)));
         emitter.onTimeout(
                 () ->
                         alarmService
                                 .getEmitterMap()
                                 .remove(
-                                        String.valueOf(authorType).toUpperCase()
-                                                + String.valueOf(id)));
+                                        String.valueOf(userType).toUpperCase()
+                                                + String.valueOf(userId)));
 
         // 연결 시 미수신 알람을 가져와 클라이언트로 전송
-        List<AlarmDto.Response> unreadAlarms = alarmService.getUnreadAlarms(id, authorType);
+        List<AlarmDto.Response> unreadAlarms =
+                alarmService.getUnreadAlarms(userId, AuthorType.valueOf(userType.toUpperCase()));
         for (AlarmDto.Response alarm : unreadAlarms) {
             try {
                 emitter.send(SseEmitter.event().name("alarm").data(alarm)); // 알림 전송
@@ -65,7 +64,7 @@ public class AlarmController {
         }
 
         // 알림 상태를 읽음으로 업데이트
-        alarmService.markAlarmsAsRead(id, authorType);
+        alarmService.markAlarmsAsRead(userId, AuthorType.valueOf(userType.toUpperCase()));
 
         response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
@@ -95,17 +94,5 @@ public class AlarmController {
         response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         return ResponseUtil.SUCCESS("알람 조회가 완료되었습니다.", alarmList);
-    }
-
-    @GetMapping(value = "/alarm")
-    @Operation(summary = "알람 포트 연결", description = "[HOM1000] 클라이언트가 알림 서버 연결 요청.")
-    public ResponseEntity<Void> tosubscribe(
-            HttpServletRequest request, HttpServletResponse response) {
-        // JWT 쿠키를 설정
-        response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
-        response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
-
-        // 정상적으로 헤더만 설정하고, 클라이언트는 이 요청을 통해 쿠키를 받게 됩니다.
-        return ResponseEntity.ok().build(); // 응답 상태 코드 200 (OK)
     }
 }
