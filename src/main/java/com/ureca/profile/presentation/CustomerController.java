@@ -67,7 +67,7 @@ public class CustomerController {
         response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         // service - 보호자 프로필 수정
-        customerService.updateCustomerProfile(data);
+        customerService.updateCustomerProfile(data, id);
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
     }
 

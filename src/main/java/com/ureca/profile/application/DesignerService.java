@@ -207,11 +207,11 @@ public class DesignerService {
      * @param data 입력 정보
      */
     @Transactional
-    public void updateDesignerProfile(DesignerUpdate data) {
+    public void updateDesignerProfile(DesignerUpdate data, Long id) {
         // 기존 정보 조회
         Designer designer =
                 designerRepository
-                        .findById(data.getDesignerId())
+                        .findById(id)
                         .orElseThrow(() -> new ApiException(ErrorCode.DESIGNER_NOT_EXIST));
         String imageUrl = designer.getDesignerImgUrl();
         if (data.getNewImgUrl() == null || !data.getNewImgUrl().isEmpty()) { // 신규 이미지 업데이트
@@ -361,10 +361,10 @@ public class DesignerService {
      * @return status 업데이트 성공 여부
      */
     @Transactional
-    public void updateDesignerPortfolio(PortfolioUpdate data) {
+    public void updateDesignerPortfolio(PortfolioUpdate data, Long id) {
         Designer designer =
                 designerRepository
-                        .findById(data.getDesignerId())
+                        .findById(id)
                         .orElseThrow(() -> new ApiException(ErrorCode.DESIGNER_NOT_EXIST));
         // 신규
         if (data.getPortfolioId() == null || data.getPortfolioId() == 0) {
@@ -396,7 +396,7 @@ public class DesignerService {
         } else { // 수정
             Portfolio portfolio =
                     portfolioRepository.findByDesignerDesignerIdAndPortfolioId(
-                            data.getDesignerId(), data.getPortfolioId());
+                            id, data.getPortfolioId());
             if (portfolio == null) {
                 throw new ApiException(ErrorCode.DATA_NOT_EXIST);
             }
@@ -511,11 +511,11 @@ public class DesignerService {
      * @param data 입력 정보
      */
     @Transactional
-    public void registerDesignerProfile(DesignerRegister data) {
+    public void registerDesignerProfile(DesignerRegister data, Long id) {
         // 디자이너 회원가입 정보 조회
         Designer designer =
                 designerRepository
-                        .findById(data.getDesignerId())
+                        .findById(id)
                         .orElseThrow(() -> new ApiException(ErrorCode.DESIGNER_NOT_EXIST));
 
         Coordinate coordinate = externalService.addressToCoordinate(data.getAddress2());

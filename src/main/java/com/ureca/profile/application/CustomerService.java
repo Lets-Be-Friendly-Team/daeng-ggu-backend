@@ -179,11 +179,11 @@ public class CustomerService {
      * @return status 업데이트 성공 여부
      */
     @Transactional
-    public void updateCustomerProfile(CustomerUpdate data) {
+    public void updateCustomerProfile(CustomerUpdate data, Long id) {
         // 기존 정보 조회
         Customer customer =
                 customerRepository
-                        .findById(data.getCustomerId())
+                        .findById(id)
                         .orElseThrow(() -> new ApiException(ErrorCode.CUSTOMER_NOT_EXIST));
         String imageUrl = customer.getCustomerImgUrl();
 
