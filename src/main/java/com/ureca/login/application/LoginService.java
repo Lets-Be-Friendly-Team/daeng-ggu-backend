@@ -1,5 +1,8 @@
 package com.ureca.login.application;
 
+import com.ureca.common.exception.ApiException;
+import com.ureca.common.exception.ErrorCode;
+import com.ureca.common.util.CookieUtil;
 import com.ureca.common.util.TokenUtils;
 import com.ureca.login.presentation.dto.KakaoDTO;
 import com.ureca.login.presentation.dto.UserDTO;
@@ -10,6 +13,10 @@ import com.ureca.profile.infrastructure.DesignerRepository;
 import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Service
 public class LoginService {
@@ -82,5 +89,27 @@ public class LoginService {
                         .build();
 
         return userDTO;
+    }
+
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        // 1. JWT 쿠키 가져오기
+        Cookie cookie = CookieUtil.getJwtFromCookies(request);
+        if (cookie == null) {
+            throw new ApiException(ErrorCode.JWT_NOT_EXIST);
+        }
+
+        // 2. JWT 유효성 확인
+        boolean isValid = TokenUtils.isValidToken(cookie.getValue());
+        if (!isValid) {
+            throw new ApiException(ErrorCode.INVALID_TOKEN);
+        }
+
+        // 3. 쿠키 무효화 처리 (Max-Age 0으로 설정)
+        Cookie invalidatedCookie = new Cookie(cookie.getName(), null);
+        invalidatedCookie.setHttpOnly(true);
+        invalidatedCookie.setSecure(true);
+        invalidatedCookie.setMaxAge(0); // 즉시 만료
+        invalidatedCookie.setPath("/"); // 모든 경로에서 삭제
+        response.addCookie(invalidatedCookie);
     }
 }
