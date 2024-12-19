@@ -51,7 +51,7 @@ public class PetController {
         response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         // service - 반려견 프로필 수정
-        petService.updatePetProfile(data);
+        petService.updatePetProfile(data, id);
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
     }
 
@@ -66,7 +66,7 @@ public class PetController {
         response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         // service - 반려견 프로필 삭제
-        petService.deletePet(customerId, petId);
+        petService.deletePet(id, petId);
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
     }
 }

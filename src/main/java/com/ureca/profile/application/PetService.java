@@ -76,10 +76,10 @@ public class PetService {
      * @return status 업데이트 성공 여부
      */
     @Transactional
-    public void updatePetProfile(PetUpdate data) {
+    public void updatePetProfile(PetUpdate data, Long id) {
         Customer customer =
                 customerRepository
-                        .findById(data.getCustomerId())
+                        .findById(id)
                         .orElseThrow(() -> new ApiException(ErrorCode.CUSTOMER_NOT_EXIST));
         // 신규 등록
         if (data.getPetId() == null || data.getPetId() == 0) {
@@ -101,9 +101,7 @@ public class PetService {
 
         } else {
             // 기존 정보 조회
-            Pet pet =
-                    petRepository.findByCustomerCustomerIdAndPetId(
-                            data.getCustomerId(), data.getPetId());
+            Pet pet = petRepository.findByCustomerCustomerIdAndPetId(id, data.getPetId());
             if (pet == null) {
                 throw new ApiException(ErrorCode.DATA_NOT_EXIST);
             }
