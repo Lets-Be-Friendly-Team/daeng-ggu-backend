@@ -210,11 +210,6 @@ public class MonitoringService {
         updateProcessAndSave(
                 process, ProcessStatus.GROOMING, ProcessStatus.GROOMING.getDescription());
 
-        // 스트리밍 정보 생성
-        String streamKey = "스트리밍 KEY"; // TODO: 스트리밍 키 생성 로직
-        String streamUrl = "스트리밍 URL"; // TODO: 스트리밍 URL 생성 로직 -> channelARN
-        updateStreamAndSave(process, streamUrl, streamKey);
-
         ProcessStatusDto processStatusDto =
                 createProcessStatusDto(process, reservation.getIsDelivery());
 
@@ -333,11 +328,6 @@ public class MonitoringService {
                 ProcessStatus.DELIVERY_TO_SHOP,
                 ProcessStatus.DELIVERY_TO_SHOP.getDescription());
 
-        // 스트리밍 정보 생성
-        String streamKey = "스트리밍 KEY"; // TODO: 스트리밍 키 생성 로직
-        String streamUrl = "스트리밍 URL"; // TODO: 스트리밍 URL 생성 로직
-        updateStreamAndSave(process, streamUrl, streamKey);
-
         ProcessStatusDto processStatusDto =
                 createProcessStatusDto(process, reservation.getIsDelivery());
 
@@ -364,11 +354,6 @@ public class MonitoringService {
                 process,
                 ProcessStatus.DELIVERY_TO_HOME,
                 ProcessStatus.DELIVERY_TO_HOME.getDescription());
-
-        // 스트리밍 정보 생성
-        String streamKey = "스트리밍 KEY"; // TODO: 스트리밍 키 생성 로직
-        String streamUrl = "스트리밍 URL"; // TODO: 스트리밍 URL 생성 로직
-        updateStreamAndSave(process, streamUrl, streamKey);
 
         ProcessStatusDto processStatusDto =
                 createProcessStatusDto(process, reservation.getIsDelivery());
