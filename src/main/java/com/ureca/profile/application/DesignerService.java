@@ -655,4 +655,62 @@ public class DesignerService {
             }
         }
     } // registerDesignerProfile
+
+    /**
+     * @title 디자이너 - 프로필 삭제
+     * @description 디자이너 프로필 삭제
+     * @param designerId 디자이너 아이디
+     */
+    @Transactional
+    public void deleteDesignerProfile(Long designerId) {
+        Designer designer =
+                designerRepository
+                        .findById(designerId)
+                        .orElseThrow(() -> new ApiException(ErrorCode.DESIGNER_NOT_EXIST));
+        if (designer != null) {
+            // 빈 데이터 생성
+            Designer deleteDesigner =
+                    designer.toBuilder()
+                            .officialName(null)
+                            .designerImgUrl("")
+                            .address1("")
+                            .address2("")
+                            .detailAddress("")
+                            .xPosition(0)
+                            .yPosition(0)
+                            .introduction("")
+                            .phone("")
+                            .businessNumber("")
+                            .businessIsVerified("")
+                            .workExperience("")
+                            .dayOff("")
+                            .build(); // 빌더로 새로운 객체 생성
+            designerRepository.save(deleteDesigner);
+
+            // 포트폴리오 삭제
+            List<Portfolio> portfolioList =
+                    portfolioRepository.findByDesignerDesignerId(designer.getDesignerId());
+            for (Portfolio deletePortfolio : portfolioList) {
+                // 포트폴리오 이미지삭제
+                imgRepository.deleteByPortfolio(deletePortfolio);
+            }
+            portfolioRepository.deleteAll(portfolioList);
+            // 자격증 이미지
+            List<Certificate> certificateList =
+                    certificateRepository.findByDesignerDesignerId(designer.getDesignerId());
+            certificateRepository.deleteAll(certificateList);
+            // 서비스 삭제
+            List<Services> servicesList =
+                    servicesRepository.findByDesignerDesignerId(designer.getDesignerId());
+            for (Services deleteService : servicesList) {
+                // 금액 삭제
+                priceRepository.deleteByService(deleteService);
+            }
+            servicesRepository.deleteAll(servicesList);
+            // 가능 견종 삭제
+            List<Breeds> breedsList =
+                    breedsRepository.findByDesignerDesignerId(designer.getDesignerId());
+            breedsRepository.deleteAll(breedsList);
+        }
+    } // deleteDesignerProfile
 }

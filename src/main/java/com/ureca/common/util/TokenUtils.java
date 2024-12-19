@@ -130,6 +130,18 @@ public class TokenUtils {
     }
 
     /**
+     * 토큰을 삭제
+     *
+     * @return Calendar
+     */
+    private static Date deleteExpiredDate() {
+        // 토큰 만료시간은 30일으로 설정
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.HOUR, 0); // 0시간
+        return c.getTime();
+    }
+
+    /**
      * JWT의 "헤더" 값을 생성해주는 메서드
      *
      * @return HashMap<String, Object>
