@@ -95,4 +95,13 @@ public class AlarmController {
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         return ResponseUtil.SUCCESS("알람 조회가 완료되었습니다.", alarmList);
     }
+
+    @GetMapping(value = "/alarm")
+    @Operation(summary = "알람 포트 연결", description = "[HOM1000] 클라이언트가 알림 서버 연결 요청.")
+    public String tosubscribe(HttpServletRequest request, HttpServletResponse response) {
+        Long id = authService.getRequestToUserId(request);
+        response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
+        response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
+        return null;
+    }
 }
