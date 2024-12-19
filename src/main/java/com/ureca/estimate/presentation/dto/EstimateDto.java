@@ -62,7 +62,7 @@ public class EstimateDto {
     @Getter
     @Schema(name = "EstimateResponse")
     public static class Response {
-        private Long estimateId;
+        private Long requestId;
         private Long petId;
         private String petName;
         private String petImageUrl;

@@ -134,6 +134,7 @@ public class EstimateService {
             if (request != null) {
                 EstimateDto.Response response =
                         EstimateDto.Response.builder()
+                                .requestId(request.getRequestId())
                                 .petId(pet.getPetId())
                                 .petName(pet.getPetName())
                                 .petImageUrl(pet.getPetImgUrl())
