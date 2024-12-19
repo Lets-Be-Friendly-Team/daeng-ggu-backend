@@ -18,6 +18,7 @@ public class AuthService {
 
     private final LoginService loginService;
 
+    // 사용자 ID
     public Long getRequestToUserId(HttpServletRequest request) {
 
         // util - 쿠키에서 jwt 꺼내기
@@ -36,6 +37,48 @@ public class AuthService {
         UserDTO userDTO = loginService.getLoginUserInfo(kakaoDTO);
 
         return userDTO.getId();
+    }
+
+    // 사용자 역할
+    public String getRequestToRole(HttpServletRequest request) {
+
+        // util - 쿠키에서 jwt 꺼내기
+        Cookie cookie = CookieUtil.getJwtFromCookies(request);
+        if (cookie == null) throw new ApiException(ErrorCode.JWT_NOT_EXIST);
+
+        // util - 유효한 토큰인지 확인
+        boolean isValid = TokenUtils.isValidToken(cookie.getValue());
+        KakaoDTO kakaoDTO = null;
+        if (isValid) {
+            // util - jwt 기반 사용자 정보 꺼내기
+            kakaoDTO = TokenUtils.parseTokenToUserInfo(cookie.getValue());
+        } else {
+            throw new ApiException(ErrorCode.INVALID_TOKEN);
+        }
+        UserDTO userDTO = loginService.getLoginUserInfo(kakaoDTO);
+
+        return userDTO.getUserType();
+    }
+
+    // 사용자 정보 전체
+    public UserDTO getRequestToUserDTO(HttpServletRequest request) {
+
+        // util - 쿠키에서 jwt 꺼내기
+        Cookie cookie = CookieUtil.getJwtFromCookies(request);
+        if (cookie == null) throw new ApiException(ErrorCode.JWT_NOT_EXIST);
+
+        // util - 유효한 토큰인지 확인
+        boolean isValid = TokenUtils.isValidToken(cookie.getValue());
+        KakaoDTO kakaoDTO = null;
+        if (isValid) {
+            // util - jwt 기반 사용자 정보 꺼내기
+            kakaoDTO = TokenUtils.parseTokenToUserInfo(cookie.getValue());
+        } else {
+            throw new ApiException(ErrorCode.INVALID_TOKEN);
+        }
+        UserDTO userDTO = loginService.getLoginUserInfo(kakaoDTO);
+
+        return userDTO;
     }
 
     public String getRequestToCookieHeader(HttpServletRequest request) {

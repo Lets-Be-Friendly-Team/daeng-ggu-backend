@@ -62,7 +62,7 @@ public enum ErrorCode {
     TOKEN_EXPIRED(401, "만료된 JWT입니다.", 9010),
     TOKEN_TAMPERED(401, "변조된 JWT입니다. JWT의 구성를 확인해 주세요.", 9020),
     TOKEN_IS_NULL(401, "없는 JWT입니다. JWT의 파싱 상태를 확인해 주세요.", 9030),
-    COOKIE_NOT_EXIST(500, "요청에 쿠키 데이터가 없습니다.", 9040),
+    COOKIE_NOT_EXIST(401, "요청에 쿠키 데이터가 없습니다.", 9040),
     JWT_NOT_EXIST(401, "쿠키에 JWT 데이터가 없습니다.", 9040),
     INVALID_TOKEN(401, "유효하지 않은 토큰입니다.", 9050);
 
