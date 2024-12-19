@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -98,10 +99,13 @@ public class AlarmController {
 
     @GetMapping(value = "/alarm")
     @Operation(summary = "알람 포트 연결", description = "[HOM1000] 클라이언트가 알림 서버 연결 요청.")
-    public String tosubscribe(HttpServletRequest request, HttpServletResponse response) {
-        Long id = authService.getRequestToUserId(request);
+    public ResponseEntity<Void> tosubscribe(
+            HttpServletRequest request, HttpServletResponse response) {
+        // JWT 쿠키를 설정
         response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
-        return null;
+
+        // 정상적으로 헤더만 설정하고, 클라이언트는 이 요청을 통해 쿠키를 받게 됩니다.
+        return ResponseEntity.ok().build(); // 응답 상태 코드 200 (OK)
     }
 }
