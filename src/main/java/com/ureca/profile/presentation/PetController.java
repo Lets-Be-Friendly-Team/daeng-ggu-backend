@@ -1,11 +1,14 @@
 package com.ureca.profile.presentation;
 
+import com.ureca.common.application.AuthService;
 import com.ureca.common.response.ResponseDto;
 import com.ureca.common.response.ResponseUtil;
 import com.ureca.profile.application.PetService;
 import com.ureca.profile.presentation.dto.PetDetail;
 import com.ureca.profile.presentation.dto.PetUpdate;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,19 +27,29 @@ public class PetController {
     private static final Logger logger = LoggerFactory.getLogger(PetController.class);
 
     @Autowired private PetService petService;
+    @Autowired private AuthService authService;
 
     @GetMapping("/pet/profile/detail")
     @Operation(summary = "반려견 프로필 상세", description = "[MYP3000] 반려견 프로필 상세 조회 API")
     public ResponseDto<PetDetail> petDetail(
             @RequestParam(defaultValue = "") Long customerId,
-            @RequestParam(defaultValue = "") Long petId) {
+            @RequestParam(defaultValue = "") Long petId,
+            HttpServletRequest request,
+            HttpServletResponse response) {
+        Long id = authService.getRequestToUserId(request);
+        response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
+        response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         // service - 반려견 프로필 상세 조회
-        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", petService.getPetDetail(customerId, petId));
+        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", petService.getPetDetail(id, petId));
     }
 
     @PatchMapping("/pet/profile/update")
     @Operation(summary = "반려견 프로필 수정", description = "[MYP3000] 반려견 프로필 수정 API")
-    public ResponseDto<Void> petUpdate(@RequestBody PetUpdate data) {
+    public ResponseDto<Void> petUpdate(
+            @RequestBody PetUpdate data, HttpServletRequest request, HttpServletResponse response) {
+        Long id = authService.getRequestToUserId(request);
+        response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
+        response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         // service - 반려견 프로필 수정
         petService.updatePetProfile(data);
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
@@ -46,7 +59,12 @@ public class PetController {
     @Operation(summary = "반려견 프로필 삭제", description = "[MYP1000] 반려견 프로필 삭제 API")
     public ResponseDto<Void> petDelete(
             @RequestParam(defaultValue = "") Long customerId,
-            @RequestParam(defaultValue = "") Long petId) {
+            @RequestParam(defaultValue = "") Long petId,
+            HttpServletRequest request,
+            HttpServletResponse response) {
+        Long id = authService.getRequestToUserId(request);
+        response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
+        response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         // service - 반려견 프로필 삭제
         petService.deletePet(customerId, petId);
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);

@@ -1,5 +1,6 @@
 package com.ureca.login.presentation;
 
+import com.ureca.common.application.AuthService;
 import com.ureca.common.exception.ApiException;
 import com.ureca.common.exception.ErrorCode;
 import com.ureca.common.response.ResponseDto;
@@ -15,6 +16,7 @@ import com.ureca.profile.presentation.dto.DesignerSignup;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,11 +34,14 @@ public class SignupController {
 
     @Autowired private CustomerService customerService;
     @Autowired private DesignerService designerService;
+    @Autowired private AuthService authService;
 
     @PostMapping("/customer/signup")
     @Operation(summary = "보호자 회원가입 정보 입력", description = "[LOG2000] 보호자 회원가입 정보 입력 API")
     public ResponseDto<Map<String, Long>> customerSignup(
-            HttpServletRequest request, @RequestBody CustomerSignup data) {
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestBody CustomerSignup data) {
 
         Cookie cookie = CookieUtil.getJwtFromCookies(request); // util - 쿠키에서 jwt 꺼내기
         if (cookie == null) throw new ApiException(ErrorCode.JWT_NOT_EXIST);
@@ -44,7 +49,7 @@ public class SignupController {
         KakaoDTO kakaoDTO = null;
         if (!isValid) throw new ApiException(ErrorCode.INVALID_TOKEN);
         kakaoDTO = TokenUtils.parseTokenToUserInfo(cookie.getValue()); // util - jwt 기반 사용자 정보 꺼내기
-
+        response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
         // service - 보호자 회원가입
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", customerService.insertCustomer(data, kakaoDTO));
     }
@@ -52,7 +57,9 @@ public class SignupController {
     @PostMapping("/designer/signup")
     @Operation(summary = "디자이너 회원가입 정보 입력", description = "[DLOG3100] 디자이너 회원가입 정보 입력 API")
     public ResponseDto<Map<String, Long>> designerSignup(
-            HttpServletRequest request, @RequestBody DesignerSignup data) {
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestBody DesignerSignup data) {
 
         Cookie cookie = CookieUtil.getJwtFromCookies(request); // util - 쿠키에서 jwt 꺼내기
         if (cookie == null) throw new ApiException(ErrorCode.JWT_NOT_EXIST);
@@ -60,7 +67,7 @@ public class SignupController {
         KakaoDTO kakaoDTO = null;
         if (!isValid) throw new ApiException(ErrorCode.INVALID_TOKEN);
         kakaoDTO = TokenUtils.parseTokenToUserInfo(cookie.getValue()); // util - jwt 기반 사용자 정보 꺼내기
-
+        response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
         // service - 디자이너 회원가입
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", designerService.insertDesigner(data, kakaoDTO));
     }
