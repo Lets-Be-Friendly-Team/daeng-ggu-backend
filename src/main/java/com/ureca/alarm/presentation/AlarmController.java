@@ -29,19 +29,20 @@ public class AlarmController {
         // TODO : 토큰 수정
         Long id = authService.getRequestToUserId(request);
         String role = authService.getRequestToRole(request);
+        AuthorType authorType =
+                "C".equalsIgnoreCase(role) ? AuthorType.CUSTOMER : AuthorType.DESIGNER;
 
         SseEmitter emitter = new SseEmitter();
-        alarmService.getEmitterMap().put(role.toUpperCase() + String.valueOf(id), emitter);
+        alarmService.getEmitterMap().put(authorType + String.valueOf(id), emitter);
 
         // 클라이언트 연결 해제 시 맵에서 제거
         emitter.onCompletion(
-                () -> alarmService.getEmitterMap().remove(role.toUpperCase() + String.valueOf(id)));
+                () -> alarmService.getEmitterMap().remove(authorType + String.valueOf(id)));
         emitter.onTimeout(
-                () -> alarmService.getEmitterMap().remove(role.toUpperCase() + String.valueOf(id)));
+                () -> alarmService.getEmitterMap().remove(authorType + String.valueOf(id)));
 
         // 연결 시 미수신 알람을 가져와 클라이언트로 전송
-        List<AlarmDto.Response> unreadAlarms =
-                alarmService.getUnreadAlarms(id, AuthorType.valueOf(role.toUpperCase()));
+        List<AlarmDto.Response> unreadAlarms = alarmService.getUnreadAlarms(id, authorType);
         for (AlarmDto.Response alarm : unreadAlarms) {
             try {
                 emitter.send(SseEmitter.event().name("alarm").data(alarm)); // 알림 전송
@@ -51,7 +52,7 @@ public class AlarmController {
         }
 
         // 알림 상태를 읽음으로 업데이트
-        alarmService.markAlarmsAsRead(id, AuthorType.valueOf(role.toUpperCase()));
+        alarmService.markAlarmsAsRead(id, authorType);
 
         response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
@@ -71,8 +72,9 @@ public class AlarmController {
             HttpServletRequest request, HttpServletResponse response) {
         Long id = authService.getRequestToUserId(request);
         String role = authService.getRequestToRole(request);
-        List<AlarmDto.Response> alarmList =
-                alarmService.getAlarmsByReceiver(id, AuthorType.valueOf(role.toUpperCase()));
+        AuthorType authorType =
+                "C".equalsIgnoreCase(role) ? AuthorType.CUSTOMER : AuthorType.DESIGNER;
+        List<AlarmDto.Response> alarmList = alarmService.getAlarmsByReceiver(id, authorType);
         for (AlarmDto.Response alarm : alarmList) {
             Long alarms = alarm.getAlarmId();
             alarmService.getUnreadToRead(alarms);
