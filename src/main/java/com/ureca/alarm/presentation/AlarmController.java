@@ -33,13 +33,25 @@ public class AlarmController {
                 "C".equalsIgnoreCase(role) ? AuthorType.CUSTOMER : AuthorType.DESIGNER;
 
         SseEmitter emitter = new SseEmitter();
-        alarmService.getEmitterMap().put(authorType + String.valueOf(id), emitter);
+        alarmService
+                .getEmitterMap()
+                .put(String.valueOf(authorType).toUpperCase() + String.valueOf(id), emitter);
 
         // 클라이언트 연결 해제 시 맵에서 제거
         emitter.onCompletion(
-                () -> alarmService.getEmitterMap().remove(authorType + String.valueOf(id)));
+                () ->
+                        alarmService
+                                .getEmitterMap()
+                                .remove(
+                                        String.valueOf(authorType).toUpperCase()
+                                                + String.valueOf(id)));
         emitter.onTimeout(
-                () -> alarmService.getEmitterMap().remove(authorType + String.valueOf(id)));
+                () ->
+                        alarmService
+                                .getEmitterMap()
+                                .remove(
+                                        String.valueOf(authorType).toUpperCase()
+                                                + String.valueOf(id)));
 
         // 연결 시 미수신 알람을 가져와 클라이언트로 전송
         List<AlarmDto.Response> unreadAlarms = alarmService.getUnreadAlarms(id, authorType);
