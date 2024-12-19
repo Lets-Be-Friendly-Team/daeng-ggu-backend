@@ -71,9 +71,8 @@ public class AlarmController {
             HttpServletRequest request,
             HttpServletResponse response) {
         Long id = authService.getRequestToUserId(request);
-
         List<AlarmDto.Response> alarmList =
-                alarmService.getAlarmsByReceiver(2L, AuthorType.valueOf("CUSTOMER"), page);
+                alarmService.getAlarmsByReceiver(1L, AuthorType.valueOf("DESIGNER"));
         for (AlarmDto.Response alarm : alarmList) {
             Long alarms = alarm.getAlarmId();
             alarmService.getUnreadToRead(alarms);
