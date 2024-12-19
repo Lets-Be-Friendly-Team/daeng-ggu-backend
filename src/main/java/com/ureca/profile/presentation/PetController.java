@@ -40,7 +40,7 @@ public class PetController {
         response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         // service - 반려견 프로필 상세 조회
-        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", petService.getPetDetail(id, petId));
+        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", petService.getPetDetail(customerId, petId));
     }
 
     @PatchMapping("/pet/profile/update")
