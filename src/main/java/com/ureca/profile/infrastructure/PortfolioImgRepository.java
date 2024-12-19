@@ -23,4 +23,8 @@ public interface PortfolioImgRepository extends JpaRepository<PortfolioImg, Long
     // 포트폴리오 이미지 URL 목록 조회
     @Query("SELECT i.imgUrl FROM PortfolioImg i WHERE i.portfolio.portfolioId = :portfolioId")
     List<String> findImgUrlByPortfolioPortfolioId(Long portfolioId);
+
+    @Modifying
+    @Query("DELETE FROM PortfolioImg p WHERE p.portfolio = :portfolio")
+    void deleteByPortfolio(Portfolio portfolio);
 }

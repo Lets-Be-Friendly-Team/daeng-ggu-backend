@@ -129,8 +129,22 @@ public class DesignerController {
         Long id = authService.getRequestToUserId(request);
         response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
-        // service - 보호자 프로필 등록
+        // service - 디자이너 프로필 등록
         designerService.registerDesignerProfile(data);
+        return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
+    }
+
+    @DeleteMapping("/designer/profile/delete/{designerId}")
+    @Operation(summary = "디자이너 프로필 삭제", description = "[DMYP1000] 디자이너 프로필 삭제 API")
+    public ResponseDto<Void> designerProfileDelete(
+            @PathVariable Long designerId,
+            HttpServletRequest request,
+            HttpServletResponse response) {
+        Long id = authService.getRequestToUserId(request);
+        response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
+        response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
+        // service - 디자이너 프로필 삭제
+        designerService.deleteDesignerProfile(id);
         return ResponseUtil.SUCCESS("처리가 완료되었습니다.", null);
     }
 }
