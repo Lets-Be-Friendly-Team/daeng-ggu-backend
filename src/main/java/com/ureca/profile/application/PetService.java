@@ -12,10 +12,8 @@ import com.ureca.profile.infrastructure.CustomerRepository;
 import com.ureca.profile.infrastructure.PetRepository;
 import com.ureca.profile.presentation.dto.PetDetail;
 import com.ureca.profile.presentation.dto.PetUpdate;
-import com.ureca.request.domain.Request;
 import com.ureca.request.infrastructure.RequestRepository;
 import java.time.LocalDateTime;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -144,14 +142,8 @@ public class PetService {
                         .findById(customerId)
                         .orElseThrow(() -> new ApiException(ErrorCode.DATA_NOT_EXIST));
         Pet pet = petRepository.findByCustomerCustomerIdAndPetId(customerId, petId);
+        customer.getPets().remove(pet); // 고객 테이블에서는 삭제
 
-        List<Request> request = requestRepository.findAllByPet(pet);
-
-        for (Request deleteRequest : request) {
-            estimateRepository.deleteAllByRequest(deleteRequest);
-        }
-        requestRepository.deleteAllByPet(pet);
-        customer.getPets().remove(pet);
-        petRepository.delete(pet);
+        petRepository.updatePetNameToNull(petId); // 반려견면 null처리
     } // deletePet
 }

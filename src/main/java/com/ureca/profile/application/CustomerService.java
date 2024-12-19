@@ -87,6 +87,7 @@ public class CustomerService {
         List<Pet> pets = petRepository.findByCustomerCustomerId(customerId);
         List<PetInfo> petInfoList =
                 pets.stream()
+                        .filter(pet -> pet.getPetName() != null) // petName이 null이 아닌 경우만 필터링
                         .map(
                                 pet -> {
                                     PetInfo petInfo = new PetInfo();
