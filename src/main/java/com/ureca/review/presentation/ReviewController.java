@@ -129,14 +129,12 @@ public class ReviewController {
             @RequestParam int page, HttpServletRequest request, HttpServletResponse response) {
         Long id = authService.getRequestToUserId(request);
         String role = authService.getRequestToRole(request);
-        AuthorType authorType = "C".equalsIgnoreCase(role)
-            ? AuthorType.CUSTOMER
-            : AuthorType.DESIGNER;
+        AuthorType authorType =
+                "C".equalsIgnoreCase(role) ? AuthorType.CUSTOMER : AuthorType.DESIGNER;
 
         int size = 20;
         // request.getLastCreatedAt()을 사용하여 피드 조회
-        ReviewDto.Like feeds =
-                reviewService.getFeeds(page, size, id, authorType);
+        ReviewDto.Like feeds = reviewService.getFeeds(page, size, id, authorType);
         response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         return ResponseUtil.SUCCESS("완료되었습니다.", feeds);
@@ -151,14 +149,10 @@ public class ReviewController {
             HttpServletResponse response) {
         Long id = authService.getRequestToUserId(request);
         String role = authService.getRequestToRole(request);
-        AuthorType authorType = "C".equalsIgnoreCase(role)
-            ? AuthorType.CUSTOMER
-            : AuthorType.DESIGNER;
+        AuthorType authorType =
+                "C".equalsIgnoreCase(role) ? AuthorType.CUSTOMER : AuthorType.DESIGNER;
         ReviewLikeDto.Response reviewResponse =
-                reviewService.likeReview(
-                        reviewLikeRequest.getReviewId(),
-                        id,
-                    authorType);
+                reviewService.likeReview(reviewLikeRequest.getReviewId(), id, authorType);
         response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         return ResponseUtil.SUCCESS("좋아요 완료되었습니다.", reviewResponse);
