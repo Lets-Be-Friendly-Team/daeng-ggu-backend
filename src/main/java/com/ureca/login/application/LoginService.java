@@ -90,7 +90,7 @@ public class LoginService {
         return userDTO;
     }
 
-    public void logout(HttpServletRequest request, HttpServletResponse response) {
+    public HttpServletResponse logout(HttpServletRequest request, HttpServletResponse response) {
         // 1. JWT 쿠키 가져오기
         Cookie cookie = CookieUtil.getJwtFromCookies(request);
         if (cookie == null) {
@@ -103,6 +103,8 @@ public class LoginService {
             throw new ApiException(ErrorCode.INVALID_TOKEN);
         }
 
+        // JWT 무효화 처리
+
         // 3. 쿠키 무효화 처리 (Max-Age 0으로 설정)
         Cookie invalidatedCookie = new Cookie(cookie.getName(), null);
         invalidatedCookie.setHttpOnly(true);
@@ -110,5 +112,7 @@ public class LoginService {
         invalidatedCookie.setMaxAge(0); // 즉시 만료
         invalidatedCookie.setPath("/"); // 모든 경로에서 삭제
         response.addCookie(invalidatedCookie);
+
+        return response;
     }
 }

@@ -84,6 +84,7 @@ public class LoginController {
     @Operation(summary = "로그아웃", description = "로그아웃 처리")
     public ResponseDto<String> logout(HttpServletRequest request, HttpServletResponse response) {
         loginService.logout(request, response);
+        response = loginService.logout(request, response);
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         return ResponseUtil.SUCCESS("로그아웃이 완료되었습니다.", null);
     }
