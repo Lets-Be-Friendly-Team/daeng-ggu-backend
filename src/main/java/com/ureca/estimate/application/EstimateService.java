@@ -61,6 +61,9 @@ public class EstimateService {
                 requestRepository
                         .findById(request.getRequestId())
                         .orElseThrow(() -> new ApiException(ErrorCode.REQUEST_NOT_EXIST));
+        if (request1.getPet() == null) {
+            throw new ApiException(ErrorCode.PET_NOT_EXIST);
+        }
 
         String lockKey = LOCK_KEY_PREFIX + request1.getRequestId();
 
@@ -166,6 +169,13 @@ public class EstimateService {
                                 .createdAt(request.getCreatedAt())
                                 .estimateList(
                                         estimateRepository.findAllByRequest(request).stream()
+                                                .filter(
+                                                        estimate ->
+                                                                estimate.getDesigner() != null
+                                                                        && estimate.getDesigner()
+                                                                                        .getDesignerName()
+                                                                                != null) // 필터링 조건
+                                                // 추가
                                                 .map(
                                                         estimate ->
                                                                 EstimateDtoDetail.builder()
@@ -242,6 +252,11 @@ public class EstimateService {
 
         List<EstimateDto.Response> estimateList =
                 estimates.stream()
+                        .filter(
+                                estimate ->
+                                        estimate.getRequest().getPet() != null
+                                                && estimate.getRequest().getPet().getPetName()
+                                                        != null) // 필터링 조건 추가
                         .map(
                                 estimate ->
                                         EstimateDto.Response.builder()
@@ -285,6 +300,12 @@ public class EstimateService {
                 estimateRepository
                         .findById(estimateId)
                         .orElseThrow(() -> new ApiException(ErrorCode.ESTIMATE_NOT_EXIST));
+
+        if (estimate.getDesigner() == null) {
+            throw new ApiException(ErrorCode.DESIGNER_NOT_EXIST);
+        } else if (estimate.getRequest().getPet().getPetName() == null) {
+            throw new ApiException(ErrorCode.PET_NOT_EXIST);
+        }
 
         List<EstimateImage> estimateImages = estimateImageRepository.findAllByEstimate(estimate);
         List<String> estimateImgList = new ArrayList<>();
