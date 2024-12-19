@@ -73,12 +73,7 @@ public class ReservationService {
             throw new ApiException(ErrorCode.CUSTOMER_NOT_EXIST);
         }
 
-        // TODO: 현재 로그인 중인 사용자와 찾으려는 예약정보의 customerId가 일치하는지 검증 필요 (시큐리티 적용 후 로그인된 유저 활용)
-
         List<Reservation> reservations = reservationRepository.findAllByCustomerId(customerId);
-        if (reservations.isEmpty()) {
-            throw new ApiException(ErrorCode.HISTORY_NOT_EXIST);
-        }
 
         return reservations.stream()
                 .map(
@@ -147,12 +142,7 @@ public class ReservationService {
             throw new ApiException(ErrorCode.DESIGNER_NOT_EXIST);
         }
 
-        // TODO: 현재 로그인 중인 사용자와 찾으려는 예약정보의 designerId가 일치하는지 검증 필요 (시큐리티 적용 후 로그인된 유저 활용)
-
         List<Reservation> reservations = reservationRepository.findAllByDesignerId(designerId);
-        if (reservations.isEmpty()) {
-            throw new ApiException(ErrorCode.HISTORY_NOT_EXIST);
-        }
 
         return reservations.stream()
                 .map(
