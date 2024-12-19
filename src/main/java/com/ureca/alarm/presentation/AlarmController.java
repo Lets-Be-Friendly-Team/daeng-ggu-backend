@@ -32,9 +32,10 @@ public class AlarmController {
             @RequestParam String userType) {
 
         SseEmitter emitter = new SseEmitter();
+        String usertype = "C".equalsIgnoreCase(userType) ? "CUSTOMER" : "DESIGNER";
         alarmService
                 .getEmitterMap()
-                .put(String.valueOf(userType).toUpperCase() + String.valueOf(userId), emitter);
+                .put(String.valueOf(usertype).toUpperCase() + String.valueOf(userId), emitter);
 
         // 클라이언트 연결 해제 시 맵에서 제거
         emitter.onCompletion(
@@ -42,19 +43,19 @@ public class AlarmController {
                         alarmService
                                 .getEmitterMap()
                                 .remove(
-                                        String.valueOf(userType).toUpperCase()
+                                        String.valueOf(usertype).toUpperCase()
                                                 + String.valueOf(userId)));
         emitter.onTimeout(
                 () ->
                         alarmService
                                 .getEmitterMap()
                                 .remove(
-                                        String.valueOf(userType).toUpperCase()
+                                        String.valueOf(usertype).toUpperCase()
                                                 + String.valueOf(userId)));
 
         // 연결 시 미수신 알람을 가져와 클라이언트로 전송
         List<AlarmDto.Response> unreadAlarms =
-                alarmService.getUnreadAlarms(userId, AuthorType.valueOf(userType.toUpperCase()));
+                alarmService.getUnreadAlarms(userId, AuthorType.valueOf(usertype.toUpperCase()));
         for (AlarmDto.Response alarm : unreadAlarms) {
             try {
                 emitter.send(SseEmitter.event().name("alarm").data(alarm)); // 알림 전송
@@ -64,7 +65,7 @@ public class AlarmController {
         }
 
         // 알림 상태를 읽음으로 업데이트
-        alarmService.markAlarmsAsRead(userId, AuthorType.valueOf(userType.toUpperCase()));
+        alarmService.markAlarmsAsRead(userId, AuthorType.valueOf(usertype.toUpperCase()));
 
         response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
