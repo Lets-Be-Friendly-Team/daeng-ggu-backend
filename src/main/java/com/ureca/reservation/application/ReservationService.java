@@ -121,6 +121,7 @@ public class ReservationService {
                                                                 .getEstimate()
                                                                 .getEstimateDetail()
                                                         : null)
+                                        .designerId(reservation.getDesigner().getDesignerId())
                                         .designerInfo(
                                                 buildDesignerInfoDto(reservation.getDesigner()))
                                         .requestDetail(buildRequestDetailDto(reservation))

@@ -31,6 +31,7 @@ public class ReservationHistoryResponseDto {
     private String estimateDetail;
     private Boolean isProcess;
 
+    private Long designerId;
     private DesignerInfoDto designerInfo;
     private RequestDetailDto requestDetail;
 

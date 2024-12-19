@@ -1,5 +1,6 @@
 package com.ureca.reservation.presentation.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,7 +12,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class DesignerInfoDto {
 
+    @JsonProperty("designerId")
     private Long designerId;
+
     private String designerName;
     private String officialName;
     private String designerImgUrl;
