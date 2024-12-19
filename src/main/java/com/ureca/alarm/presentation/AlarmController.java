@@ -67,13 +67,10 @@ public class AlarmController {
     @GetMapping("/alarm") // TODO : 토큰 수정
     @Operation(summary = "알람 전체 조회", description = "[HOM1000] 알람 내역을 10개씩 끊어서 보여줌.")
     public ResponseDto<List<AlarmDto.Response>> getAlarms(
-            @RequestParam(defaultValue = "0") int page,
-            HttpServletRequest request,
-            HttpServletResponse response) {
+            HttpServletRequest request, HttpServletResponse response) {
         Long id = authService.getRequestToUserId(request);
-
         List<AlarmDto.Response> alarmList =
-                alarmService.getAlarmsByReceiver(2L, AuthorType.valueOf("CUSTOMER"), page);
+                alarmService.getAlarmsByReceiver(1L, AuthorType.valueOf("DESIGNER"));
         for (AlarmDto.Response alarm : alarmList) {
             Long alarms = alarm.getAlarmId();
             alarmService.getUnreadToRead(alarms);
