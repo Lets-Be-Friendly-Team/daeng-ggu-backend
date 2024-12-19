@@ -9,8 +9,6 @@ public class ReviewLikeDto {
     @Builder
     @Getter
     public static class Request {
-        Long userId;
-        String userType;
         Long reviewId;
     }
 

@@ -128,10 +128,11 @@ public class ReviewController {
     public ResponseDto<ReviewDto.Like> getFeed(
             @RequestParam int page, HttpServletRequest request, HttpServletResponse response) {
         Long id = authService.getRequestToUserId(request);
+        String role = authService.getRequestToRole(request);
         int size = 20;
         // request.getLastCreatedAt()을 사용하여 피드 조회
         ReviewDto.Like feeds =
-                reviewService.getFeeds(page, size, id, AuthorType.valueOf("CUSTOMER"));
+                reviewService.getFeeds(page, size, id, AuthorType.valueOf(role.toUpperCase()));
         response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         return ResponseUtil.SUCCESS("완료되었습니다.", feeds);
@@ -145,11 +146,12 @@ public class ReviewController {
             HttpServletRequest request,
             HttpServletResponse response) {
         Long id = authService.getRequestToUserId(request);
+        String role = authService.getRequestToRole(request);
         ReviewLikeDto.Response reviewResponse =
                 reviewService.likeReview(
                         reviewLikeRequest.getReviewId(),
-                        reviewLikeRequest.getUserId(),
-                        AuthorType.valueOf(reviewLikeRequest.getUserType().toUpperCase()));
+                        id,
+                        AuthorType.valueOf(role.toUpperCase()));
         response.setHeader("Set-Cookie", authService.getRequestToCookieHeader(request));
         response.setHeader("Referrer-Policy", "no-referrer-when-downgrade");
         return ResponseUtil.SUCCESS("좋아요 완료되었습니다.", reviewResponse);
