@@ -353,6 +353,80 @@ public class DesignerService {
         return portfolioDetail;
     } // getDesignerPortfolioDetail
 
+    // 디자이너 - 포트폴리오 등록
+    @Transactional
+    public void registerPortfolio(PortfolioUpdate data, Designer designer) {
+        String videoUrl = "";
+        if (data.getNewVideoUrl() != null) {
+            videoUrl = data.getNewVideoUrl();
+        }
+
+        Portfolio newPortfolio =
+                Portfolio.builder()
+                        .designer(designer)
+                        .videoUrl(videoUrl)
+                        .title(data.getTitle())
+                        .contents(data.getContents())
+                        .createdAt(LocalDateTime.now())
+                        .build();
+        Portfolio savedPortfolio = portfolioRepository.save(newPortfolio); // 등록
+
+        // 신규 이미지 등록
+        for (String imgUrl : data.getNewImgUrlList()) {
+            PortfolioImg newPortfolioImg =
+                    PortfolioImg.builder()
+                            .portfolio(savedPortfolio)
+                            .imgUrl(imgUrl)
+                            .createdAt(LocalDateTime.now())
+                            .build();
+            imgRepository.save(newPortfolioImg); // 등록
+        }
+    }
+
+    // 디자이너 - 포트폴리오 수정
+    @Transactional
+    public void updatePortfolio(PortfolioUpdate data, Designer designer) {
+        Portfolio portfolio =
+                portfolioRepository.findByDesignerDesignerIdAndPortfolioId(
+                        designer.getDesignerId(), data.getPortfolioId());
+        if (portfolio == null) {
+            throw new ApiException(ErrorCode.DATA_NOT_EXIST);
+        }
+
+        String videoUrl = portfolio.getVideoUrl();
+        if (data.getNewVideoUrl() != null && !data.getNewVideoUrl().isEmpty()) { // 신규 영상 업데이트
+            videoUrl = data.getNewVideoUrl();
+        }
+
+        List<PortfolioImg> preImgUrlList = imgRepository.findByPortfolio(portfolio);
+
+        if (data.getPreImgUrlList().size() < preImgUrlList.size()) {
+            for (PortfolioImg preImgUrl : preImgUrlList) { // 기존 사진 url (a b c)
+                if (!data.getPreImgUrlList().contains(preImgUrl.getImgUrl())) { // 남은 사진 url (a b)
+                    imgRepository.deleteByPortfolioAndImgUrl(
+                            portfolio, preImgUrl.getImgUrl()); // 삭제
+                }
+            }
+        }
+        // 사진 등록
+        if (data.getNewImgUrlList() != null && !data.getNewImgUrlList().isEmpty()) {
+            for (String newImgUrl : data.getNewImgUrlList()) { // 신규 사진 url (d)
+                PortfolioImg newPortfolioImg =
+                        PortfolioImg.builder().portfolio(portfolio).imgUrl(newImgUrl).build();
+                imgRepository.save(newPortfolioImg); // 신규 이미지 등록
+            }
+        }
+        Portfolio updatePortfolio =
+                portfolio.toBuilder()
+                        .designer(designer)
+                        .videoUrl(videoUrl)
+                        .title(data.getTitle())
+                        .contents(data.getContents())
+                        .updatedAt(LocalDateTime.now())
+                        .build();
+        portfolioRepository.save(updatePortfolio); // 수정
+    }
+
     /**
      * @title 디자이너 - 포트폴리오 등록/수정
      * @description 포트폴리오 등록/수정
@@ -364,74 +438,10 @@ public class DesignerService {
         // 디자이너 정보
         Designer designer = profileService.getDesigner(id);
 
-        // 신규
         if (data.getPortfolioId() == null || data.getPortfolioId() == 0) {
-            String videoUrl = "";
-            if (data.getNewVideoUrl() != null) {
-                videoUrl = data.getNewVideoUrl();
-            }
-            Portfolio newPortfolio =
-                    Portfolio.builder()
-                            .designer(designer)
-                            .videoUrl(videoUrl)
-                            .title(data.getTitle())
-                            .contents(data.getContents())
-                            .createdAt(LocalDateTime.now())
-                            .build();
-            Portfolio savedPortfolio = portfolioRepository.save(newPortfolio); // 등록
-
-            // 신규 이미지 등록
-            for (String imgUrl : data.getNewImgUrlList()) {
-                PortfolioImg newPortfolioImg =
-                        PortfolioImg.builder()
-                                .portfolio(savedPortfolio)
-                                .imgUrl(imgUrl)
-                                .createdAt(LocalDateTime.now())
-                                .build();
-                imgRepository.save(newPortfolioImg); // 등록
-            }
-
-        } else { // 수정
-            Portfolio portfolio =
-                    portfolioRepository.findByDesignerDesignerIdAndPortfolioId(
-                            id, data.getPortfolioId());
-            if (portfolio == null) {
-                throw new ApiException(ErrorCode.DATA_NOT_EXIST);
-            }
-
-            String videoUrl = portfolio.getVideoUrl();
-            if (data.getNewVideoUrl() != null && !data.getNewVideoUrl().isEmpty()) { // 신규 영상 업데이트
-                videoUrl = data.getNewVideoUrl();
-            }
-
-            List<PortfolioImg> preImgUrlList = imgRepository.findByPortfolio(portfolio);
-
-            if (data.getPreImgUrlList().size() < preImgUrlList.size()) {
-                for (PortfolioImg preImgUrl : preImgUrlList) { // 기존 사진 url (a b c)
-                    if (!data.getPreImgUrlList()
-                            .contains(preImgUrl.getImgUrl())) { // 남은 사진 url (a b)
-                        imgRepository.deleteByPortfolioAndImgUrl(
-                                portfolio, preImgUrl.getImgUrl()); // 삭제
-                    }
-                }
-            }
-            // 사진 등록
-            if (data.getNewImgUrlList() != null && !data.getNewImgUrlList().isEmpty()) {
-                for (String newImgUrl : data.getNewImgUrlList()) { // 신규 사진 url (d)
-                    PortfolioImg newPortfolioImg =
-                            PortfolioImg.builder().portfolio(portfolio).imgUrl(newImgUrl).build();
-                    imgRepository.save(newPortfolioImg); // 신규 이미지 등록
-                }
-            }
-            Portfolio updatePortfolio =
-                    portfolio.toBuilder()
-                            .designer(designer)
-                            .videoUrl(videoUrl)
-                            .title(data.getTitle())
-                            .contents(data.getContents())
-                            .updatedAt(LocalDateTime.now())
-                            .build();
-            portfolioRepository.save(updatePortfolio); // 수정
+            registerPortfolio(data, designer); // 신규 등록
+        } else {
+            updatePortfolio(data, designer); // 수정
         }
     } // updateDesignerPortfolio
 

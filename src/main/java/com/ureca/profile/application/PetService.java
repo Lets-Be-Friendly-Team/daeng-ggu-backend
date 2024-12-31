@@ -68,6 +68,46 @@ public class PetService {
         return petDetail;
     } // getPetDetail
 
+    // 반려견 - 프로필 등록
+    @Transactional
+    public void registerPet(PetUpdate data, Customer customer) {
+        Pet newPet =
+                Pet.builder()
+                        .customer(customer)
+                        .petName(data.getPetName())
+                        .petImgUrl(data.getNewPetImgUrl())
+                        .birthDate(ValidationUtil.stringToDate(data.getBirthDate()))
+                        .gender(data.getGender())
+                        .majorBreedCode(data.getMajorBreedCode())
+                        .subBreedCode(data.getSubBreedCode())
+                        .weight(data.getWeight())
+                        .specialNotes(data.getSpecialNotes())
+                        .isNeutered(data.getIsNeutered())
+                        .createdAt(LocalDateTime.now())
+                        .build();
+        petRepository.save(newPet); // 등록
+    }
+
+    // 반려견 - 프로필 수정
+    @Transactional
+    public void updatePet(PetUpdate data, Customer customer, Pet pet) {
+        Pet updatedPet =
+                pet.toBuilder()
+                        .customer(customer)
+                        .petName(data.getPetName())
+                        .petImgUrl(data.getNewPetImgUrl())
+                        .birthDate(ValidationUtil.stringToDate(data.getBirthDate()))
+                        .gender(data.getGender())
+                        .majorBreedCode(data.getMajorBreedCode())
+                        .subBreedCode(data.getSubBreedCode())
+                        .weight(data.getWeight())
+                        .specialNotes(data.getSpecialNotes())
+                        .isNeutered(data.getIsNeutered())
+                        .updatedAt(LocalDateTime.now())
+                        .build();
+        petRepository.save(updatedPet); // 업데이트
+    }
+
     /**
      * @title 반려견 - 프로필 등록/수정
      * @description 반려견 프로필 등록/수정
@@ -79,49 +119,21 @@ public class PetService {
         // 보호자 정보
         Customer customer = profileService.getCustomer(id);
 
-        // 신규 등록
         if (data.getPetId() == null || data.getPetId() == 0) {
-            Pet newPet =
-                    Pet.builder()
-                            .customer(customer)
-                            .petName(data.getPetName())
-                            .petImgUrl(data.getNewPetImgUrl())
-                            .birthDate(ValidationUtil.stringToDate(data.getBirthDate()))
-                            .gender(data.getGender())
-                            .majorBreedCode(data.getMajorBreedCode())
-                            .subBreedCode(data.getSubBreedCode())
-                            .weight(data.getWeight())
-                            .specialNotes(data.getSpecialNotes())
-                            .isNeutered(data.getIsNeutered())
-                            .createdAt(LocalDateTime.now())
-                            .build();
-            petRepository.save(newPet); // 등록
-
+            registerPet(data, customer); // 신규 등록
         } else {
             // 기존 정보 조회
             Pet pet = petRepository.findByCustomerCustomerIdAndPetId(id, data.getPetId());
             if (pet == null) {
                 throw new ApiException(ErrorCode.DATA_NOT_EXIST);
             }
+
             String imageUrl = pet.getPetImgUrl();
-            if (!data.getNewPetImgUrl().isEmpty()) { // 신규 이미지 업데이트
+            if (!data.getNewPetImgUrl().isEmpty()) {
                 imageUrl = data.getNewPetImgUrl();
-            }
-            Pet updatedPet =
-                    pet.toBuilder()
-                            .customer(customer)
-                            .petName(data.getPetName())
-                            .petImgUrl(data.getNewPetImgUrl())
-                            .birthDate(ValidationUtil.stringToDate(data.getBirthDate()))
-                            .gender(data.getGender())
-                            .majorBreedCode(data.getMajorBreedCode())
-                            .subBreedCode(data.getSubBreedCode())
-                            .weight(data.getWeight())
-                            .specialNotes(data.getSpecialNotes())
-                            .isNeutered(data.getIsNeutered())
-                            .updatedAt(LocalDateTime.now())
-                            .build();
-            petRepository.save(updatedPet); // 업데이트
+            } // 신규 이미지 업데이트
+
+            updatePet(data, customer, pet); // 업데이트
         }
     } // updatePetProfile
 
