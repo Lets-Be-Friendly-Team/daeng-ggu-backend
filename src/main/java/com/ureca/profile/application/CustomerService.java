@@ -61,20 +61,6 @@ public class CustomerService {
     private static final String CUSTOMER = "C";
     private static final String ALL = "A";
 
-    // 보호자 정보 조회
-    public Customer getCustomer(Long customerId) {
-        return customerRepository
-                .findById(customerId)
-                .orElseThrow(() -> new ApiException(ErrorCode.CUSTOMER_NOT_EXIST));
-    }
-
-    // 디자이너 정보 조회
-    public Designer getDesigner(Long designerId) {
-        return designerRepository
-                .findById(designerId)
-                .orElseThrow(() -> new ApiException(ErrorCode.DESIGNER_NOT_EXIST));
-    }
-
     /**
      * @title 보호자 - 프로필
      * @description 보호자정보, 반려견목록, 리뷰목록, 찜한목록 조회
@@ -86,7 +72,7 @@ public class CustomerService {
         CustomerProfile customerProfile = new CustomerProfile();
 
         // 보호자 정보
-        Customer customer = getCustomer(customerId);
+        Customer customer = profileService.getCustomer(customerId);
         customerProfile.setCustomerId(customer.getCustomerId());
         customerProfile.setCustomerName(customer.getCustomerName());
         customerProfile.setCustomerImgUrl(customer.getCustomerImgUrl());
@@ -152,7 +138,7 @@ public class CustomerService {
         CustomerDetail customerDetail = new CustomerDetail();
 
         // 보호자 정보
-        Customer customer = getCustomer(customerId);
+        Customer customer = profileService.getCustomer(customerId);
         customerDetail.setCustomerId(customer.getCustomerId());
         customerDetail.setCustomerLoginId(customer.getCustomerLoginId());
         customerDetail.setCustomerName(customer.getCustomerName());
@@ -186,7 +172,7 @@ public class CustomerService {
     @Transactional
     public void updateCustomerProfile(CustomerUpdate data, Long customerId) {
         // 보호자 정보
-        Customer customer = getCustomer(customerId);
+        Customer customer = profileService.getCustomer(customerId);
 
         String imageUrl = customer.getCustomerImgUrl();
 
@@ -226,9 +212,9 @@ public class CustomerService {
             if (!bookmarkRepository.existsByCustomerCustomerIdAndDesignerDesignerId(
                     customerId, designerId)) {
                 // 보호자 정보
-                Customer customer = getCustomer(customerId);
+                Customer customer = profileService.getCustomer(customerId);
                 // 디자이너 정보
-                Designer designer = getDesigner(designerId);
+                Designer designer = profileService.getDesigner(designerId);
 
                 Bookmark bookmark =
                         Bookmark.builder().customer(customer).designer(designer).build();
