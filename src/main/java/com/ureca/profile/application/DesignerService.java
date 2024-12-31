@@ -205,14 +205,13 @@ public class DesignerService {
      * @title 디자이너 - 프로필 수정
      * @description 디자이너 프로필 수정
      * @param data 입력 정보
+     * @param designerId 디자이너 아이디
      */
     @Transactional
-    public void updateDesignerProfile(DesignerUpdate data, Long id) {
-        // 기존 정보 조회
-        Designer designer =
-                designerRepository
-                        .findById(id)
-                        .orElseThrow(() -> new ApiException(ErrorCode.DESIGNER_NOT_EXIST));
+    public void updateDesignerProfile(DesignerUpdate data, Long designerId) {
+        // 디자이너 정보
+        Designer designer = profileService.getDesigner(designerId);
+
         String imageUrl = designer.getDesignerImgUrl();
         if (data.getNewImgUrl() == null || !data.getNewImgUrl().isEmpty()) { // 신규 이미지 업데이트
             imageUrl = data.getNewImgUrl();
@@ -362,10 +361,9 @@ public class DesignerService {
      */
     @Transactional
     public void updateDesignerPortfolio(PortfolioUpdate data, Long id) {
-        Designer designer =
-                designerRepository
-                        .findById(id)
-                        .orElseThrow(() -> new ApiException(ErrorCode.DESIGNER_NOT_EXIST));
+        // 디자이너 정보
+        Designer designer = profileService.getDesigner(id);
+
         // 신규
         if (data.getPortfolioId() == null || data.getPortfolioId() == 0) {
             String videoUrl = "";
@@ -513,10 +511,7 @@ public class DesignerService {
     @Transactional
     public void registerDesignerProfile(DesignerRegister data, Long id) {
         // 디자이너 회원가입 정보 조회
-        Designer designer =
-                designerRepository
-                        .findById(id)
-                        .orElseThrow(() -> new ApiException(ErrorCode.DESIGNER_NOT_EXIST));
+        Designer designer = profileService.getDesigner(id);
 
         Coordinate coordinate = externalService.addressToCoordinate(data.getAddress2());
         Designer updatedDesigner =
@@ -663,10 +658,8 @@ public class DesignerService {
      */
     @Transactional
     public void deleteDesignerProfile(Long designerId) {
-        Designer designer =
-                designerRepository
-                        .findById(designerId)
-                        .orElseThrow(() -> new ApiException(ErrorCode.DESIGNER_NOT_EXIST));
+        Designer designer = profileService.getDesigner(designerId);
+
         if (designer != null) {
             // 빈 데이터 생성
             Designer deleteDesigner =

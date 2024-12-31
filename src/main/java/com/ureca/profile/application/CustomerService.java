@@ -72,11 +72,7 @@ public class CustomerService {
         CustomerProfile customerProfile = new CustomerProfile();
 
         // 보호자 정보
-        Customer customer =
-                customerRepository
-                        .findById(customerId)
-                        .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_EXIST));
-        // 조회
+        Customer customer = profileService.getCustomer(customerId);
         customerProfile.setCustomerId(customer.getCustomerId());
         customerProfile.setCustomerName(customer.getCustomerName());
         customerProfile.setCustomerImgUrl(customer.getCustomerImgUrl());
@@ -141,23 +137,17 @@ public class CustomerService {
 
         CustomerDetail customerDetail = new CustomerDetail();
 
-        Customer customer =
-                customerRepository
-                        .findById(customerId)
-                        .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_EXIST));
-        // 조회
+        // 보호자 정보
+        Customer customer = profileService.getCustomer(customerId);
         customerDetail.setCustomerId(customer.getCustomerId());
         customerDetail.setCustomerLoginId(customer.getCustomerLoginId());
         customerDetail.setCustomerName(customer.getCustomerName());
         customerDetail.setCustomerImgUrl(customer.getCustomerImgUrl());
         customerDetail.setCustomerImgName(customer.getCustomerImgName());
         customerDetail.setNickname(customer.getNickname());
-
         customerDetail.setBirthDate(ValidationUtil.dateToString(customer.getBirthDate()));
         customerDetail.setGender(customer.getGender());
         customerDetail.setPhone(customer.getPhone());
-
-        // 주소 처리
         customerDetail.setAddress1(customer.getAddress1());
         customerDetail.setAddress2(customer.getAddress2());
         customerDetail.setDetailAddress(customer.getDetailAddress());
@@ -176,15 +166,14 @@ public class CustomerService {
      * @title 보호자 - 프로필 수정
      * @description 보호자 프로필 수정
      * @param data 입력 정보
+     * @param customerId 보호자 아이디
      * @return status 업데이트 성공 여부
      */
     @Transactional
-    public void updateCustomerProfile(CustomerUpdate data, Long id) {
-        // 기존 정보 조회
-        Customer customer =
-                customerRepository
-                        .findById(id)
-                        .orElseThrow(() -> new ApiException(ErrorCode.CUSTOMER_NOT_EXIST));
+    public void updateCustomerProfile(CustomerUpdate data, Long customerId) {
+        // 보호자 정보
+        Customer customer = profileService.getCustomer(customerId);
+
         String imageUrl = customer.getCustomerImgUrl();
 
         if (!data.getNewCustomerImgUrl().isEmpty()) { // 신규 이미지 업데이트
@@ -222,14 +211,11 @@ public class CustomerService {
         if (!bookmarkYn) { // 찜하기
             if (!bookmarkRepository.existsByCustomerCustomerIdAndDesignerDesignerId(
                     customerId, designerId)) {
-                Customer customer =
-                        customerRepository
-                                .findById(customerId)
-                                .orElseThrow(() -> new ApiException(ErrorCode.CUSTOMER_NOT_EXIST));
-                Designer designer =
-                        designerRepository
-                                .findById(designerId)
-                                .orElseThrow(() -> new ApiException(ErrorCode.DESIGNER_NOT_EXIST));
+                // 보호자 정보
+                Customer customer = profileService.getCustomer(customerId);
+                // 디자이너 정보
+                Designer designer = profileService.getDesigner(designerId);
+
                 Bookmark bookmark =
                         Bookmark.builder().customer(customer).designer(designer).build();
                 bookmarkRepository.save(bookmark);

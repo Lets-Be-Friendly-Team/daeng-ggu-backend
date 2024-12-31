@@ -1,6 +1,10 @@
 package com.ureca.profile.application;
 
 import com.ureca.common.application.S3Service;
+import com.ureca.common.exception.ApiException;
+import com.ureca.common.exception.ErrorCode;
+import com.ureca.profile.domain.Customer;
+import com.ureca.profile.domain.Designer;
 import com.ureca.profile.infrastructure.BookmarkRepository;
 import com.ureca.profile.infrastructure.CertificateRepository;
 import com.ureca.profile.infrastructure.CustomerRepository;
@@ -36,6 +40,20 @@ public class ProfileService {
     @Autowired private CustomerRepository customerRepository;
     @Autowired private PetRepository petRepository;
     @Autowired private BookmarkRepository bookmarkRepository;
+
+    // 보호자 정보 조회
+    public Customer getCustomer(Long customerId) {
+        return customerRepository
+                .findById(customerId)
+                .orElseThrow(() -> new ApiException(ErrorCode.CUSTOMER_NOT_EXIST));
+    }
+
+    // 디자이너 정보 조회
+    public Designer getDesigner(Long designerId) {
+        return designerRepository
+                .findById(designerId)
+                .orElseThrow(() -> new ApiException(ErrorCode.DESIGNER_NOT_EXIST));
+    }
 
     /**
      * @title List<Review> -> List<ReviewInfo>
