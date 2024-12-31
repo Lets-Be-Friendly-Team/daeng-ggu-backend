@@ -1,6 +1,5 @@
 package com.ureca.profile.application;
 
-import com.ureca.common.application.S3Service;
 import com.ureca.common.exception.ApiException;
 import com.ureca.common.exception.ErrorCode;
 import com.ureca.common.util.ValidationUtil;
@@ -30,7 +29,7 @@ public class PetService {
     @Autowired private RequestRepository requestRepository;
     @Autowired private EstimateRepository estimateRepository;
     @Autowired private CommonCodeRepository commonCodeRepository;
-    @Autowired private S3Service s3Service;
+    @Autowired private ProfileService profileService;
 
     /**
      * @title 반려견 - 프로필 상세
@@ -77,10 +76,9 @@ public class PetService {
      */
     @Transactional
     public void updatePetProfile(PetUpdate data, Long id) {
-        Customer customer =
-                customerRepository
-                        .findById(id)
-                        .orElseThrow(() -> new ApiException(ErrorCode.CUSTOMER_NOT_EXIST));
+        // 보호자 정보
+        Customer customer = profileService.getCustomer(id);
+
         // 신규 등록
         if (data.getPetId() == null || data.getPetId() == 0) {
             Pet newPet =
@@ -135,10 +133,9 @@ public class PetService {
      */
     @Transactional
     public void deletePet(Long customerId, Long petId) {
-        Customer customer =
-                customerRepository
-                        .findById(customerId)
-                        .orElseThrow(() -> new ApiException(ErrorCode.DATA_NOT_EXIST));
+        // 보호자 정보
+        Customer customer = profileService.getCustomer(customerId);
+
         Pet pet = petRepository.findByCustomerCustomerIdAndPetId(customerId, petId);
         customer.getPets().remove(pet); // 고객 테이블에서는 삭제
 
