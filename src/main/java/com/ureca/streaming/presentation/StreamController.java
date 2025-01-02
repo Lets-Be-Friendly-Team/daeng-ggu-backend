@@ -1,32 +1,19 @@
 package com.ureca.streaming.presentation;
-
-import com.ureca.monitoring.domain.Process;
-import com.ureca.monitoring.infrastructure.ProcessRepository;
-import com.ureca.reservation.domain.Reservation;
-import com.ureca.reservation.infrastructure.ReservationRepository;
-import com.ureca.streaming.application.IVSService;
-import com.ureca.streaming.domain.BroadcastChannelInfo;
-import com.ureca.streaming.domain.PlaybackChannelInfo;
-import io.swagger.v3.oas.annotations.Hidden;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+/*
 
 /**
  * AWS IVS 채널을 생성하고 스트림 키와 Playback URL을 반환합니다.
  *
  * @return ChannelInfo 객체로 채널 ARN, 스트림 키, Playback URL을 반환합니다.
- */
+
 @RestController
 @RequestMapping("/api/ivs")
 @Tag(name = "IVS Channel Management", description = "스트리밍 Amazon IVS 채널 및 스트림키 관리 API")
 @RequiredArgsConstructor
 public class StreamController {
     private final IVSService ivsService;
-    @Autowired private ReservationRepository reservationRepository;
+    @Autowired
+    private ReservationRepository reservationRepository;
 
     @Autowired private ProcessRepository processRepository;
 
@@ -145,7 +132,7 @@ public class StreamController {
 
         /*
            Process가 null이거나 channelARN이 없을 경우 명확한 예외 메시지를 반환합
-        */
+
         Process process = reservation.getProcess();
 
         if (process == null) {
@@ -200,3 +187,4 @@ public class StreamController {
         return "channel-" + reservationId; // 임의 예시
     }
 }
+*/

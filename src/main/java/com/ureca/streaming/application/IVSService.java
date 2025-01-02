@@ -1,13 +1,5 @@
 package com.ureca.streaming.application;
-
-import static software.amazon.awssdk.services.ivs.model.ChannelLatencyMode.LOW;
-
-import com.amazonaws.SdkClientException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import software.amazon.awssdk.awscore.exception.AwsServiceException;
-import software.amazon.awssdk.services.ivs.IvsClient;
-import software.amazon.awssdk.services.ivs.model.*;
+/*
 
 @Service
 @RequiredArgsConstructor
@@ -134,3 +126,4 @@ public class IVSService {
         System.out.println("Channel deleted successfully: " + channelArn);
     }
 }
+*/
